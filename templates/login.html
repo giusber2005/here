@@ -1,0 +1,32 @@
+{% extends "root.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <h1 id="title"> LOG IN </h1>
+    <form action="/login" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
+
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse">
+        You don't remember the password?
+    </button>
+
+    <div class="collapse" id="collapse">
+        <div class="card card-body">
+            <form action="/password" method="post">
+                <input type="email" placeholder="insert your email" name="Email">
+                <input type="submit" value="send email">
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

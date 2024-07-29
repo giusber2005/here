@@ -1,0 +1,80 @@
+{% extends "root.html" %}
+
+{% block title %}
+    ACCOUNT
+{% endblock %}
+
+{% block script %}
+    <script src="/static/scripts/informations_scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            //function for displaying the gender of the user on every load
+            var selectedValue = "{{ gender }}";
+            var selectElement = document.getElementById('gender');
+            selectElement.value = selectedValue;
+          });
+    </script>
+{% endblock %}
+
+{% block main %}
+    <h1>EDIT YOUR PROFILE</h1>
+    <form action="/change_informations" method="post" enctype="multipart/form-data">
+        {% for key, value in informations %}
+            {% if key != 'hash' and key != 'id' and key != 'conn_token' and key != 'timestamp' and key != 'birthday' %}
+                <div class="{{ key }} error"></div>
+                <div>{{ key }}: <input type="text" name="{{ key }}" class="{{ key }}" value="{{ value }}"></div>
+                <br>
+            {% elif key == 'timestamp' %}
+                <div>Date of creation: {{ value }}</div>
+                <br>
+            {% elif key == 'birthday' %}
+                <div class="{{ key }} error"></div>
+                <div>{{ key }}: <input type="date" name="{{ key }}" class="{{ key }}" value="{{ value }}"></div>
+                <br>
+            {% endif %}
+        {% endfor %}
+
+        {% for key, value in optional_informations %}
+            {% if key != 'id' and key != 'username' %}
+                {% if key != 'photo' and key != 'gender' and key != 'nation' and key != 'city'%}
+                    <div class="{{ key }} error"></div>
+                    <div class="{{ key }}Info"></div>
+                    <div>{{ key }}: <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}"></div>
+                    <br>
+                {% elif key == 'photo' %}
+                    <div class="{{ key }} error"></div>
+                    <input name="photo" id="newphoto_file" placeholder="Put a photo" type="file" accept="image/*" title="only jpeg, png, heic type file are accepted">
+                    <div style="display: none;" id="PhotoFile">{{ value }}</div>
+                    <img id="PhotoPreview" style="width: 100px; height: 100px;" alt="Profile photo preview">
+                    <br>
+                {% elif key == 'gender' %}
+                    <div>
+                        {{ key }}:
+                        <select id="gender" name="gender">
+                            <option value="" selected></option>
+                            <option value="Male" {% if value == "Male" %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if value == "Female" %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if value == "Other" %}selected{% endif %}>Other</option>
+                        </select>
+                        <div id="error_NG" class="error"></div>
+                    </div>
+                    <br>
+                {% elif key == 'nation' %}
+                    <div id="error_NN" class="error"></div>
+                    <div>{{ key }}: <input type="text" name="nation" value="{{ value }}" id="nation" list="myDatalist"></div>
+                    <datalist id="myDatalist"></datalist>
+                    <br>
+                {% elif key == 'city' %}
+                    <div id="error_NC" class="error"></div>
+                    <div>{{ key }}: <input type="text" name="city" value="{{ value }}" id="city" list="myDatalist2" ></div>
+                    <datalist id="myDatalist2"></datalist>
+                    <br>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        <br><br>
+        <button type="reset" class="btn btn-primary mx-auto" onclick="remove_errors()">Reset form</button>
+        <input type="submit" id="submit_changes" class="btn btn-primary mx-auto" value="Change Informations">
+    </form>
+{% endblock %}

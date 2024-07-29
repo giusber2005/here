@@ -1,0 +1,48 @@
+{% extends "root.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <h1 id="title"> FRIENDS PAGE </h1>
+    <table>
+        <thead>
+            <tr>
+                <th> Friends </th>
+                <th> Date of Connections </th>
+                <th> Action </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key in table %}
+                <tr>
+                    <td> {{ key.username }} </td>
+                    <td> {{ key.timestamp }} </td>
+                    <td>
+                        <button data-bs-toggle="collapse" data-bs-target="#confirm"> destroy friendship </button>
+                        <form id="confirm" class="collapse" action="/destroy" method="post">
+                            <div> Are you sure? </div>
+                            <input type="hidden" value="{{ key.username }}" name="username">
+                            <button type="submit"> yes </button>
+                            <button type="button" data-bs-toggle="collapse" data-bs-target="#confirm"> no </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <form action="/friends" method="post">
+        <label for="token">Connect with new friends via token </label>
+        <div class="mb-3">
+            {% if message and field == "token" %}
+                <p style="color: red"> {{ message }}</p>
+            {% endif %}
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="token" placeholder="Token" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">Add friend</button>
+    </form>
+{% endblock %}
+

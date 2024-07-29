@@ -1,0 +1,101 @@
+{% extends "root.html" %}
+
+{% block title %}
+    Registration
+{% endblock %}
+
+{% block script %}
+    <script src="/static/scripts/registration_scripts.js"></script>
+{% endblock %}
+
+{% block main %}
+<h1 id="title">REGISTRATION TIME!!!</h1>
+<form action="/register" method="post" enctype="multipart/form-data">
+    <div id="container" style="display:flex; flex-direction: row; justify-content: center; align-items: center; margin: 30px">
+        <div id="required-fields" style="margin: 10px">
+            <div class="mb-3">
+                <label for="Newusername">Username<sup>*</sup></label>
+                <div id="error_Nu" class="error"></div>
+                <input class="form-control mx-auto w-auto required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Username" type="text">
+            </div>
+            <div class="mb-3">
+                <label for="Newpassword">Password<sup>*</sup></label>
+                <input class="form-control mx-auto w-auto required" name="Newpassword" placeholder="Password" id="password" type="password">
+                <div id="password_strenght" class="error"></div>
+            </div>
+            <div class="mb-3">
+                <label for="Newbirthday">Birthday<sup>*</sup></label>
+                <div id="error_Nb" class="error"></div>
+                <input class="form-control mx-auto w-auto required" name="Newbirthday" id="Newbirthday" placeholder="Birthday" type="date">
+            </div>
+            <div class="mb-3">
+                <label for="Newemail">Email<sup>*</sup></label>
+                <div id="error_Ne" class="error"></div>
+                <input class="form-control mx-auto w-auto required" name="Newemail" id="Newemail" placeholder="Email" type="email">
+            </div>
+            <div class="mb-3">
+                <label for="FirstName">First Name<sup>*</sup></label>
+                <div id="error_FN" class="error"></div>
+                <input class="form-control mx-auto w-auto required" name="FirstName" id="FirstName" placeholder="First Name" type="text">
+            </div>
+            <div class="mb-3">
+                <label for="LastName">Last Name<sup>*</sup></label>
+                <div id="error_LN" class="error"></div>
+                <input class="form-control mx-auto w-auto required" name="LastName" id="LastName" placeholder="Last Name" type="text">
+            </div>
+        </div>
+
+        <div id="optional-fields" style="margin: 20px">
+            <div class="mb-3">
+                <label for="NewNation">Nation</label>
+                <div id="error_NN" class="error"></div>
+                <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control mx-auto w-auto">
+                <datalist id="myDatalist"></datalist>
+            </div>
+            <div class="mb-3">
+                <label for="NewCity">City</label>
+                <div id="error_NC" class="error"></div>
+                <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control mx-auto w-auto" disabled>
+                <datalist id="myDatalist2"></datalist>
+            </div>
+            <div class="mb-3">
+                <label for="Prefix">Prefix</label>
+                <div id="error_PR" class="error"></div>
+                <div id="prefixBox"></div>
+                <input id="Prefix" name="Prefix" type="text" class="form-control mx-auto w-auto" placeholder="Prefix">
+            </div>
+            <div class="mb-3">
+                <label for="NewNumber">Number</label>
+                <div id="error_NNum" class="error"></div>
+                <input id="NewNumber" name="NewNumber" type="tel" class="form-control mx-auto w-auto" placeholder="Number">
+            </div>
+            <div class="mb-3">
+                <label for="NewDescription">Description</label>
+                <div id="error_Nd" class="error"></div>
+                <input id="NewDescription" name="NewDescription" type="text" class="form-control mx-auto w-auto" placeholder="Description">
+            </div>
+            <div class="mb-3">
+                <label for="NewPhoto">Avatar photo</label>
+                <div id="error_NP" class="error"></div>
+                <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control mx-auto w-auto" title="only jpeg, png, heic type file are accepted">
+                <img id="PhotoPreview" src="#" alt="Profile photo preview" style="width: 100px; height: 100px;">
+            </div>
+            <div class="mb-3">
+                <label for="NewGender">Gender</label>
+                <div id="error_NG" class="error"></div>
+                <select id="NewGender" name="NewGender" class="form-control mx-auto w-auto">
+                    <option value=""></option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mx-auto" id="submit" disabled>Register</button>
+    <button type="reset" class="btn btn-primary mx-auto" onclick="remove_errors()">Reset form</button>
+</form>
+
+<div style="margin: 20px">Required fields<sup>*</sup></div>
+{% endblock %}

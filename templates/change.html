@@ -1,0 +1,61 @@
+{% extends "root.html" %}
+
+{% block title %}
+    Change Password
+{% endblock %}
+
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to display the strength of the password typed
+            let password = document.getElementById('Newpassword');
+            let passwordStrength = document.getElementById('password_strength');
+            let commonPasswords = [];
+
+            // Fetch the common passwords list
+            fetch('/data/common.txt')
+                .then(response => response.text())
+                .then(data => {
+                    commonPasswords = data.split('\n');
+                })
+                .catch(error => console.error('Error fetching common passwords:', error));
+
+            password.addEventListener('keyup', function(event) {
+                if (password.value) {
+                    let level = passwordChecker(password.value, commonPasswords, passwordStrength);
+                    passwordStrength.innerHTML = level;
+                } else {
+                    passwordStrength.innerHTML = '';
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    <h1 id="title">Change Your Password</h1>
+    <form action="/change" method="post">
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="Oldpassword" name="Oldpassword" placeholder="Old Password" type="password">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="Newpassword" id="Newpassword" placeholder="New Password" type="password">
+            <div id="password_strength"></div>
+        </div>
+        <button class="btn btn-primary" type="submit">Change</button>
+
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse">
+            You don't remember the password?
+        </button>
+    </form>
+        <div class="collapse" id="collapse">
+            <div class="card card-body">
+                <form action="/password" method="post">
+                    <input type="email" placeholder="Insert your email" name="Email">
+                    <input type="submit" value="Send Email">
+                </form>
+            </div>
+        </div>
+{% endblock %}
+
+

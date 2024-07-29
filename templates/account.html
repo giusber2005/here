@@ -1,0 +1,80 @@
+
+{% extends "root.html" %}
+
+
+{% block title %}
+    ACCOUNT
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var photoFileName = document.getElementById('PhotoFile').textContent.trim();
+        var imagePath = 'static/profile_images/' + photoFileName;
+        document.getElementById('PhotoPreview').src = imagePath;
+    });
+</script>
+{% endblock %}
+
+{% block main %}
+        {% if counter != 0%}
+            <p style="color: red"> You have {{ counter }} optional fields left blank </p>
+        {% else %}
+            <p style="color: red"> Your profile is completed!!! </p>
+        {% endif %}
+        {% for key, value in informations.items() %}
+            {% if key != 'hash' and key != 'id' %}
+                <div> {{ key }}: {{ value }} </div>
+                <br>
+            {% endif %}
+        {% endfor%}
+        {% for key, value in optional_informations.items() %}
+            {% if key != 'id' and key != 'username' %}
+                {% if key != 'photo' and key != 'phone_number' and key != 'prefix' %}
+                    <div>
+                        {{ key }}: {{ value }}
+                        <form action="/delete_information" method="post">
+                            <input type="hidden" name="field" value={{ key }}>
+                            <input type="submit" value="delete">
+                        </form>
+                    </div>
+                    <br>
+                {% elif key == 'photo' %}
+                    <div> {{ key }}:</div>
+                    <div style="display: none;" id="PhotoFile"> {{ value }} </div>
+                    {% if value == None %}
+                        <div> please, update your profile photo </div>
+                    {% endif %}
+                    <img id="PhotoPreview" style="width: 100px; height: 100px;" alt="Profile photo preview">
+                    <form action="/delete_information" method="post">
+                        <input type="hidden" name="field" value={{ key }}>
+                        <input type="submit" value="delete">
+                    </form>
+                    <br>
+                    <br>
+                {% elif key == 'phone_number' %}
+                    <div>
+                        prefix: {{ optional_informations.get('prefix')}}
+                        {{ key }}: {{ value }}
+                        <form action="/delete_information" method="post">
+                            <input type="hidden" name="field" value={{ key }}>
+                            <input type="submit" value="delete">
+                        </form>
+                    </div>
+                    <br>
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
+
+        <form action="/change_informations" method="get">
+            <input type="submit" value="edit user">
+        </form>
+
+        <button data-bs-toggle="collapse" data-bs-target="#confirm" style="margin: 10px"> delete user </button>
+        <form id="confirm" class="collapse" action="/delete" method="post">
+            <div> Are you sure? </div>
+            <button type="submit"> yes </button>
+            <button type="button" data-bs-toggle="collapse" data-bs-target="#confirm"> no </button>
+        </form>
+{% endblock %}
