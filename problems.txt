@@ -1,5 +1,4 @@
 THINGS LEFT TO DO:
     resolve the problems with the implementation of the reset of the password
     start to code the homepage areas basic features
-
-hello
+    
