@@ -3,24 +3,28 @@
 **NAME AND SURNAME:** Giuseppe Berardi  
 **CITY AND COUNTRY:** Italy, Bologna
 
-## GITHUB CREDENTIALS:
-- **Username:** giusber2005
-- **Password:** tazku6-wezvEb-johkyg
+## GITHUB CREDENTIALS
 
-## VIDEO URL:
+- **USERNAME:** giusber2005
+- **PASSWORD:** tazku6-wezvEb-johkyg
+
+## VIDEO URL
+
 (date of record:)
 
-## PROJECT TITLE: 
+## PROJECT TITLE
+
 “Social Calendar”
 
 ## DESCRIPTION
-**Problem -> Solution, General Description:**  
+
+**PROBLEM -> SOLUTION, GENERAL DESCRIPTION:**  
 This is HERE, a management web application with the principal objective of helping
 
-## FEATURES:
+## FEATURES
 
-## TECHNICAL SPECIFICATIONS:
+## TECHNICAL SPECIFICATIONS
 
-## THINGS I LEARNED / PROBLEMS I TACKLED:
+## THINGS I LEARNED / PROBLEMS I TACKLED
 
-## A.I. ASSISTANT USED:
+## A.I. ASSISTANT USED

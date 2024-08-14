@@ -64,7 +64,7 @@ def password_check(password):
     """
     # Load common passwords from the file
     try:
-        with open('/workspaces/156716475/weeks/week 10/final_project/data/common.txt', 'r') as file:
+        with open('data/common.txt', 'r') as file:
             common_passwords = [line.strip() for line in file.readlines()]
     except FileNotFoundError:
         return "Error: The file with common passwords was not found."

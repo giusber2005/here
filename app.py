@@ -386,7 +386,7 @@ def register():
 
                 if field == "NewNation":
                     #create validation for the nation (check against list)
-                    Nation = x
+                    Nation = x.lower()
                     result = nationcity_check(Nation, None)
                     if result != 1:
                         flash(result)
@@ -394,8 +394,8 @@ def register():
 
                 if field == "NewCity":
                     #create validation for the city (check against list)
-                    City = x
-                    Nation = request.form.get("NewNation")
+                    City = x.lower()
+                    Nation = request.form.get("NewNation").lower()
                     if not Nation:
                         flash("Please select a nation to select a city")
                         return render_template("registration.html")
@@ -652,7 +652,7 @@ def informations():
                 x = request.form.get(field).strip()
                 if field == "nation":
                     #create validation for the nation (check against list)
-                    Nation = x
+                    Nation = x.lower()
                     result = nationcity_check(Nation, None)
                     if result != 1:
                         # Assuming the apology returns a tuple (error, status_code)
@@ -660,8 +660,8 @@ def informations():
                         return redirect("/change_informations")
                 if field == "city":
                     #create validation for the city (check against list)
-                    City = x
-                    Nation = request.form.get("nation")
+                    City = x.lower()
+                    Nation = request.form.get("nation").lower()
                     result = nationcity_check(City, Nation)
                     if result != 1:
                         # Assuming the apology returns a tuple (error, status_code)
