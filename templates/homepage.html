@@ -2,10 +2,20 @@
 
 {% block script %}
     <style>
+        /* Basic styling for the layout */
         #calendar {
-            max-width: 900px;
-            margin: 40px auto;
+            width: 75%;
+            float: left;
         }
+        
+        #eventDetails {
+            width: 25%;
+            float: right;
+            padding: 10px;
+            border-left: 2px solid #ccc;
+            display: none; /* Initially hidden */
+        }
+
         #eventForm {
             display: none;
             position: fixed; /* Changed from absolute to fixed */
@@ -21,77 +31,7 @@
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var eventForm = document.getElementById('eventForm');
-            var addEventForm = document.getElementById('addEventForm');
-            var cancelButton = document.getElementById('cancelButton');
-            var calendar;
-
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                selectable: true,
-                editable: true,
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek,multiMonthYear'
-                },
-                views: {
-                    timeGridWeek: {
-                        type: 'timeGridWeek',
-                        buttonText: 'week'
-                    },
-                    listWeek: {
-                        type: 'listWeek',
-                        buttonText: 'list week'
-                    },
-                    multiMonthYear: {
-                        type: 'multiMonthYear',
-                        duration: { months: 12 },
-                        buttonText: 'year'
-                    }
-                },
-                events: [
-                    // Your event data here
-                ],
-                select: function(info) {
-                    eventForm.style.display = 'block';
-                    document.body.classList.add('dimmed');
-                    addEventForm.onsubmit = function(e) {
-                        e.preventDefault();
-                        var title = document.getElementById('eventTitle').value;
-                        var color = document.getElementById('eventColor').value;
-                        var eventData;
-                        if (title) {
-                            eventData = {
-                                title: title,
-                                start: info.startStr,
-                                end: info.endStr,
-                                color: color // Assigning the user-defined color
-                            };
-                            calendar.addEvent(eventData);
-                        }
-                        eventForm.style.display = 'none';
-                        document.body.classList.remove('dimmed');
-                        calendar.unselect();
-                    };
-                    cancelButton.onclick = function() {
-                        eventForm.style.display = 'none';
-                        document.body.classList.remove('dimmed');
-                        calendar.unselect();
-                    };
-                },
-                eventClick: function(info) {
-                    if (confirm('Are you sure you want to delete this event?')) {
-                        info.event.remove();
-                    }
-                }
-            });
-            calendar.render();
-        });
-    </script>
+    <script src="/static/scripts/calendar_scripts.js"></script>
 
 {% endblock %}
 
@@ -102,13 +42,34 @@
 {% block body %}
     <div id='calendar'></div>
 
-    <div id="eventForm">
-        <h2>Add Event</h2>
+    <div id="eventDetails">
+        <h3>Event Details</h3>
+        <p><strong>Title:</strong> <span id="detailTitle"></span></p>
+        <p><strong>Start:</strong> <span id="detailStart"></span></p>
+        <p><strong>End:</strong> <span id="detailEnd"></span></p>
+        <p><strong>Color:</strong> <span id="detailColor"></span></p>
+        <p><strong>Text:</strong> <span id="detailText"></span></p>
+        <p><strong>Link:</strong> <a id="detailLink" href="#" target="_blank">Event Link</a></p>
+        <p><strong>Tags:</strong> <span id="detailTags"></span></p>
+    </div>
+
+    <div id="eventForm" style="display: none;">
         <form id="addEventForm">
-            <label for="eventTitle">Event Title:</label><br>
-            <input type="text" id="eventTitle" name="eventTitle" required><br><br>
-            <label for="eventColor">Event Color:</label><br>
-            <input type="color" id="eventColor" name="eventColor" value="#ff0000" required><br><br>
+            <label for="eventTitle">Event Title:</label>
+            <input type="text" id="eventTitle" name="eventTitle" required>
+            
+            <label for="eventColor">Event Color:</label>
+            <input type="color" id="eventColor" name="eventColor">
+            
+            <label for="eventText">Additional Text:</label>
+            <textarea id="eventText" name="eventText"></textarea>
+            
+            <label for="eventLink">Event Link:</label>
+            <input type="url" id="eventLink" name="eventLink">
+            
+            <label for="eventTags">Tags (comma-separated):</label>
+            <input type="text" id="eventTags" name="eventTags">
+            
             <button type="submit">Add Event</button>
             <button type="button" id="cancelButton">Cancel</button>
         </form>
