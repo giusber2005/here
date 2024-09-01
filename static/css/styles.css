@@ -1,7 +1,7 @@
 
 body {
     font-family: "Bebas Neue";
-    background: linear-gradient(to right, #FFD580, #FF8C00);
+    background: linear-gradient(to right, #FF4500, #FF7F50);
 }
 
 
@@ -46,4 +46,5 @@ th {
 .btn {
     color: black;
     margin: 5px;
+    background-color: white;
 }
