@@ -9,93 +9,123 @@
 {% endblock %}
 
 {% block main %}
-<h1 id="title">REGISTRATION TIME!!!</h1>
 <form action="/register" method="post" enctype="multipart/form-data">
-    <div id="container" style="display:flex; flex-direction: row; justify-content: center; align-items: center; margin: 30px">
-        <div id="required-fields" style="margin: 10px">
-            <div class="mb-3">
-                <label for="Newusername">Username<sup>*</sup></label>
-                <div id="error_Nu" class="error"></div>
-                <input class="form-control mx-auto w-auto required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Username" type="text">
+    <div id="container" class="form-container">
+        <h1 id="title">REGISTRATION TIME!!!</h1>
+        <div id="required-fields" class="form-section">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="Newusername" class="form-label">Username<sup>*</sup></label>
+                    <input class="form-control required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Username" type="text">
+                </div>
+                <div id="error_Nu" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="Newpassword">Password<sup>*</sup></label>
-                <input class="form-control mx-auto w-auto required" name="Newpassword" placeholder="Password" id="password" type="password">
-                <div id="password_strenght" class="error"></div>
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="Newpassword" class="form-label">Password<sup>*</sup></label>
+                    <input class="form-control required" name="Newpassword" placeholder="Password" id="password" type="password">
+                </div>
+                <div id="password_strenght" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="Newbirthday">Birthday<sup>*</sup></label>
-                <div id="error_Nb" class="error"></div>
-                <input class="form-control mx-auto w-auto required" name="Newbirthday" id="Newbirthday" placeholder="Birthday" type="date">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="Newbirthday" class="form-label">Birthday<sup>*</sup></label>
+                    <input class="form-control required" name="Newbirthday" id="Newbirthday" placeholder="Birthday" type="date">
+                </div>
+                <div id="error_Nb" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="Newemail">Email<sup>*</sup></label>
-                <div id="error_Ne" class="error"></div>
-                <input class="form-control mx-auto w-auto required" name="Newemail" id="Newemail" placeholder="Email" type="email">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="Newemail" class="form-label">Email<sup>*</sup></label>
+                    <input class="form-control required" name="Newemail" id="Newemail" placeholder="Email" type="email">
+                </div>
+                <div id="error_Ne" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="FirstName">First Name<sup>*</sup></label>
-                <div id="error_FN" class="error"></div>
-                <input class="form-control mx-auto w-auto required" name="FirstName" id="FirstName" placeholder="First Name" type="text">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="FirstName" class="form-label">First Name<sup>*</sup></label>
+                    <input class="form-control required" name="FirstName" id="FirstName" placeholder="First Name" type="text">
+                </div>
+                <div id="error_FN" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="LastName">Last Name<sup>*</sup></label>
-                <div id="error_LN" class="error"></div>
-                <input class="form-control mx-auto w-auto required" name="LastName" id="LastName" placeholder="Last Name" type="text">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="LastName" class="form-label">Last Name<sup>*</sup></label>
+                    <input class="form-control required" name="LastName" id="LastName" placeholder="Last Name" type="text">
+                </div>
+                <div id="error_LN" class="error-message"></div>
             </div>
         </div>
 
-        <div id="optional-fields" style="margin: 20px">
-            <div class="mb-3">
-                <label for="NewNation">Nation</label>
-                <div id="error_NN" class="error"></div>
-                <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control mx-auto w-auto">
+        <div id="optional-fields" class="form-section">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewNation" class="form-label">Nation</label>
+                    <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control">
+                </div>
+                <div id="error_NN" class="error-message"></div>
                 <datalist id="myDatalist"></datalist>
             </div>
-            <div class="mb-3">
-                <label for="NewCity">City</label>
-                <div id="error_NC" class="error"></div>
-                <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control mx-auto w-auto" disabled>
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewCity" class="form-label">City</label>
+                    <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control" disabled>
+                </div>
+                <div id="error_NC" class="error-message"></div>
                 <datalist id="myDatalist2"></datalist>
             </div>
-            <div class="mb-3">
-                <label for="Prefix">Prefix</label>
-                <div id="error_PR" class="error"></div>
-                <div id="prefixBox"></div>
-                <input id="Prefix" name="Prefix" type="text" class="form-control mx-auto w-auto" placeholder="Prefix">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="Prefix" class="form-label">Prefix</label>
+                    <div id="prefixBox"></div>
+                    <input id="Prefix" name="Prefix" type="text" class="form-control" placeholder="Prefix">
+                </div>
+                <div id="error_PR" class="error-message"></div> 
             </div>
-            <div class="mb-3">
-                <label for="NewNumber">Number</label>
-                <div id="error_NNum" class="error"></div>
-                <input id="NewNumber" name="NewNumber" type="tel" class="form-control mx-auto w-auto" placeholder="Number">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewNumber" class="form-label">Number</label>
+                    <input id="NewNumber" name="NewNumber" type="tel" class="form-control" placeholder="Number">
+                </div>
+                <div id="error_NNum" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="NewDescription">Description</label>
-                <div id="error_Nd" class="error"></div>
-                <input id="NewDescription" name="NewDescription" type="text" class="form-control mx-auto w-auto" placeholder="Description">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewDescription" class="form-label">Description</label>
+                    <input id="NewDescription" name="NewDescription" type="text" class="form-control" placeholder="Description">
+                </div>
+                <div id="error_Nd" class="error-message"></div>
             </div>
-            <div class="mb-3">
-                <label for="NewPhoto">Avatar photo</label>
-                <div id="error_NP" class="error"></div>
-                <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control mx-auto w-auto" title="only jpeg, png, heic type file are accepted">
-                <img id="PhotoPreview" src="#" alt="Profile photo preview" style="width: 100px; height: 100px;">
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewPhoto" class="form-label">Avatar photo</label>
+                    <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="only jpeg, png, heic type file are accepted">
+                </div>
+                <div id="error_NP" class="error-message"></div>
+                <div class="photo-preview-container">
+                    <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview">
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="NewGender">Gender</label>
-                <div id="error_NG" class="error"></div>
-                <select id="NewGender" name="NewGender" class="form-control mx-auto w-auto">
-                    <option value=""></option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
+            <div class="form-group">
+                <div class="input-container">
+                    <label for="NewGender" class="form-label">Gender</label>
+                    <select id="NewGender" name="NewGender" class="form-control">
+                        <option value=""></option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div id="error_NG" class="error-message"></div>
             </div>
         </div>
+        <div class="form-group">
+            <button type="reset" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
+            <button type="submit" class="btn btn-primary" id="submit" disabled>Register</button>
+        </div>
+        <div class="required-note" style="text-align: left">Required fields<sup>*</sup></div>
+    
     </div>
-
-    <button type="submit" class="btn btn-primary mx-auto" id="submit" disabled>Register</button>
-    <button type="reset" class="btn btn-primary mx-auto" onclick="remove_errors()">Reset form</button>
 </form>
 
-<div style="margin: 20px">Required fields<sup>*</sup></div>
 {% endblock %}

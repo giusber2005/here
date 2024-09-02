@@ -1,4 +1,3 @@
-
 body {
     font-family: "Bebas Neue";
     background: linear-gradient(to right, #FF4500, #FF7F50);
@@ -47,4 +46,106 @@ th {
     color: black;
     margin: 5px;
     background-color: white;
+}
+
+/* Container for the entire form */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 30px;
+    width: 100%;
+}
+
+/* General styling for sections */
+.form-section {
+    margin: 10px;
+    width: 100%;
+}
+
+/* Flexbox for form groups */
+.form-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 50%; /* Adjust the width of the form group container */
+    position: relative;
+}
+
+/* Container for labels and inputs */
+.input-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Styling for labels */
+.form-label {
+    align-self: flex-start;
+}
+
+/* Input field styling */
+.form-control {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+    width: 100%; /* Ensure the input takes up the full width of its container */
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Error message styling aligned with the input box */
+.error-message {
+    position: absolute;
+    right: 0; /* Align the error message to the right edge of the input box */
+    top: 100%; /* Position it directly below the input box */
+    transform: translateY(5px); /* Slight offset for better spacing */
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: auto; /* Adjusts the width based on content */
+}
+
+/* Profile photo preview styling */
+.photo-preview-container {
+    flex: 1;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.photo-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* General button styling */
+.btn {
+    display: block;
+    margin: 10px auto;
+}
+
+/* Required fields note */
+.required-note {
+    margin: 5px;
 }
