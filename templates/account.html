@@ -1,6 +1,4 @@
-
 {% extends "root.html" %}
-
 
 {% block title %}
     ACCOUNT
@@ -14,67 +12,111 @@
         document.getElementById('PhotoPreview').src = imagePath;
     });
 </script>
+
+<style>
+    .shadow-box {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .shadow-box:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transform: translateY(-4px);
+    }
+</style>
+
 {% endblock %}
 
 {% block main %}
-        {% if counter != 0%}
-            <p style="color: red"> You have {{ counter }} optional fields left blank </p>
-        {% else %}
-            <p style="color: red"> Your profile is completed!!! </p>
-        {% endif %}
-        {% for key, value in informations.items() %}
-            {% if key != 'hash' and key != 'id' %}
-                <div> {{ key }}: {{ value }} </div>
-                <br>
-            {% endif %}
-        {% endfor%}
-        {% for key, value in optional_informations.items() %}
-            {% if key != 'id' and key != 'username' %}
-                {% if key != 'photo' and key != 'phone_number' and key != 'prefix' %}
-                    <div>
-                        {{ key }}: {{ value }}
-                        <form action="/delete_information" method="post">
-                            <input type="hidden" name="field" value={{ key }}>
-                            <input type="submit" value="delete">
-                        </form>
+<div id="container" class="container mt-5" style="display: flex; flex-direction: column;">
+    {% if counter != 0 %}
+        <div class="alert alert-warning" style="width: 60%;">
+            You have {{ counter }} optional fields left blank
+        </div>
+    {% else %}
+        <div class="alert alert-success" style="width: 60%;">
+            Your profile is completed!!!
+        </div>
+    {% endif %}
+
+    <!-- Profile Information -->
+    <div class="card mb-4 shadow-box" style="width: 60%; float: left; margin-right: 2%;">
+        <div class="card-header">
+            <h4 class="card-title">Profile Information</h4>
+        </div>
+        <div class="card-body" style="text-align: left">
+            {% for key, value in informations.items() %}
+                {% if key != 'hash' and key != 'id' %}
+                    <div class="mb-2">
+                        <strong>{{ key|capitalize }}:</strong> {{ value }}
                     </div>
-                    <br>
-                {% elif key == 'photo' %}
-                    <div> {{ key }}:</div>
-                    <div style="display: none;" id="PhotoFile"> {{ value }} </div>
-                    {% if value == None %}
-                        <div> please, update your profile photo </div>
-                    {% endif %}
-                    <img id="PhotoPreview" style="width: 100px; height: 100px;" alt="Profile photo preview">
-                    <form action="/delete_information" method="post">
-                        <input type="hidden" name="field" value={{ key }}>
-                        <input type="submit" value="delete">
-                    </form>
-                    <br>
-                    <br>
-                {% elif key == 'phone_number' %}
-                    <div>
-                        prefix: {{ optional_informations.get('prefix')}}
-                        {{ key }}: {{ value }}
-                        <form action="/delete_information" method="post">
-                            <input type="hidden" name="field" value={{ key }}>
-                            <input type="submit" value="delete">
-                        </form>
-                    </div>
-                    <br>
                 {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
-            {% endif %}
-        {% endfor %}
+    <!-- Optional Information -->
+    <div class="card mb-4 shadow-box" style="width: 60%; float: left;">
+        <div class="card-header">
+            <h4 class="card-title">Optional Information</h4>
+        </div>
+        <div class="card-body">
+            {% for key, value in optional_informations.items() %}
+                {% if key != 'id' and key != 'username' %}
+                    <div class="d-flex justify-content-start align-items-center mb-3">
+                        {% if key != 'photo' and key != 'phone_number' and key != 'prefix' %}
+                            <strong class="me-2">{{ key|capitalize }}:</strong> 
+                            <div class="me-2">{{ value }}</div>
+                            <form action="/delete_information" method="post" class="d-inline">
+                                <input type="hidden" name="field" value="{{ key }}">
+                                <button type="submit" class="btn btn-danger btn-sm ms-2">Delete</button>
+                            </form>
+                        {% elif key == 'photo' %}
+                            <strong class="me-2">Photo:</strong>
+                            <div style="display: none;" id="PhotoFile">{{ value }}</div>
+                            {% if value == None %}
+                                <div class="text-warning me-2">Please, update your profile photo</div>
+                            {% endif %}
+                            <img id="PhotoPreview" class="img-thumbnail me-2" style="width: 100px; height: 100px;" alt="Profile photo preview">
+                            <form action="/delete_information" method="post" class="d-inline">
+                                <input type="hidden" name="field" value="{{ key }}">
+                                <button type="submit" class="btn btn-danger btn-sm ms-2 mt-2">Delete</button>
+                            </form>
+                        {% elif key == 'phone_number' %}
+                            <strong class="me-2">Phone Number:</strong> 
+                            <div class="me-2">{{ optional_informations.get('prefix') }}</div> 
+                            <div class="me-2">{{ value }}</div>
+                            <form action="/delete_information" method="post" class="d-inline">
+                                <input type="hidden" name="field" value="{{ key }}">
+                                <button type="submit" class="btn btn-danger btn-sm ms-2">Delete</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
-        <form action="/change_informations" method="get">
-            <input type="submit" value="edit user">
-        </form>
+</div>
 
-        <button data-bs-toggle="collapse" data-bs-target="#confirm" style="margin: 10px"> delete user </button>
-        <form id="confirm" class="collapse" action="/delete" method="post">
-            <div> Are you sure? </div>
-            <button type="submit"> yes </button>
-            <button type="button" data-bs-toggle="collapse" data-bs-target="#confirm"> no </button>
-        </form>
+<div style="clear: both;"></div>
+
+<div class="d-flex justify-content-start align-items-center mt-4" style="margin: 30px">
+    <form action="/change_informations" method="get" class="me-2">
+        <button type="submit" class="btn btn-primary">Edit User</button>
+    </form>
+    <button class="btn btn-danger" data-bs-toggle="collapse" data-bs-target="#confirm" style="margin: 0px">Delete User</button>
+
+    <div id="confirm" class="collapse mt-3" style="margin: 10px">
+        <div class="card card-body shadow-box">
+            <p>Are you sure you want to delete your account?</p>
+            <form action="/delete" method="post" class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-danger">Yes</button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#confirm">No</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 {% endblock %}

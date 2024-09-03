@@ -143,12 +143,12 @@ def nationcity_check(check, city):
         city_to_nation = {rows[0].strip().lower(): rows[1].strip().lower() for rows in reader}
 
         if city == None:
-            if check not in set(city_to_nation.values()):
                 message = "This nation doesn't exist"
                 return message
         if city != None:
             if check not in set(city_to_nation):
                 message = "This city doesn't exist"
+            if check not in set(city_to_nation.values()):
                 return message
             if city_to_nation.get(check) != city:
                 message = "City and nation don't correspond"

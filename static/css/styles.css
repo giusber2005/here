@@ -67,7 +67,7 @@ th {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.0rem;
     width: 50%; /* Adjust the width of the form group container */
     position: relative;
 }

@@ -92,7 +92,7 @@ function noSpecial(Username, error_field) {
         return 'Valid Username!!';
     } else  {
         error_field.style.color = "red";
-        return 'Username cannot have special_characters, only alphanumeric values';
+        return 'Only alphanumeric values are admitted';
     }
 }
 
