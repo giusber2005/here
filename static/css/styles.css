@@ -1,5 +1,5 @@
 body {
-    font-family: "Bebas Neue";
+    font-family: "Archivo Black";
     background: linear-gradient(to right, #FF4500, #FF7F50);
 }
 
@@ -53,13 +53,12 @@ th {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 30px;
+    margin: 5px;
     width: 100%;
 }
 
 /* General styling for sections */
 .form-section {
-    margin: 10px;
     width: 100%;
 }
 
@@ -127,6 +126,7 @@ th {
 .photo-preview {
     width: 100px;
     height: 100px;
+    margin-top: 20px;
     object-fit: cover;
     border-radius: 50%;
     border: 2px solid #ccc;
@@ -148,4 +148,73 @@ th {
 /* Required fields note */
 .required-note {
     margin: 5px;
+}
+
+/* Styling for the prefix input and container */
+.prefix-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Prefix input styling */
+.form-control {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+
+#prefixBox {
+    display: inline-block; /* Ensure it aligns properly with the input */
+    padding: 8px 12px; /* Add some padding for a comfortable appearance */
+    background-color: #e6f7ff; /* Light blue background for a subtle, modern look */
+    color: #007bff; /* Darker blue text color for contrast */
+    border: 1px solid #007bff; /* Matching border color for a cohesive design */
+    border-radius: 4px; /* Rounded corners for a soft, modern feel */
+    font-weight: bold; /* Make the text stand out */
+    font-size: 14px; /* Adjust font size for readability */
+    margin-left: 10px; /* Space between the input box and prefix */
+}
+
+/* style for the login page */
+
+/* Primary button styling */
+.btn-primary {
+    background-color: #007bff; /* Blue background color */
+    color: white; /* White text color */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Secondary button styling */
+.btn-secondary {
+    background-color: #6c757d; /* Grey background color */
+    color: white; /* White text color */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker grey on hover */
+}
+
+/* Error message styling */
+.error-message {
+    color: #dc3545; /* Red color for error messages */
+    font-size: 12px; /* Smaller font size for error messages */
+    margin-top: 2px; /* Space above the error message */
+}
+
+/* Card styling for the password recovery form */
+.card {
+    background-color: #ffffff; /* White background for the card */
+    border: 1px solid #ddd; /* Light border for the card */
+    border-radius: 8px; /* Rounded corners for the card */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+}
+
+/* Card body styling */
+.card-body {
+    padding: 15px; /* Padding inside the card body */
 }
