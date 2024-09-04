@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
     errors.forEach(node => {
         observer.observe(node, { childList: true, subtree: true });
     });
-
+ 
     // Add input event listeners to required fields
     fields.forEach(field => {
         field.addEventListener('input', checkFormValidity);
