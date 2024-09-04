@@ -5,6 +5,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var imagePath = 'static/profile_images/' + photoFileName;
     document.getElementById('PhotoPreview').src = imagePath;
 
+
+    photo = document.getElementById("PhotoPreview");
+    if (photo.src.includes("None")) {
+        photo.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
+        button = document.getElementById("photoButton");
+        button.style.display = "None";
+    };
+
     // Select the container by its ID
     let container = document.getElementById('optionalContainer');
 
@@ -15,8 +24,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         value = card.querySelector(".optionalValues");
 
+        console.log(value);
+
         // Check if the input's value is "None"
-        if (value.innerHTML === "None") {
+        if (value === null || value.innerHTML === "None") {
             // Traverse up the DOM to find the closest form that contains this input
             let form = card.querySelector('form');
             

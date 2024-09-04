@@ -8,73 +8,172 @@
     <script src="/static/scripts/informations_scripts.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            //function for displaying the gender of the user on every load
+            // Function for displaying the gender of the user on every load
             var selectedValue = "{{ gender }}";
             var selectElement = document.getElementById('gender');
             selectElement.value = selectedValue;
-          });
+        });
     </script>
 {% endblock %}
 
 {% block main %}
-    <h1>EDIT YOUR PROFILE</h1>
-    <form action="/change_informations" method="post" enctype="multipart/form-data">
-        {% for key, value in informations %}
-            {% if key != 'hash' and key != 'id' and key != 'conn_token' and key != 'timestamp' and key != 'birthday' %}
-                <div class="{{ key }} error"></div>
-                <div>{{ key }}: <input type="text" name="{{ key }}" class="{{ key }}" value="{{ value }}"></div>
-                <br>
-            {% elif key == 'timestamp' %}
-                <div>Date of creation: {{ value }}</div>
-                <br>
-            {% elif key == 'birthday' %}
-                <div class="{{ key }} error"></div>
-                <div>{{ key }}: <input type="date" name="{{ key }}" class="{{ key }}" value="{{ value }}"></div>
-                <br>
-            {% endif %}
-        {% endfor %}
+    <style>
+        .form-container {
+            width: 100%;
+            padding: 10px;
+            overflow: hidden; /* Clear floats */
+        }
 
-        {% for key, value in optional_informations %}
-            {% if key != 'id' and key != 'username' %}
-                {% if key != 'photo' and key != 'gender' and key != 'nation' and key != 'city'%}
-                    <div class="{{ key }} error"></div>
-                    <div class="{{ key }}Info"></div>
-                    <div>{{ key }}: <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}"></div>
-                    <br>
-                {% elif key == 'photo' %}
-                    <div class="{{ key }} error"></div>
-                    <input name="photo" id="newphoto_file" placeholder="Put a photo" type="file" accept="image/*" title="only jpeg, png, heic type file are accepted">
-                    <div style="display: none;" id="PhotoFile">{{ value }}</div>
-                    <img id="PhotoPreview" style="width: 100px; height: 100px;" alt="Profile photo preview">
-                    <br>
-                {% elif key == 'gender' %}
-                    <div>
-                        {{ key }}:
-                        <select id="gender" name="gender">
-                            <option value="" selected></option>
-                            <option value="Male" {% if value == "Male" %}selected{% endif %}>Male</option>
-                            <option value="Female" {% if value == "Female" %}selected{% endif %}>Female</option>
-                            <option value="Other" {% if value == "Other" %}selected{% endif %}>Other</option>
-                        </select>
-                        <div id="error_NG" class="error"></div>
+        h1 {
+            float: left;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            width: 100%;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            float: left;
+            width: calc(50% - 20px);
+            margin: 5px 10px;
+            position: relative;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #555;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .form-control, .form-control-file {
+            padding: 8px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control:focus, .form-control:hover {
+            border-color: #007bff;
+            box-shadow: 1px 1px 6px rgba(0, 123, 255, 0.5);
+        }
+
+        .form-control-file {
+            padding: 5px;
+        }
+
+        .form-actions {
+            float: left;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            box-shadow: 1px 1px 6px rgba(0, 91, 179, 0.5);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            box-shadow: 1px 1px 6px rgba(90, 98, 104, 0.5);
+        }
+
+        .error {
+            color: red;
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+    </style>
+
+    <div class="form-container">
+        <h1>EDIT YOUR PROFILE</h1>
+        <form action="/change_informations" method="post" enctype="multipart/form-data">
+            {% for key, value in informations %}
+                {% if key != 'hash' and key != 'id' and key != 'conn_token' and key != 'timestamp' and key != 'birthday' %}
+                    <div class="form-group">
+                        <label for="{{ key }}">{{ key }}</label>
+                        <input type="text" name="{{ key }}" id="{{ key }}" class="form-control {{ key }}" value="{{ value }}">
+                        <div class="{{ key }} error"></div>
                     </div>
-                    <br>
-                {% elif key == 'nation' %}
-                    <div id="error_NN" class="error"></div>
-                    <div>{{ key }}: <input type="text" name="nation" value="{{ value }}" id="nation" list="myDatalist"></div>
-                    <datalist id="myDatalist"></datalist>
-                    <br>
-                {% elif key == 'city' %}
-                    <div id="error_NC" class="error"></div>
-                    <div>{{ key }}: <input type="text" name="city" value="{{ value }}" id="city" list="myDatalist2" ></div>
-                    <datalist id="myDatalist2"></datalist>
-                    <br>
+                {% elif key == 'timestamp' %}
+                    <div class="form-group">
+                        <label>Date of Creation</label>
+                        <div>{{ value }}</div>
+                    </div>
+                {% elif key == 'birthday' %}
+                    <div class="form-group">
+                        <label for="{{ key }}">{{ key }}</label>
+                        <input type="date" name="{{ key }}" id="{{ key }}" class="form-control {{ key }}" value="{{ value }}">
+                        <div class="{{ key }} error"></div>
+                    </div>
                 {% endif %}
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
 
-        <br><br>
-        <button type="reset" class="btn btn-primary mx-auto" onclick="remove_errors()">Reset form</button>
-        <input type="submit" id="submit_changes" class="btn btn-primary mx-auto" value="Change Informations">
-    </form>
+            {% for key, value in optional_informations %}
+                {% if key != 'id' and key != 'username' %}
+                    <div class="form-group">
+                        <label for="{{ key }}">{{ key | capitalize }}</label>
+                        {% if key == 'photo' %}
+                            <input name="photo" id="newphoto_file" type="file" accept="image/*" class="form-control-file">
+                            <img id="PhotoPreview" style="width: 100px; height: 100px;" alt="Profile photo preview">
+                            <div style="display: none;" id="PhotoFile">{{ value }}</div>
+                            <div class="{{ key }} error"></div>
+                        {% elif key == 'gender' %}
+                            <select id="gender" name="gender" class="form-control">
+                                <option value="" selected></option>
+                                <option value="Male" {% if value == "Male" %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if value == "Female" %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if value == "Other" %}selected{% endif %}>Other</option>
+                            </select>
+                            <div id="error_NG" class="error"></div>
+                        {% elif key == 'nation' %}
+                            <input type="text" name="nation" value="{{ value }}" id="nation" list="myDatalist" class="form-control">
+                            <datalist id="myDatalist"></datalist>
+                            <div id="error_NN" class="error"></div>
+                        {% elif key == 'city' %}
+                            <input type="text" name="city" value="{{ value }}" id="city" list="myDatalist2" class="form-control">
+                            <datalist id="myDatalist2"></datalist>
+                            <div id="error_NC" class="error"></div>
+                        {% else %}
+                            <input type="text" id="{{ key }}" name="{{ key }}" value="{{ value }}" class="form-control">
+                            <div class="{{ key }} error"></div>
+                            <div class="{{ key }}Info"></div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="reset" class="btn btn-secondary" onclick="remove_errors()">Reset form</button>
+                <input type="submit" id="submit_changes" class="btn btn-primary" value="Change Informations">
+            </div>
+        </form>
+    </div>
 {% endblock %}

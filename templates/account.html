@@ -1,7 +1,7 @@
 {% extends "root.html" %}
 
 {% block title %}
-    ACCOUNT
+    Account
 {% endblock %}
 
 {% block script %}
@@ -66,19 +66,19 @@
                                 <button type="submit" class="btn btn-danger btn-sm ms-2">Delete</button>
                             </form>
                         {% elif key == 'photo' %}
-                            <strong class="me-2">Photo:</strong>
+                            <strong class="me-2 optionalValues">Photo:</strong>
                             <div style="display: none;" id="PhotoFile">{{ value }}</div>
                             {% if value == None %}
                                 <div class="text-warning me-2">Please, update your profile photo</div>
                             {% endif %}
-                            <img id="PhotoPreview" class="img-thumbnail me-2" style="width: 100px; height: 100px;" alt="Profile photo preview">
+                            <img id="PhotoPreview" class="img-thumbnail me-2" style="width: 100px; height: 100px;" alt="Profile photo preview"> 
                             <form action="/delete_information" method="post" class="d-inline">
                                 <input type="hidden" name="field" value="{{ key }}">
-                                <button type="submit" class="btn btn-danger btn-sm ms-2 mt-2">Delete</button>
+                                <button type="submit" id="photoButton" class="btn btn-danger btn-sm ms-2 mt-2">Delete</button>
                             </form>
                         {% elif key == 'phone_number' %}
                             <strong class="me-2">Phone Number:</strong> 
-                            <div class="me-2 optionalValues">{{ optional_informations.get('prefix') }}</div> 
+                            <div class="me-2">{{ optional_informations.get('prefix') }}</div> 
                             <div class="me-2 optionalValues">{{ value }}</div>
                             <form action="/delete_information" method="post" class="d-inline">
                                 <input type="hidden" name="field" value="{{ key }}">
