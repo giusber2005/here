@@ -1,3 +1,6 @@
 THINGS LEFT TO DO:
+    resolve phone number problem in the account page
+    see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
-    start to code the homepage areas basic features
+    finish design of the pages actually in the websites
+    continue working of the homepage features
