@@ -2,7 +2,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function for displaying the image of the current photo profile of the user
     var photoFileName = document.getElementById('PhotoFile').textContent.trim();
     var imagePath = '/static/profile_images/' + photoFileName;
-    document.getElementById('PhotoPreview').src = imagePath;
+    try {
+        document.getElementById('PhotoPreview').src = imagePath;
+      }
+      catch(err) {
+        document.getElementById('PhotoPreview').src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    }
 
     var input = document.getElementById('newphoto_file');
     var preview = document.getElementById('PhotoPreview');
@@ -17,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             reader.readAsDataURL(file);
+        } else {
+            preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
         }
     });
 
@@ -127,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nationsPrefixesMap = new Map();
     let prefixInput = document.getElementById('prefix');
     let prefixInfoBox = document.querySelector(".prefixInfo")
-    prefixInfoBox.innerHTML = 'prefix suggestion:';
+    prefixInfoBox.innerHTML = 'Prefix suggestion:';
 
     // Fetch the nations with respective prefixes
     fetch('/data/nations_and_prefixes.csv')
@@ -155,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function initializeNationInput() {
             const inputVal = nationInput.value.toLowerCase().trim();
             const foundPrefix = prefixesNationsMap.get(inputVal) || '';
-            prefixInfoBox.innerHTML = `prefix suggestion: ${foundPrefix}`;
+            prefixInfoBox.innerHTML = `Prefix suggestion: ${foundPrefix}`;
         }
 
 
