@@ -1,4 +1,7 @@
 THINGS LEFT TO DO:
+    resolve problem photo profile generation in the editing of the user informations page
+    add style to the prefix suggestion box 
+    align the date of creation input field 
     resolve phone number problem in the account page
     see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
