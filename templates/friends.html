@@ -5,44 +5,82 @@
 {% endblock %}
 
 {% block main %}
-    <h1 id="title"> FRIENDS PAGE </h1>
-    <table>
-        <thead>
-            <tr>
-                <th> Friends </th>
-                <th> Date of Connections </th>
-                <th> Action </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for key in table %}
-                <tr>
-                    <td> {{ key.username }} </td>
-                    <td> {{ key.timestamp }} </td>
-                    <td>
-                        <button data-bs-toggle="collapse" data-bs-target="#confirm"> destroy friendship </button>
-                        <form id="confirm" class="collapse" action="/destroy" method="post">
-                            <div> Are you sure? </div>
-                            <input type="hidden" value="{{ key.username }}" name="username">
-                            <button type="submit"> yes </button>
-                            <button type="button" data-bs-toggle="collapse" data-bs-target="#confirm"> no </button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container">
+        <!-- Title -->
+        <h1 id="title" class="my-4 float-start shadow-sm p-3 mb-3 bg-body-tertiary rounded">FRIENDS PAGE</h1>
+        <div class="clearfix"></div> <!-- Clear float to ensure table appears below title -->
 
-
-    <form action="/friends" method="post">
-        <label for="token">Connect with new friends via token </label>
-        <div class="mb-3">
-            {% if message and field == "token" %}
-                <p style="color: red"> {{ message }}</p>
-            {% endif %}
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="token" placeholder="Token" type="text">
+        <!-- Friends Table -->
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered text-start w-auto float-start shadow-sm p-3 bg-body-tertiary rounded">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-nowrap">Friends</th>
+                        <th class="text-nowrap">Date of Connection</th>
+                        <th class="text-nowrap">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key in table %}
+                        <tr class="table-row-hover">
+                            <td class="text-nowrap">{{ key.username }}</td>
+                            <td class="text-nowrap">{{ key.timestamp }}</td>
+                            <td class="text-nowrap">
+                                <button class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">
+                                    Destroy Friendship
+                                </button>
+                                <div id="confirm-{{ key.username }}" class="collapse mt-2">
+                                    <div class="card card-body shadow-sm">
+                                        <p class="mb-2">Are you sure?</p>
+                                        <form action="/destroy" method="post" class="d-flex gap-2">
+                                            <input type="hidden" value="{{ key.username }}" name="username">
+                                            <button class="btn btn-danger btn-sm shadow-sm" type="submit">Yes</button>
+                                            <button class="btn btn-secondary btn-sm shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">No</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <button class="btn btn-primary" type="submit">Add friend</button>
-    </form>
-{% endblock %}
 
+        <!-- Add Friend Form -->
+        <form action="/friends" method="post" class="mt-4 w-50 float-start shadow-sm p-3 bg-body-tertiary rounded">
+            <div class="mb-3">
+                <label for="token" class="form-label float-start">Connect with new friends via token</label>
+                {% if message and field == "token" %}
+                    <p class="text-danger">{{ message }}</p>
+                {% endif %}
+                <input autocomplete="off" autofocus class="form-control" id="token" name="token" placeholder="Enter Token" type="text">
+            </div>
+            <button class="btn btn-primary shadow-sm" type="submit">Add Friend</button>
+        </form>
+    </div>
+
+    <style>
+        /* Hover effect for table rows */
+        .table-row-hover:hover {
+            background-color: #f8f9fa; /* Light gray background on hover */
+            transition: background-color 0.2s ease;
+        }
+
+        /* Hover effects for buttons */
+        .btn:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* Shadow for card and input fields */
+        .card, .form-control, .shadow-sm {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* Box shadow hover effect */
+        .card:hover, .form-control:hover, .shadow-sm:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+{% endblock %}

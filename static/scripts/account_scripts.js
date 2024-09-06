@@ -1,6 +1,11 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    let prefix = document.getElementById("prefixDiv");
+    if (prefix.innerHTML === "None") {
+        prefix.style.display = "None";
+    }
+
     var photoFileName = document.getElementById('PhotoFile').textContent.trim();
     var imagePath = 'static/profile_images/' + photoFileName;
     document.getElementById('PhotoPreview').src = imagePath;

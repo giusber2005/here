@@ -78,9 +78,9 @@
         </div>
         <div class="card-body clearfix" id="optionalContainer">
             {% for key, value in optional_informations.items() %}
-                {% if key != 'id' and key != 'username' %}
+                {% if key != 'id' and key != 'username'  and key != 'prefix'%}
                     <div class="d-flex justify-content-start align-items-center mb-3 optionalCards">
-                        {% if key != 'photo' and key != 'phone_number' and key != 'prefix' %}
+                        {% if key != 'photo' and key != 'phone_number' %}
                             <strong class="me-2">{{ key|capitalize }}:</strong> 
                             <div class="me-2 optionalValues">{{ value }}</div>
                             <form action="/delete_information" method="post" class="d-inline">
@@ -100,7 +100,7 @@
                             </form>
                         {% elif key == 'phone_number' %}
                             <strong class="me-2">Phone Number:</strong> 
-                            <div class="me-2">{{ optional_informations.get('prefix') }}</div> 
+                            <div id="prefixDiv" class="me-2">{{ optional_informations.get('prefix') }}</div> 
                             <div class="me-2 optionalValues">{{ value }}</div>
                             <form action="/delete_information" method="post" class="d-inline">
                                 <input type="hidden" name="field" value="{{ key }}">

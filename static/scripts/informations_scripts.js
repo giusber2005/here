@@ -2,13 +2,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function for displaying the image of the current photo profile of the user
     var photoFileName = document.getElementById('PhotoFile').textContent.trim();
     var imagePath = '/static/profile_images/' + photoFileName;
-    try {
-        document.getElementById('PhotoPreview').src = imagePath;
-      }
-      catch(err) {
+    if (photoFileName === "None") {
         document.getElementById('PhotoPreview').src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    } else {
+        document.getElementById('PhotoPreview').src = imagePath;
     }
-
+    
     var input = document.getElementById('newphoto_file');
     var preview = document.getElementById('PhotoPreview');
 

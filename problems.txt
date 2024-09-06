@@ -1,8 +1,4 @@
 THINGS LEFT TO DO:
-    resolve problem photo profile generation in the editing of the user informations page
-    resolve alignment of the error boxes in the informations page 
-    align the date of creation input field 
-    resolve phone number problem in the account page
     see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
     finish design of the pages actually in the websites
