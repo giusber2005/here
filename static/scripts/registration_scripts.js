@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nationsPrefixesMap = new Map();
     let prefixInput = document.getElementById('Prefix');
     let prefixBox = document.getElementById('prefixBox');
-    prefixBox.innerHTML = 'prefix suggestion:';
+    prefixBox.innerHTML = 'Prefix suggestion:';
 
     // Fetch the nations with respective prefixes
     fetch('/data/nations_and_prefixes.csv')
@@ -429,6 +429,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial check
     checkFormValidity();
+
+
+    document.getElementById('resetButton').addEventListener('click', function () {
+        document.getElementById('PhotoPreview').src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    });
+    
 });
 
 

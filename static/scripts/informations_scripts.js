@@ -415,4 +415,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.getElementById('resetButton').addEventListener('click', function () {
+        var photoFileName = document.getElementById('PhotoFile').textContent.trim();
+        var imagePath = '/static/profile_images/' + photoFileName;
+        if (photoFileName === "None") {
+            document.getElementById('PhotoPreview').src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        } else {
+            document.getElementById('PhotoPreview').src = imagePath;
+        }
+    });
+    
 });

@@ -42,20 +42,25 @@
             <input class="form-control mx-auto w-auto" name="Newpassword" id="Newpassword" placeholder="New Password" type="password">
             <div id="password_strength"></div>
         </div>
-        <button class="btn btn-primary" type="submit">Change</button>
 
-        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse">
-            You don't remember the password?
-        </button>
-    </form>
-        <div class="collapse" id="collapse">
-            <div class="card card-body">
-                <form action="/password" method="post">
-                    <input type="email" placeholder="Insert your email" name="Email">
-                    <input type="submit" value="Send Email">
-                </form>
-            </div>
+        <!-- Centering the buttons -->
+        <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-primary" type="submit">Change</button>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse">
+                You don't remember the password?
+            </button>
         </div>
+    </form>
+
+    <div class="collapse mt-3" id="collapse">
+        <div class="card card-body">
+            <form action="/password" method="post">
+                <input type="email" class="form-control mb-2" placeholder="Insert your email" name="Email">
+                <input type="submit" class="btn btn-primary" value="Send Email">
+            </form>
+        </div>
+    </div>
 {% endblock %}
+
 
 

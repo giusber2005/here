@@ -88,9 +88,11 @@
                                 <button type="submit" class="btn btn-danger btn-sm ms-2">Delete</button>
                             </form>
                         {% elif key == 'photo' %}
-                            <strong class="me-2 optionalValues">Photo:</strong>
+                            <strong class="me-2 optionalValues" style="margin-left: 0px">Photo:</strong>
                             <div style="display: none;" id="PhotoFile">{{ value }}</div>
-                            <img id="PhotoPreview" class="img-thumbnail me-2" style="width: 100px; height: 100px;" alt="Profile photo preview"> 
+                            <div class="photo-preview-container">
+                                <img id="PhotoPreview" class="img-thumbnail me-2 photo-preview" style="width: 100px; height: 100px; margin-top: 0px" alt="Profile photo preview"> 
+                            </div>
                             {% if value == None %}
                                 <div class="text-warning me-2">Please, update your profile photo</div>
                             {% endif %}

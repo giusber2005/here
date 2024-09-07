@@ -43,5 +43,4 @@ document.addEventListener('DOMContentLoaded', function() {
             button.style.display = "none"; 
         }
     });
-
 });

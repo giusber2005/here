@@ -7,35 +7,39 @@
 {% block main %}
     <div class="container">
         <!-- Title -->
-        <h1 id="title" class="my-4 float-start shadow-sm p-3 mb-3 bg-body-tertiary rounded">FRIENDS PAGE</h1>
-        <div class="clearfix"></div> <!-- Clear float to ensure table appears below title -->
+        <h1 id="title" class="my-4 shadow-sm p-3 mb-3 bg-body-tertiary rounded text-primary w-50 float-start">
+            FRIENDS PAGE
+        </h1>
+
+        <div class="clearfix"></div> <!-- Clear float for the table -->
 
         <!-- Friends Table -->
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered text-start w-auto float-start shadow-sm p-3 bg-body-tertiary rounded">
+        <div class="table-responsive w-75 float-start shadow-sm rounded-3">
+            <table class="table table-hover table-striped align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th class="text-nowrap">Friends</th>
-                        <th class="text-nowrap">Date of Connection</th>
-                        <th class="text-nowrap">Action</th>
+                        <th scope="col">Friends</th>
+                        <th scope="col">Date of Connection</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for key in table %}
-                        <tr class="table-row-hover">
-                            <td class="text-nowrap">{{ key.username }}</td>
-                            <td class="text-nowrap">{{ key.timestamp }}</td>
-                            <td class="text-nowrap">
-                                <button class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">
-                                    Destroy Friendship
-                                </button>
-                                <div id="confirm-{{ key.username }}" class="collapse mt-2">
-                                    <div class="card card-body shadow-sm">
-                                        <p class="mb-2">Are you sure?</p>
-                                        <form action="/destroy" method="post" class="d-flex gap-2">
+                        <tr>
+                            <td>{{ key.username }}</td>
+                            <td>{{ key.timestamp }}</td>
+                            <td>
+                                <!-- Button and Confirmation Form in Inline Flex -->
+                                <div class="d-inline-flex align-items-center">
+                                    <button class="btn btn-danger btn-sm me-2" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">
+                                        <i class="bi bi-trash3"></i> Destroy Friendship
+                                    </button>
+                                    
+                                    <div id="confirm-{{ key.username }}" class="collapse">
+                                        <form action="/destroy" method="post" class="d-inline-flex gap-2 align-items-center">
                                             <input type="hidden" value="{{ key.username }}" name="username">
-                                            <button class="btn btn-danger btn-sm shadow-sm" type="submit">Yes</button>
-                                            <button class="btn btn-secondary btn-sm shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">No</button>
+                                            <button class="btn btn-danger btn-sm" type="submit">Yes</button>
+                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">No</button>
                                         </form>
                                     </div>
                                 </div>
@@ -46,30 +50,34 @@
             </table>
         </div>
 
+        <div class="clearfix"></div> <!-- Clear float for form -->
+
         <!-- Add Friend Form -->
         <form action="/friends" method="post" class="mt-4 w-50 float-start shadow-sm p-3 bg-body-tertiary rounded">
             <div class="mb-3">
-                <label for="token" class="form-label float-start">Connect with new friends via token</label>
+                <label for="token" style="text-align: left; display: block" class="form-label">Connect with new friends via token</label>
                 {% if message and field == "token" %}
-                    <p class="text-danger">{{ message }}</p>
+                    <div class="text-danger">{{ message }}</div>
+                    <input autocomplete="off" autofocus class="form-control is-invalid" id="token" name="token" placeholder="Enter Token" type="text">
+                {% else %}
+                    <input autocomplete="off" autofocus class="form-control" id="token" name="token" placeholder="Enter Token" type="text">
                 {% endif %}
-                <input autocomplete="off" autofocus class="form-control" id="token" name="token" placeholder="Enter Token" type="text">
             </div>
-            <button class="btn btn-primary shadow-sm" type="submit">Add Friend</button>
+            <button class="btn btn-primary" type="submit">Add Friend</button>
         </form>
     </div>
 
     <style>
         /* Hover effect for table rows */
-        .table-row-hover:hover {
-            background-color: #f8f9fa; /* Light gray background on hover */
-            transition: background-color 0.2s ease;
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s ease;
         }
 
-        /* Hover effects for buttons */
+        /* Box shadow hover effect for buttons */
         .btn:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
-            transition: box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease;
         }
 
         /* Shadow for card and input fields */
@@ -78,9 +86,34 @@
             transition: box-shadow 0.2s ease;
         }
 
-        /* Box shadow hover effect */
         .card:hover, .form-control:hover, .shadow-sm:hover {
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Custom styles for the Add Friend button */
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
     </style>
 {% endblock %}

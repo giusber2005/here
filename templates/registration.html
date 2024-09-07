@@ -18,42 +18,42 @@
             <label for="Newusername" class="form-label">Username<sup>*</sup></label>
             <input class="form-control required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Username" type="text" />
           </div>
-          <div id="error_Nu" class="error-message"></div>
+          <div id="error_Nu" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="Newpassword" class="form-label">Password<sup>*</sup></label>
             <input class="form-control required" name="Newpassword" placeholder="Password" id="password" type="password" />
           </div>
-          <div id="password_strenght" class="error-message"></div>
+          <div id="password_strenght" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="Newbirthday" class="form-label">Birthday<sup>*</sup></label>
             <input class="form-control required" name="Newbirthday" id="Newbirthday" placeholder="Birthday" type="date" />
           </div>
-          <div id="error_Nb" class="error-message"></div>
+          <div id="error_Nb" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="Newemail" class="form-label">Email<sup>*</sup></label>
             <input class="form-control required" name="Newemail" id="Newemail" placeholder="Email" type="email" />
           </div>
-          <div id="error_Ne" class="error-message"></div>
+          <div id="error_Ne" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="FirstName" class="form-label">First Name<sup>*</sup></label>
             <input class="form-control required" name="FirstName" id="FirstName" placeholder="First Name" type="text" />
           </div>
-          <div id="error_FN" class="error-message"></div>
+          <div id="error_FN" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="LastName" class="form-label">Last Name<sup>*</sup></label>
             <input class="form-control required" name="LastName" id="LastName" placeholder="Last Name" type="text" />
           </div>
-          <div id="error_LN" class="error-message"></div>
+          <div id="error_LN" class="error error-message"></div>
         </div>
       </div>
 
@@ -63,7 +63,7 @@
             <label for="NewNation" class="form-label">Nation</label>
             <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control" />
           </div>
-          <div id="error_NN" class="error-message"></div>
+          <div id="error_NN" class="error error-message"></div>
           <datalist id="myDatalist"></datalist>
         </div>
         <div class="form-group">
@@ -71,7 +71,7 @@
             <label for="NewCity" class="form-label">City</label>
             <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control" disabled />
           </div>
-          <div id="error_NC" class="error-message"></div>
+          <div id="error_NC" class="error error-message"></div>
           <datalist id="myDatalist2"></datalist>
         </div>
         <div class="form-group">
@@ -82,28 +82,28 @@
               <div id="prefixBox"></div>
             </div>
           </div>
-          <div id="error_PR" class="error-message"></div>
+          <div id="error_PR" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="NewNumber" class="form-label">Number</label>
             <input id="NewNumber" name="NewNumber" type="tel" class="form-control" placeholder="Number" />
           </div>
-          <div id="error_NNum" class="error-message"></div>
+          <div id="error_NNum" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="NewDescription" class="form-label">Description</label>
             <input id="NewDescription" name="NewDescription" type="text" class="form-control" placeholder="Description" />
           </div>
-          <div id="error_Nd" class="error-message"></div>
+          <div id="error_Nd" class="error error-message"></div>
         </div>
         <div class="form-group">
           <div class="input-container">
             <label for="NewPhoto" class="form-label">Avatar photo</label>
             <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="only jpeg, png, heic type file are accepted" />
           </div>
-          <div id="error_NP" class="error-message"></div>
+          <div id="error_NP" class="error error-message"></div>
           <div class="photo-preview-container">
             <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
           </div>
@@ -118,11 +118,11 @@
               <option value="Other">Other</option>
             </select>
           </div>
-          <div id="error_NG" class="error-message"></div>
+          <div id="error_NG" class="error error-message"></div>
         </div>
       </div>
       <div class="form-group" style="margin-top: 10px">
-        <button type="reset" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
+        <button type="reset" id="resetButton" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
         <button type="submit" class="btn btn-primary" id="submit" disabled>Register</button>
       </div>
       <div class="required-note" style="text-align: left">
