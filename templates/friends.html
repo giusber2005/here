@@ -13,42 +13,46 @@
 
         <div class="clearfix"></div> <!-- Clear float for the table -->
 
-        <!-- Friends Table -->
-        <div class="table-responsive w-75 float-start shadow-sm rounded-3">
-            <table class="table table-hover table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">Friends</th>
-                        <th scope="col">Date of Connection</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for key in table %}
-                        <tr>
-                            <td>{{ key.username }}</td>
-                            <td>{{ key.timestamp }}</td>
-                            <td>
-                                <!-- Button and Confirmation Form in Inline Flex -->
-                                <div class="d-inline-flex align-items-center">
-                                    <button class="btn btn-danger btn-sm me-2" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">
-                                        <i class="bi bi-trash3"></i> Destroy Friendship
-                                    </button>
-                                    
-                                    <div id="confirm-{{ key.username }}" class="collapse">
-                                        <form action="/destroy" method="post" class="d-inline-flex gap-2 align-items-center">
-                                            <input type="hidden" value="{{ key.username }}" name="username">
-                                            <button class="btn btn-danger btn-sm" type="submit">Yes</button>
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">No</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% if table|length == 0 %} 
+            <p  style="text-align: left" class="text-muted fs-5 text-start">No friends yet. Start by adding new ones using their unique token!</p>
+        {% else %}
+                <!-- Friends Table -->
+                <div class="table-responsive w-50 float-start shadow-sm rounded-3">
+                    <table class="table table-hover table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Friends</th>
+                                <th scope="col">Date of Connection</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key in table %}
+                                <tr>
+                                    <td>{{ key.username }}</td>
+                                    <td>{{ key.timestamp }}</td>
+                                    <td>
+                                        <!-- Button and Confirmation Form in Inline Flex -->
+                                        <div class="d-inline-flex align-items-center">
+                                            <button class="btn btn-danger btn-sm me-2" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">
+                                                <i class="bi bi-trash3"></i> Destroy Friendship
+                                            </button>
+                                            
+                                            <div id="confirm-{{ key.username }}" class="collapse">
+                                                <form action="/destroy" method="post" class="d-inline-flex gap-2 align-items-center">
+                                                    <input type="hidden" value="{{ key.username }}" name="username">
+                                                    <button class="btn btn-danger btn-sm" type="submit">Yes</button>
+                                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ key.username }}">No</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>        
+        {% endif %}
 
         <div class="clearfix"></div> <!-- Clear float for form -->
 

@@ -103,4 +103,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     calendar.render();
+
+
+    document.getElementById("closeButton").addEventListener('click', function() {
+        document.getElementById("eventDetails").style.display = "none";
+    });
 });
