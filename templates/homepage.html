@@ -124,12 +124,15 @@
                 <button id="closeButton" class="btn btn-primary"> Close </button>
             </div>
             <p><strong>Title:</strong> <span id="detailTitle"></span></p>
-            <p><strong>Start:</strong> <span id="detailStart"></span></p>
-            <p><strong>End:</strong> <span id="detailEnd"></span></p>
-            <p><strong>Color:</strong> <span id="detailColor"></span></p>
+            <p><strong>Time Slot:</strong> <span id="detailStart"></span></p>
             <p><strong>Text:</strong> <span id="detailText"></span></p>
             <p><strong>Link:</strong> <a id="detailLink" href="#" target="_blank">Event Link</a></p>
             <p><strong>Tags:</strong> <span id="detailTags"></span></p>
+
+            <div style="display: flex; flex-direction: row">
+                <button id="modifyButton" class="btn btn-primary"> Modify </button>
+                <button id="deleteButton" class="btn btn-primary"> Delete </button>
+            </div>
         </aside>
     </section>
 
@@ -141,17 +144,22 @@
             <label for="eventColor">Event Color:</label>
             <input type="color" id="eventColor" name="eventColor">
             
-            <label for="eventText">Additional Text:</label>
+            <label for="eventText">Notes:</label>
             <textarea id="eventText" name="eventText" rows="4"></textarea>
             
             <label for="eventLink">Event Link:</label>
             <input type="url" id="eventLink" name="eventLink">
             
             <label for="eventTags">Tags (comma-separated):</label>
-            <input type="text" id="eventTags" name="eventTags">
-            
+            <select id="eventTags" name="eventTags" class="form-control">
+                <option value=""></option>
+                <option value="Work">🔴 Work</option>
+                <option value="Entertainment">⚪️ Entertainment</option>
+                <option value="Other">🔵 Other</option>
+              </select>
+
             <div class="button-group">
-                <button type="submit">Add Event</button>
+                <button id="addButton" type="submit">Add Event</button>
                 <button type="button" id="cancelButton">Cancel</button>
             </div>
         </form>
