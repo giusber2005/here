@@ -84,6 +84,13 @@ document.addEventListener('DOMContentLoaded', function() {
             detailStart.textContent = `${info.event.startStr} - ${info.event.endStr}`;
             detailText.textContent = info.event.extendedProps.text || 'None';
             detailLink.href = info.event.extendedProps.link || '#';
+            if (detailLink.href.endsWith("#") ) {
+                detailLink.style.display = "none"; // Correct the "None" to "none"
+                document.getElementById('altLink').innerHTML = "None";
+            } else {
+                detailLink.style.display = "inline-block";
+                document.getElementById('altLink').style.display = "none"; // Correct "None" to "none"
+            }            
             detailTags.textContent = info.event.extendedProps.tags || 'None';  // Display single tag
             detailLink.textContent = info.event.extendedProps.link || 'None';
 
@@ -117,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedEvent) {
             // Hide the event details and show the form to modify the event
             eventDetails.style.display = "none";
+            calendar.updateSize();
             eventForm.style.display = 'block';
             document.body.classList.add('dimmed');
 
@@ -168,5 +176,6 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedEvent = null; // Clear the selected event
             eventDetails.style.display = "none";
         }
+        calendar.updateSize();
     });
 });
