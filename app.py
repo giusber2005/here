@@ -732,11 +732,12 @@ def password():
     link = generateLink()
     email = request.form.get("Email")
     
-    check = db.execute("SELECT * FROM user WHERE email = ?", email)[0]
-    if len(check) == 0:
+    try:
+        check = db.execute("SELECT * FROM user WHERE email = ?", email)[0]
+    except IndexError:
         flash("The email doesn't correspond to any user in the database")
         return redirect("/login")
-    
+            
     user_id = check["id"]
     db.execute("INSERT INTO passwordLinks (token, user_id) VALUES (?,?)", link, user_id)
     
