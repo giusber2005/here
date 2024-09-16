@@ -9,7 +9,7 @@ import os
 import time
 
 #function to calculate a period of time (useful in the session expiration time)
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 #library to work with databases
 from cs50 import SQL
@@ -37,26 +37,24 @@ from helpers import *
 app = Flask(__name__)
 app.secret_key = "5&_~H$=O4<{^O6y"
 
-
 """
 Configuring the environment for the system of sending email to the user
 """
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 
-mail = Mail(app)
-
-email_password = 'zafryf-5gycKe-jagdak'
+email_password = "J5F6RYcAkCQj29PZ"
 
 # Configuration for Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp-relay.gmail.com.'  # Your email server
+app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'  # Your email server
 app.config['MAIL_PORT'] = 587  # Port number (usually 587 for TLS)
 app.config['MAIL_USE_TLS'] = True  # Use TLS
 app.config['MAIL_USE_SSL'] = False  # Do not use SSL
-app.config['MAIL_USERNAME'] = 'giusber2005@gmail.com'  # Your email address
+app.config['MAIL_USERNAME'] = '7c2d17001@smtp-brevo.com'  # Your email address
 app.config['MAIL_PASSWORD'] = email_password # Your email password
-app.config['MAIL_DEFAULT_SENDER'] = 'giusber2005@gmail.com'  # Default sender email address
+app.config['MAIL_DEFAULT_SENDER'] = 'hereforhelp888@gmail.com'  # Default sender email address
 
+mail = Mail(app)
 
 
 #Configure session to use filesystem (instead of signed cookies)
@@ -717,77 +715,99 @@ def informations():
 
 """
 
-NOT PROPERLY INITIALIZED
+PASSWORD RESET AREA
 
 """
+import uuid #library to generate unique tokens
 
-#stamp to generate random link
-s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+BASE_URL = "http://127.0.0.1:5000/reset_password"
+def generateLink():
+    token = str(uuid.uuid4())
+    unique_link = f"{BASE_URL}?token={token}"
+    
+    return unique_link
 
-def generate_reset_token(email):
-    return s.dumps(email, salt='password-reset-salt')
-
-def verify_reset_token(token, expiration=3600):
-    try:
-        email = s.loads(token, salt='password-reset-salt', max_age=expiration)
-    except:
-        return None
-    return email
-
-
-def send_reset_email(email, reset_url):
-    msg = Message('Password Reset Request', recipients=[email])
-    msg.body = f'Please click the link to reset your password: {reset_url}'
-    mail.send(msg)
-
-#app route for retrieving the password of a user
-@app.route("/password", methods=["POST"])
+@app.route('/password', methods=['POST'])
 def password():
+    link = generateLink()
     email = request.form.get("Email")
+    
+    check = db.execute("SELECT * FROM user WHERE email = ?", email)[0]
+    if len(check) == 0:
+        flash("The email doesn't correspond to any user in the database")
+        return redirect("/login")
+    
+    user_id = check["id"]
+    db.execute("INSERT INTO passwordLinks (token, user_id) VALUES (?,?)", link, user_id)
+    
+    username = check["username"]
     try:
-        User_id = db.execute("SELECT id FROM user WHERE email = ?", email)[0]['id']
-    except IndexError:
-        message = "the email is not associated with an existing account"
-        flash(message)
-        return render_template("login.html")
-    token = generate_reset_token(email)
-    reset_url = url_for('reset_password', token=token, _external=True)
-    send_reset_email(email, reset_url)
-    flash('Password reset email has been sent.')
-    return redirect(url_for('login'))
-
+        # Create email message
+        msg = Message(
+            subject="Reset password",
+            recipients=[email],
+            body="This is the plain text fallback for email clients that don't support HTML.",
+            html=f"""
+                    <h1>PASSWORD RESET</h1>
+                    <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
+                 """
+        )
+        
+        # Send the email
+        mail.send(msg)
+        return "HTML Email sent successfully!"
+    
+    except Exception as e:
+        flash("Error into sending the email")
+        return redirect("/login")        
+    
 #app route for the link that is send when the user try to retrieve is password
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    email = verify_reset_token(token)
-    if not email:
-        flash('The reset link is invalid or has expired.', 'danger')
-        return redirect(url_for('login'))
-
+    link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
+    
+    timestamp = datetime.strptime(link["expiration"], '%Y-%m-%d %H:%M:%S')
+    current_time = datetime.now()
+    interval = current_time - timestamp    
+    if interval > timedelta(minutes=5):
+        flash("The selected link is expired")
+        redirect("/login")
+        
+    if link["is_used"] == True:
+        flash("The selected link has been already used")
+        redirect("/login")
+    
+    db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
+    email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
     if request.method == 'POST':
         password1 = request.form.get("password1").strip()
         password2 = request.form.get("password2").strip()
 
         if not password1 or not password2:
-            return apology("you need to fill all the fields", 403)
+            flash("you need to fill all the fields")
+            db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
+            return redirect(f"/reset_password/{token}")
 
-        if password1 != password2:
-            return apology("you need to repeat the exact same password twice", 403)
+        if password1 != password2:            
+            flash("you need to repeat the exact same password twice")
+            db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
+            return redirect(f"/reset_password/{token}")
 
         password1 = generate_password_hash(password1)
 
         # Update user's password in the database
         db.execute("UPDATE user SET hash = ? WHERE email = ?", password1, email)
         flash('Your password has been updated!', 'success')
-        return redirect(url_for('login'))
+        return redirect("/login")
 
     return render_template('password.html')
 
 """
 
-END OF THE NOT PROPERLY INITIALIZED AREA
+END PASSWORD RESET AREA 
 
 """
+
 
 #app.py route for displaying the friends page and to add new friends
 @app.route("/friends", methods=["GET", "POST"])
@@ -883,7 +903,6 @@ def delete_user():
 
     session.clear()
     return redirect("/login")
-
 
 
 
