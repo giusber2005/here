@@ -771,11 +771,11 @@ def reset_password(token):
     interval = current_time - timestamp    
     if interval > timedelta(minutes=5):
         flash("The selected link is expired")
-        redirect("/login")
+        return redirect("/login")
         
     if link["is_used"] == True:
         flash("The selected link has been already used")
-        redirect("/login")
+        return redirect("/login")
     
     db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
     email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
