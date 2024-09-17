@@ -756,7 +756,8 @@ def password():
         
         # Send the email
         mail.send(msg)
-        return "HTML Email sent successfully!"
+        flash("Email sent successfully!")
+        return redirect("/login")
     
     except Exception as e:
         flash("Error into sending the email")

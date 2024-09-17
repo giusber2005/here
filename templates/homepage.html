@@ -148,9 +148,12 @@
             <textarea id="eventText" name="eventText" rows="4"></textarea>
             
             <label for="eventLink">Event Link:</label>
+            <div id="hiddenBox" style="display: none"></div>
             <input type="url" id="eventLink" name="eventLink">
-            
-            <label for="eventTags">Tags (comma-separated):</label>
+            <button id="addLink">Add link</button>
+            <button id="showLink"> Show all links </button>
+
+            <label for="eventTags">Tag:</label>
             <select id="eventTags" name="eventTags" class="form-control">
                 <option value=""></option>
                 <option value="Work">🔴 Work</option>
@@ -164,5 +167,11 @@
             </div>
         </form>
     </article>
+
+
+    <div id="linkBox" style="display: None">
+        <button id="closeLink">❌</button>
+    </div>
+    
 {% endblock %}
 
