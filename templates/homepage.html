@@ -101,6 +101,43 @@
             align-items: center; /* Optional: vertically centers the items */
             width: 100%; /* Optional: defines the width of the flex container */
         }
+
+        #linkBox {
+            position: fixed; /* Fixes the div to the viewport */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centers the div */
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Optional shadow for better visibility */
+            z-index: 9999; /* Ensures the div is in front of all other elements */
+        }
+
+        /* css code to style the div inside the addEvent form as button */
+        .button-like-div {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff; /* Blue background */
+            border: 1px solid #007bff; /* Blue border */
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .button-like-div:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            border-color: #0056b3;
+        }
+
+        .button-like-div:active {
+            background-color: #003d80; /* Even darker blue on click */
+            border-color: #003d80;
+        }
     </style>
 
 
@@ -115,59 +152,61 @@
 {% endblock %}
 
 {% block body %}
-    <section class="calendar-container">
-        <div id='calendar'></div>
 
-        <aside id="eventDetails">
-            <div id="eventBox">
-                <h3>Event Details</h3>
-                <button id="closeButton" class="btn btn-primary"> Close </button>
-            </div>
-            <p><strong>Title:</strong> <span id="detailTitle"></span></p>
-            <p><strong>Time Slot:</strong> <span id="detailStart"></span></p>
-            <p><strong>Description:</strong> <span id="detailText"></span></p>
-            <p style="display: inline-block"><strong>Links:&nbsp;</strong> <div id="altLink" style="display: inline-block"></div> <a id="detailLink" href="#" target="_blank" style="display: inline-block">Event Link</a> </p>
-            <p><strong>Tags:</strong> <span id="detailTags"></span></p>
+    <div id="blurry">
+        <section class="calendar-container">
+            <div id='calendar'></div>
 
-            <div style="display: flex; flex-direction: row">
-                <button id="modifyButton" class="btn btn-primary"> Modify </button>
-                <button id="deleteButton" class="btn btn-primary"> Delete </button>
-            </div>
-        </aside>
-    </section>
+            <aside id="eventDetails">
+                <div id="eventBox">
+                    <h3>Event Details</h3>
+                    <button id="closeButton" class="btn btn-primary"> Close </button>
+                </div>
+                <p><strong>Title:</strong> <span id="detailTitle"></span></p>
+                <p><strong>Time Slot:</strong> <span id="detailStart"></span></p>
+                <p><strong>Description:</strong> <span id="detailText"></span></p>
+                <p style="display: inline-block"><strong>Links:&nbsp;</strong> <div id="altLink" style="display: inline-block"></div> <a id="detailLink" href="#" target="_blank" style="display: inline-block">Event Link</a> </p>
+                <p><strong>Tags:</strong> <span id="detailTags"></span></p>
 
-    <article id="eventForm" style="display: none; background-color: grey">
-        <form id="addEventForm">
-            <label for="eventTitle">Event Title:</label>
-            <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
-            
-            <label for="eventColor">Event Color:</label>
-            <input type="color" id="eventColor" name="eventColor">
-            
-            <label for="eventText">Notes:</label>
-            <textarea id="eventText" name="eventText" rows="4"></textarea>
-            
-            <label for="eventLink">Event Link:</label>
-            <div id="hiddenBox" style="display: none"></div>
-            <input type="url" id="eventLink" name="eventLink">
-            <button id="addLink">Add link</button>
-            <button id="showLink"> Show all links </button>
+                <div style="display: flex; flex-direction: row">
+                    <button id="modifyButton" class="btn btn-primary"> Modify </button>
+                    <button id="deleteButton" class="btn btn-primary"> Delete </button>
+                </div>
+            </aside>
+        </section>
 
-            <label for="eventTags">Tag:</label>
-            <select id="eventTags" name="eventTags" class="form-control">
-                <option value=""></option>
-                <option value="Work">🔴 Work</option>
-                <option value="Entertainment">⚪️ Entertainment</option>
-                <option value="Other">🔵 Other</option>
-              </select>
+        <article id="eventForm" style="display: none; background-color: grey">
+            <form id="addEventForm">
+                <label for="eventTitle">Event Title:</label>
+                <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
+                
+                <label for="eventColor">Event Color:</label>
+                <input type="color" id="eventColor" name="eventColor">
+                
+                <label for="eventText">Notes:</label>
+                <textarea id="eventText" name="eventText" rows="4"></textarea>
+                
+                <label for="eventLink">Event Link:</label>
+                <div id="hiddenBox" style="display: none"></div>
+                <input type="url" id="eventLink" name="eventLink">
+                <div class="button-like-div" id="addLink">Add link</div>
+                <div class="button-like-div" id="showLink"> Show all links </div>
 
-            <div class="button-group">
-                <button id="addButton" type="submit">Add Event</button>
-                <button type="button" id="cancelButton">Cancel</button>
-            </div>
-        </form>
-    </article>
+                <label for="eventTags">Tag:</label>
+                <select id="eventTags" name="eventTags" class="form-control">
+                    <option value=""></option>
+                    <option value="Work">🔴 Work</option>
+                    <option value="Entertainment">⚪️ Entertainment</option>
+                    <option value="Other">🔵 Other</option>
+                </select>
 
+                <div class="button-group">
+                    <button id="addButton" type="submit">Add Event</button>
+                    <button type="button" id="cancelButton">Cancel</button>
+                </div>
+            </form>
+        </article>
+    </div>
 
     <div id="linkBox" style="display: None">
         <button id="closeLink">❌</button>

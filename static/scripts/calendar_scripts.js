@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.updateSize();
     });
 
-    //event link manipulation
+    // Event listener for adding new links
     document.getElementById("addLink").addEventListener('click', function() {
         let link = document.getElementById("eventLink");
         let value = link.value;
@@ -211,23 +211,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Append the wrapper to the container
             container.appendChild(linkWrapper);
-            hiddenContainer.appendChild(hiddenInput)
+            hiddenContainer.appendChild(hiddenInput);
 
             link.value = "";
         }
     });
 
+    // Event listeners for showing and closing the link box
     document.getElementById("showLink").addEventListener('click', function() {
         document.getElementById("linkBox").style.display = "block";
-
+        document.getElementById("blurry").style.filter = 'blur(8px)';
     });
 
-
-    document.getElementById("showLink").addEventListener('click', function() {
+    document.getElementById("closeLink").addEventListener('click', function() {
         document.getElementById("linkBox").style.display = "none";
+        document.getElementById("blurry").style.filter = 'none';
     });
 
-    document.querySelector(".deleteLink").addEventListener('click', function () {
+    // Event delegation for handling delete button clicks
+    document.getElementById("linkBox").addEventListener('click', function(event) {
+        if (event.target && event.target.classList.contains('deleteLink')) {
+            var parentDiv = event.target.closest('.link-wrapper');
 
-    }); 
+            if (parentDiv) {
+                let link = parentDiv.querySelector('a');
+                if (link) {
+                    let value = link.href;
+
+                    // Remove the parent div
+                    parentDiv.remove();
+
+                    // Find and remove the hidden input with the matching value
+                    let box = document.getElementById("hiddenBox");
+                    if (box) {
+                        let inputs = box.querySelectorAll(".hiddenLink");
+
+                        for (let input of inputs) {
+                            if (input.value === value) {
+                                input.remove();
+                                break; // Exit the loop after removing the element
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
 });
