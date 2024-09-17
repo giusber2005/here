@@ -114,15 +114,22 @@
         }
 
         /* css code to style the div inside the addEvent form as button */
-        .button-like-div {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
+        #linkButtonContainer {
+            display: flex;
+            justify-content: space-between; /* Ensure buttons take up equal space */
+            width: 100%; /* Ensures the buttons span the full width of the container */
+            gap: 10px; /* Adds a bit of space between the two buttons */
+        }
+        
+        .button-like-div {    
+            flex: 1; /* Each button takes equal space */
+            padding: 8px 12px; /* Reduced padding */
+            font-size: 14px; /* Smaller font size */
             font-weight: bold;
             color: white;
             background-color: #007bff; /* Blue background */
             border: 1px solid #007bff; /* Blue border */
-            border-radius: 5px;
+            border-radius: 4px; /* Slightly smaller border radius */
             text-align: center;
             cursor: pointer;
             user-select: none;
@@ -189,8 +196,11 @@
                 <label for="eventLink">Event Link:</label>
                 <div id="hiddenBox" style="display: none"></div>
                 <input type="url" id="eventLink" name="eventLink">
-                <div class="button-like-div" id="addLink">Add link</div>
-                <div class="button-like-div" id="showLink"> Show all links </div>
+                <!-- Container for the link buttons -->
+                <div id="linkButtonContainer">
+                    <div class="button-like-div" id="addLink">Add link</div>
+                    <div class="button-like-div" id="showLink">Show all links</div>
+                </div>
 
                 <label for="eventTags">Tag:</label>
                 <select id="eventTags" name="eventTags" class="form-control">

@@ -179,11 +179,14 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.updateSize();
     });
 
+    var linksCounter = 0;
     // Event listener for adding new links
     document.getElementById("addLink").addEventListener('click', function() {
         let link = document.getElementById("eventLink");
         let value = link.value;
         if (value != "") {
+            linksCounter += 1;
+
             let container = document.getElementById("linkBox");
             let hiddenContainer = document.getElementById("hiddenBox");
 
@@ -231,6 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event delegation for handling delete button clicks
     document.getElementById("linkBox").addEventListener('click', function(event) {
         if (event.target && event.target.classList.contains('deleteLink')) {
+            linksCounter -= 1;
+            if (linksCounter === 0) {
+                document.getElementById("linkBox").style.display = "none";
+                document.getElementById("blurry").style.filter = 'none';
+            }
+            
             var parentDiv = event.target.closest('.link-wrapper');
 
             if (parentDiv) {
@@ -257,5 +266,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
 });
