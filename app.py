@@ -150,9 +150,10 @@ def index():
     friends = []
     for friend in friendsId:
          friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend))
-         
+    
+    friends_dict = dict(zip(friendsId, friends))     
         
-    return render_template("homepage.html", friends=friends, friendsId=friendsId)
+    return render_template("homepage.html", friends_dict=friends_dict)
 
 """
 Initializing the environment for the login enforcement with the MAX tempt. block

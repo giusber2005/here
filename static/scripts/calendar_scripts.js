@@ -179,6 +179,20 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.updateSize();
     });
 
+    var addButtons = querySelectorAll("addButtons");
+
+    items.forEach(function(item) {
+        item.addEventListener('click', function() {
+            let input = this.closest('.addInput');
+            let value = input.value;
+
+            if (value != "") {
+
+                
+            }
+        });
+    });
+
     var linksCounter = 0;
     // Event listener for adding new links
     document.getElementById("addLink").addEventListener('click', function() {

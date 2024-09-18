@@ -102,7 +102,7 @@
             width: 100%; /* Optional: defines the width of the flex container */
         }
 
-        #linkBox {
+        #linkBox #friendsBox #photoBox {
             position: fixed; /* Fixes the div to the viewport */
             top: 50%;
             left: 50%;
@@ -114,7 +114,7 @@
         }
 
         /* css code to style the div inside the addEvent form as button */
-        #linkButtonContainer {
+        #linkButtonContainer #friendsButtonContainer #photoButtonContainer {
             display: flex;
             justify-content: space-between; /* Ensure buttons take up equal space */
             width: 100%; /* Ensures the buttons span the full width of the container */
@@ -185,40 +185,70 @@
         <article id="eventForm" style="display: none; background-color: grey">
             <form id="addEventForm">
                 <div id="column1">
-                    <label for="eventTitle">Event Title:</label>
-                    <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
-                    
-                    <label for="eventColor">Event Color:</label>
-                    <input type="color" id="eventColor" name="eventColor">
-                    
-                    <label for="eventText">Notes:</label>
-                    <textarea id="eventText" name="eventText" rows="4"></textarea>
-                    
-                    <label for="eventLink">Event Link:</label>
-                    <div id="hiddenBox" style="display: none"></div>
-                    <input type="url" id="eventLink" name="eventLink">
-                    <!-- Container for the link buttons -->
-                    <div id="linkButtonContainer">
-                        <div class="button-like-div" id="addLink">Add link</div>
-                        <div class="button-like-div" id="showLink">Show all links</div>
+                    <div id="title">
+                        <label for="eventTitle">Event Title:</label>
+                        <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
                     </div>
 
-                    <label for="eventTags">Tag:</label>
-                    <select id="eventTags" name="eventTags" class="form-control">
-                        <option value=""></option>
-                        <option value="Work">🔴 Work</option>
-                        <option value="Entertainment">⚪️ Entertainment</option>
-                        <option value="Other">🔵 Other</option>
-                    </select>
+                    <div id="color">
+                        <label for="eventColor">Event Color:</label>
+                        <input type="color" id="eventColor" name="eventColor">
+                    </div>
+                    
+                    <div id="notes">
+                        <label for="eventText">Notes:</label>
+                        <textarea id="eventText" name="eventText" rows="4"></textarea>
+                    </div>
+                    
+                    <div id="links">
+                        <label for="eventLink">Event Link:</label>
+                        <div id="hiddenBox" style="display: none"></div>
+                        <input type="url" id="eventLink" name="eventLink" class="addInput">
+
+                        <!-- Container for the link buttons -->
+                        <div id="linkButtonContainer">
+                            <div class="button-like-div" id="addLink">Add link</div>
+                            <div class="button-like-div" id="showLink">Show all links</div>
+                        </div>
+                    </div>
+
+                    <div id="tags">
+                        <label for="eventTags">Tag:</label>
+                        <select id="eventTags" name="eventTags" class="form-control">
+                            <option value=""></option>
+                            <option value="Work">🔴 Work</option>
+                            <option value="Entertainment">⚪️ Entertainment</option>
+                            <option value="Other">🔵 Other</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="column2">
-                    <label for="eventFriends">Friends: </label>
-                    <select id="eventFriends" name="eventFriends" class="form-control">
-                        {% for friend in friends %}
-                            <option value={{ friend }}>{{ friend }}</option>
-                        {% endfor %}
-                    </select>
+                    <div id="friends">
+                        <label for="eventFriends">Friends: </label>
+                        <div id="hiddenFriends" style="display: none"></div>
+                        <select id="eventFriends" name="eventFriends" class="form-control addInput">
+                            {% for id, name in friends_dict %}
+                                <option value={{ id }}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div id="friendsButtonContainer">
+                            <div class="button-like-div" id="addFriend">Add friend</div>
+                            <div class="button-like-div" id="showFriend">Show all links</div>
+                        </div>
+                    </div>
+
+                    <div id="photo">
+                        <label for="eventPhoto" class="form-label">Avatar photo</label>
+                        <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
+                        
+                        <div id="photoButtonContainer">
+                            <div class="button-like-div" id="addPhoto">Add photo</div>
+                            <div class="button-like-div" id="showPhoto">Show all photos</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="button-group">
                     <button id="addButton" type="submit">Add Event</button>
                     <button type="button" id="cancelButton">Cancel</button>
@@ -231,5 +261,12 @@
         <button id="closeLink">❌</button>
     </div>
     
+    <div id="friendsBox" style="display: None">
+        <button id="closeFriends">❌</button>
+    </div>
+
+    <div id="photoBox" style="display: None">
+        <button id="closePhoto">❌</button>
+    </div>
 {% endblock %}
 
