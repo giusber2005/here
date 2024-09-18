@@ -138,7 +138,21 @@ def check_number(number):
 @app.route("/")
 @login_required
 def index():
-    return render_template("homepage.html")
+
+    friendsId = []
+    friends1 = db.execute("SELECT * FROM connections WHERE id1 = ?", session["user_id"])
+    for friend in friends1:
+        friendsId.append(friend["id2"])
+    friends2 = db.execute("SELECT * FROM connections WHERE id2 = ?", session["user_id"])
+    for friend in friends2:
+        friendsId.append(friend["id1"])
+    
+    friends = []
+    for friend in friendsId:
+         friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend))
+         
+        
+    return render_template("homepage.html", friends=friends, friendsId=friendsId)
 
 """
 Initializing the environment for the login enforcement with the MAX tempt. block

@@ -184,32 +184,41 @@
 
         <article id="eventForm" style="display: none; background-color: grey">
             <form id="addEventForm">
-                <label for="eventTitle">Event Title:</label>
-                <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
-                
-                <label for="eventColor">Event Color:</label>
-                <input type="color" id="eventColor" name="eventColor">
-                
-                <label for="eventText">Notes:</label>
-                <textarea id="eventText" name="eventText" rows="4"></textarea>
-                
-                <label for="eventLink">Event Link:</label>
-                <div id="hiddenBox" style="display: none"></div>
-                <input type="url" id="eventLink" name="eventLink">
-                <!-- Container for the link buttons -->
-                <div id="linkButtonContainer">
-                    <div class="button-like-div" id="addLink">Add link</div>
-                    <div class="button-like-div" id="showLink">Show all links</div>
+                <div id="column1">
+                    <label for="eventTitle">Event Title:</label>
+                    <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
+                    
+                    <label for="eventColor">Event Color:</label>
+                    <input type="color" id="eventColor" name="eventColor">
+                    
+                    <label for="eventText">Notes:</label>
+                    <textarea id="eventText" name="eventText" rows="4"></textarea>
+                    
+                    <label for="eventLink">Event Link:</label>
+                    <div id="hiddenBox" style="display: none"></div>
+                    <input type="url" id="eventLink" name="eventLink">
+                    <!-- Container for the link buttons -->
+                    <div id="linkButtonContainer">
+                        <div class="button-like-div" id="addLink">Add link</div>
+                        <div class="button-like-div" id="showLink">Show all links</div>
+                    </div>
+
+                    <label for="eventTags">Tag:</label>
+                    <select id="eventTags" name="eventTags" class="form-control">
+                        <option value=""></option>
+                        <option value="Work">🔴 Work</option>
+                        <option value="Entertainment">⚪️ Entertainment</option>
+                        <option value="Other">🔵 Other</option>
+                    </select>
                 </div>
-
-                <label for="eventTags">Tag:</label>
-                <select id="eventTags" name="eventTags" class="form-control">
-                    <option value=""></option>
-                    <option value="Work">🔴 Work</option>
-                    <option value="Entertainment">⚪️ Entertainment</option>
-                    <option value="Other">🔵 Other</option>
-                </select>
-
+                <div id="column2">
+                    <label for="eventFriends">Friends: </label>
+                    <select id="eventFriends" name="eventFriends" class="form-control">
+                        {% for friend in friends %}
+                            <option value={{ friend }}>{{ friend }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <div class="button-group">
                     <button id="addButton" type="submit">Add Event</button>
                     <button type="button" id="cancelButton">Cancel</button>
