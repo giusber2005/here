@@ -181,18 +181,130 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var addButtons = querySelectorAll("addButtons");
 
-    items.forEach(function(item) {
+    addButtons.forEach(function(item) {
         item.addEventListener('click', function() {
             let input = this.closest('.addInput');
             let value = input.value;
 
             if (value != "") {
-                let container = "";
-                let hiddenContainer = "";
+                let column = this.closest('.column-container').id
+                let hiddenContainer = this.closes('.hidden')
+
+                let containers = document.querySelectorAll(".Box");
+                containers.forEach(function(container) {
+                    var id = container.id;
+                    if (id.includes(column)) {
+                        var Box = container;
+                    }
+                });
+                
+                var Wrapper = document.createElement('div');
+                Wrapper.className = 'wrapper';
+
+                if (id === 'links') {
+                    var newLink = document.createElement('a');
+                    newLink.href = value;
+                    newLink.textContent = value;
+                    newLink.target = '_blank'; // Open link in a new tab
+                    Wrapper.appendChild(newLink);
+                } else if (id === "photo") {
+                    var newPhoto = document.createElement('img');
+                    newPhoto.src = value;
+                    newPhoto.className = "photo-preview";
+                    Wrapper.appendChild(newPhoto);
+                } else if (id === "friends") {
+                    var newFriend = document.createElement('p');
+                    newFriend.innerHTML = value;
+                    Wrapper.appendChild(newFriend)
+                }
+                    
+                // Create the delete button
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete';
+
+                var hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+                hiddenInput.className = 'hiddenInstance';
+                hiddenInput.value = value; 
+
+                Wrapper.appendChild(deleteButton);
+
+                // Append the wrapper to the container
+                container.appendChild(Wrapper);
+                hiddenContainer.appendChild(hiddenInput);
+
+                input.value = "";
             }
         });
     });
 
+    showButtons = document.querySelectorAll('.show');
+    showButtons.forEach(function(showButton) {
+        showButton.addEventListener('click', function() {
+            container = this.closest('.column-container');
+            Boxes = document.querySelectorAll('.Box');
+            Boxes.forEach(function(box) {
+                let id = box.id;
+                if (id.includes(container.id)) {
+                    var Box = box;
+                }
+            });
+            Box.style.display = "block";
+            document.getElementById("blurry").style.filter = 'blur(8px)';                
+        });
+    });
+
+    closeButtons = document.querySelectorAll('close');
+    closeButtons.forEach(function(button) {
+        button.closest('.Box').style.display = "none";
+        document.getElementById("blurry").style.filter = 'none';
+    });
+
+    Boxes = document.querySelectorAll(".Box");
+    Boxes.forEach(function(box) {
+        box.addEventListener('click', function(event) {
+            if (event.target && event,target.classList.contains('.delete')) {
+                var counter = box.querySelectorAll('.delete').length;
+                if (counter === 1) {
+                    box.style.display = "none";
+                    document.getElementById("blurry").style.filter = 'none';    
+                }
+
+                var parentDiv = event.target.closest('.wrapper'); 
+
+                if (parentDiv) {
+                    if (box.id === 'links') {
+                        let link = parentDiv.querySelector('a');
+                        var value = link.href;
+                    } else if (box.id === "photo") {
+                        let photo = parentDiv.querySelector('img');
+                        var value = photo.src;
+                    } else if (box.id === "friends") {
+                        let friend = parentDiv.querySelector('p');
+                        var value = friend.innerHTML;
+                    }
+
+                    parentDiv.remove();
+
+                    let hiddenBoxes = document.querySelectorAll('.hidden');
+                    hiddenBoxes.forEach(function(hiddenBox) {
+                        hiddenInputs = hiddenBoxes.querySelectorAll(".hiddenInstance");
+
+                        for (let input of hiddenInputs) {
+                            if (input.value === value) {
+                                input.remove();
+                                break; // Exit the loop after removing the element
+                            }
+                        }
+                    });
+                }
+            }    
+        });
+    });
+
+
+    //OLD IMPLEMENTATION OF LINK ADDER AND OTHER LINK FEATURES
     var linksCounter = 0;
     // Event listener for adding new links
     document.getElementById("addLink").addEventListener('click', function() {

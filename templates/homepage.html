@@ -185,34 +185,34 @@
         <article id="eventForm" style="display: none; background-color: grey">
             <form id="addEventForm">
                 <div id="column1">
-                    <div id="title">
+                    <div id="title" class="column-container">
                         <label for="eventTitle">Event Title:</label>
                         <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
                     </div>
 
-                    <div id="color">
+                    <div id="color" class="column-container"> 
                         <label for="eventColor">Event Color:</label>
                         <input type="color" id="eventColor" name="eventColor">
                     </div>
                     
-                    <div id="notes">
+                    <div id="notes" class="column-container">
                         <label for="eventText">Notes:</label>
                         <textarea id="eventText" name="eventText" rows="4"></textarea>
                     </div>
                     
-                    <div id="links">
+                    <div id="links" class="column-container">
                         <label for="eventLink">Event Link:</label>
-                        <div id="hiddenBox" style="display: none"></div>
+                        <div id="hiddenBox" class="hidden" style="display: none"></div>
                         <input type="url" id="eventLink" name="eventLink" class="addInput">
 
                         <!-- Container for the link buttons -->
                         <div id="linkButtonContainer">
                             <div class="button-like-div" id="addLink">Add link</div>
-                            <div class="button-like-div" id="showLink">Show all links</div>
+                            <div class="button-like-div show" id="showLink">Show all links</div>
                         </div>
                     </div>
 
-                    <div id="tags">
+                    <div id="tags" class="column-container">
                         <label for="eventTags">Tag:</label>
                         <select id="eventTags" name="eventTags" class="form-control">
                             <option value=""></option>
@@ -223,28 +223,30 @@
                     </div>
                 </div>
                 <div id="column2">
-                    <div id="friends">
+                    <div id="friends" class="column-container">
                         <label for="eventFriends">Friends: </label>
-                        <div id="hiddenFriends" style="display: none"></div>
+                        <div id="hiddenFriends" class="hidden" style="display: none"></div>
                         <select id="eventFriends" name="eventFriends" class="form-control addInput">
-                            {% for id, name in friends_dict %}
+                            <option value="none"> </option>
+                            {% for id, name in friends_dict.items() %}
                                 <option value={{ id }}>{{ name }}</option>
                             {% endfor %}
                         </select>
 
                         <div id="friendsButtonContainer">
                             <div class="button-like-div" id="addFriend">Add friend</div>
-                            <div class="button-like-div" id="showFriend">Show all links</div>
+                            <div class="button-like-div show" id="showFriend">Show all links</div>
                         </div>
                     </div>
 
-                    <div id="photo">
+                    <div id="photo" class="column-container">
                         <label for="eventPhoto" class="form-label">Avatar photo</label>
+                        <div id="hiddenPhoto" class="hidden" style="display: none"></div>
                         <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
                         
                         <div id="photoButtonContainer">
                             <div class="button-like-div" id="addPhoto">Add photo</div>
-                            <div class="button-like-div" id="showPhoto">Show all photos</div>
+                            <div class="button-like-div show" id="showPhoto">Show all photos</div>
                         </div>
                     </div>
                 </div>
@@ -257,16 +259,16 @@
         </article>
     </div>
 
-    <div id="linkBox" style="display: None">
-        <button id="closeLink">❌</button>
+    <div id="linkBox" class="Box" style="display: None">
+        <button id="closeLink" class="close">❌</button>
     </div>
     
-    <div id="friendsBox" style="display: None">
-        <button id="closeFriends">❌</button>
+    <div id="friendsBox" class="Box" style="display: None">
+        <button id="closeFriends" class="close">❌</button>
     </div>
 
-    <div id="photoBox" style="display: None">
-        <button id="closePhoto">❌</button>
+    <div id="photoBox" class="Box" style="display: None">
+        <button id="closePhoto" class="close">❌</button>
     </div>
 {% endblock %}
 

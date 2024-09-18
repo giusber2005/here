@@ -149,10 +149,11 @@ def index():
     
     friends = []
     for friend in friendsId:
-         friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend))
+         friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend)[0]["username"])
     
     friends_dict = dict(zip(friendsId, friends))     
-        
+    
+    print(friends_dict)
     return render_template("homepage.html", friends_dict=friends_dict)
 
 """
