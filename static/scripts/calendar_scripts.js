@@ -187,8 +187,8 @@ document.addEventListener('DOMContentLoaded', function() {
             let value = input.value;
 
             if (value != "") {
-
-                
+                let container = "";
+                let hiddenContainer = "";
             }
         });
     });
