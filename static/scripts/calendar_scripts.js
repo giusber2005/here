@@ -179,118 +179,131 @@ document.addEventListener('DOMContentLoaded', function() {
         calendar.updateSize();
     });
 
-    var addButtons = querySelectorAll("addButtons");
+    var addButtons = document.querySelectorAll(".add");
 
     addButtons.forEach(function(item) {
         item.addEventListener('click', function() {
-            let input = this.closest('.addInput');
+
+            let input = this.closest('.column-container').querySelector('.addInput');
             let value = input.value;
 
             if (value != "") {
-                let column = this.closest('.column-container').id
-                let hiddenContainer = this.closes('.hidden')
-
+                let column = this.closest('.column-container').id;
+                let hiddenContainer = this.closest('.column-container').querySelector('.hidden');
+    
                 let containers = document.querySelectorAll(".Box");
+                let Box = null;
                 containers.forEach(function(container) {
                     var id = container.id;
                     if (id.includes(column)) {
-                        var Box = container;
+                        Box = container;
                     }
                 });
-                
+    
+                if (!Box) return; // If no box found, exit
+    
                 var Wrapper = document.createElement('div');
                 Wrapper.className = 'wrapper';
 
-                if (id === 'links') {
+                if (Box.id === 'linkBox') {
                     var newLink = document.createElement('a');
                     newLink.href = value;
                     newLink.textContent = value;
                     newLink.target = '_blank'; // Open link in a new tab
                     Wrapper.appendChild(newLink);
-                } else if (id === "photo") {
+                } else if (Box.id === "photoBox") {
                     var newPhoto = document.createElement('img');
                     newPhoto.src = value;
                     newPhoto.className = "photo-preview";
                     Wrapper.appendChild(newPhoto);
-                } else if (id === "friends") {
+                } else if (Box.id === "friendsBox") {
                     var newFriend = document.createElement('p');
                     newFriend.innerHTML = value;
-                    Wrapper.appendChild(newFriend)
+                    Wrapper.appendChild(newFriend);
                 }
-                    
+    
                 // Create the delete button
                 var deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.className = 'delete';
-
+    
                 var hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                 hiddenInput.className = 'hiddenInstance';
                 hiddenInput.value = value; 
-
+    
                 Wrapper.appendChild(deleteButton);
-
+    
                 // Append the wrapper to the container
-                container.appendChild(Wrapper);
+                Box.appendChild(Wrapper);
                 hiddenContainer.appendChild(hiddenInput);
-
-                input.value = "";
+    
+                input.value = ""; // Clear the input
             }
         });
     });
-
-    showButtons = document.querySelectorAll('.show');
+    
+    let showButtons = document.querySelectorAll('.show');
     showButtons.forEach(function(showButton) {
         showButton.addEventListener('click', function() {
-            container = this.closest('.column-container');
-            Boxes = document.querySelectorAll('.Box');
+            let container = this.closest('.column-container');
+            let Boxes = document.querySelectorAll('.Box');
+            let Box = null;
+    
             Boxes.forEach(function(box) {
                 let id = box.id;
                 if (id.includes(container.id)) {
-                    var Box = box;
+                    Box = box;
                 }
             });
-            Box.style.display = "block";
-            document.getElementById("blurry").style.filter = 'blur(8px)';                
+    
+            if (Box) {
+                Box.style.display = "block";
+                document.getElementById("blurry").style.filter = 'blur(8px)';
+            }
         });
     });
-
-    closeButtons = document.querySelectorAll('close');
+    
+    let closeButtons = document.querySelectorAll('.close');
     closeButtons.forEach(function(button) {
-        button.closest('.Box').style.display = "none";
-        document.getElementById("blurry").style.filter = 'none';
+        button.addEventListener('click', function() {
+            let Box = this.closest('.Box');
+            Box.style.display = "none";
+            document.getElementById("blurry").style.filter = 'none';
+        });
     });
-
-    Boxes = document.querySelectorAll(".Box");
+    
+    let Boxes = document.querySelectorAll(".Box");
     Boxes.forEach(function(box) {
         box.addEventListener('click', function(event) {
-            if (event.target && event,target.classList.contains('.delete')) {
-                var counter = box.querySelectorAll('.delete').length;
+            if (event.target && event.target.classList.contains('delete')) {
+                let counter = box.querySelectorAll('.delete').length;
                 if (counter === 1) {
                     box.style.display = "none";
                     document.getElementById("blurry").style.filter = 'none';    
                 }
-
+    
                 var parentDiv = event.target.closest('.wrapper'); 
-
+    
                 if (parentDiv) {
+                    let value;
                     if (box.id === 'links') {
                         let link = parentDiv.querySelector('a');
-                        var value = link.href;
+                        value = link.href;
                     } else if (box.id === "photo") {
                         let photo = parentDiv.querySelector('img');
-                        var value = photo.src;
+                        value = photo.src;
                     } else if (box.id === "friends") {
                         let friend = parentDiv.querySelector('p');
-                        var value = friend.innerHTML;
+                        value = friend.innerHTML;
                     }
-
+    
                     parentDiv.remove();
-
+    
                     let hiddenBoxes = document.querySelectorAll('.hidden');
                     hiddenBoxes.forEach(function(hiddenBox) {
-                        hiddenInputs = hiddenBoxes.querySelectorAll(".hiddenInstance");
-
+                        let hiddenInputs = hiddenBox.querySelectorAll(".hiddenInstance");
+    
                         for (let input of hiddenInputs) {
                             if (input.value === value) {
                                 input.remove();
@@ -302,8 +315,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }    
         });
     });
+    
+});         
 
 
+
+/*
     //OLD IMPLEMENTATION OF LINK ADDER AND OTHER LINK FEATURES
     var linksCounter = 0;
     // Event listener for adding new links
@@ -392,4 +409,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
+*/
+

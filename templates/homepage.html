@@ -21,34 +21,48 @@
             display: none; /* Initially hidden */
         }
 
+        /* Updated styling for eventForm */
         #eventForm {
             display: none;
-            position: fixed; /* Changed from absolute to fixed */
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000; /* Added z-index */
-            width: 300px;
-            border-radius: 8px; /* Added some rounding */
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+            z-index: 1000;
+            width: 600px; /* Increase width for better spacing in two columns */
+            border-radius: 10px;
         }
 
-        #eventForm form {
+        /* Create a flex layout for two columns */
+        #addEventForm {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px; /* Add space between columns */
+        }
+
+        #column1, #column2 {
+            flex: 1; /* Each column takes equal space */
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px; /* Spacing between form elements in each column */
         }
 
         #eventForm label {
             font-weight: bold;
+            margin-bottom: 5px; /* Added space between label and input */
         }
 
-        #eventForm input, #eventForm textarea, #eventForm button {
+        #eventForm input, #eventForm textarea, #eventForm select, #eventForm button {
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+        }
+
+        #eventForm textarea {
+            resize: vertical; /* Allow vertical resizing */
         }
 
         #eventForm button {
@@ -102,7 +116,7 @@
             width: 100%; /* Optional: defines the width of the flex container */
         }
 
-        #linkBox #friendsBox #photoBox {
+        .Box {
             position: fixed; /* Fixes the div to the viewport */
             top: 50%;
             left: 50%;
@@ -113,23 +127,23 @@
             z-index: 9999; /* Ensures the div is in front of all other elements */
         }
 
-        /* css code to style the div inside the addEvent form as button */
-        #linkButtonContainer #friendsButtonContainer #photoButtonContainer {
+        /* Improved link button container style */
+        #linkButtonContainer, #friendsButtonContainer, #photoButtonContainer {
             display: flex;
-            justify-content: space-between; /* Ensure buttons take up equal space */
-            width: 100%; /* Ensures the buttons span the full width of the container */
-            gap: 10px; /* Adds a bit of space between the two buttons */
+            justify-content: space-between;
+            width: 100%; /* Ensures buttons take full width */
+            gap: 10px;
         }
-        
-        .button-like-div {    
+
+        .button-like-div {
             flex: 1; /* Each button takes equal space */
-            padding: 8px 12px; /* Reduced padding */
-            font-size: 14px; /* Smaller font size */
+            padding: 10px; /* Slightly larger padding */
+            font-size: 14px;
             font-weight: bold;
             color: white;
-            background-color: #007bff; /* Blue background */
-            border: 1px solid #007bff; /* Blue border */
-            border-radius: 4px; /* Slightly smaller border radius */
+            background-color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
             text-align: center;
             cursor: pointer;
             user-select: none;
@@ -137,13 +151,20 @@
         }
 
         .button-like-div:hover {
-            background-color: #0056b3; /* Darker blue on hover */
+            background-color: #0056b3;
             border-color: #0056b3;
         }
 
         .button-like-div:active {
-            background-color: #003d80; /* Even darker blue on click */
+            background-color: #003d80;
             border-color: #003d80;
+        }
+
+        /* Styling the button group for submit and cancel */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
         }
     </style>
 
@@ -200,14 +221,14 @@
                         <textarea id="eventText" name="eventText" rows="4"></textarea>
                     </div>
                     
-                    <div id="links" class="column-container">
+                    <div id="link" class="column-container">
                         <label for="eventLink">Event Link:</label>
                         <div id="hiddenBox" class="hidden" style="display: none"></div>
                         <input type="url" id="eventLink" name="eventLink" class="addInput">
 
                         <!-- Container for the link buttons -->
                         <div id="linkButtonContainer">
-                            <div class="button-like-div" id="addLink">Add link</div>
+                            <div class="button-like-div add" id="addLink">Add link</div>
                             <div class="button-like-div show" id="showLink">Show all links</div>
                         </div>
                     </div>
@@ -229,13 +250,13 @@
                         <select id="eventFriends" name="eventFriends" class="form-control addInput">
                             <option value="none"> </option>
                             {% for id, name in friends_dict.items() %}
-                                <option value={{ id }}>{{ name }}</option>
+                                <option value={{ name }}>{{ name }}</option>
                             {% endfor %}
                         </select>
 
                         <div id="friendsButtonContainer">
-                            <div class="button-like-div" id="addFriend">Add friend</div>
-                            <div class="button-like-div show" id="showFriend">Show all links</div>
+                            <div class="button-like-div add" id="addFriend">Add friend</div>
+                            <div class="button-like-div show" id="showFriend">Show all friends</div>
                         </div>
                     </div>
 
@@ -245,7 +266,7 @@
                         <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
                         
                         <div id="photoButtonContainer">
-                            <div class="button-like-div" id="addPhoto">Add photo</div>
+                            <div class="button-like-div add" id="addPhoto">Add photo</div>
                             <div class="button-like-div show" id="showPhoto">Show all photos</div>
                         </div>
                     </div>
