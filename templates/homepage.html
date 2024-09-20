@@ -185,21 +185,30 @@
         <section class="calendar-container">
             <div id='calendar'></div>
 
-            <aside id="eventDetails">
-                <div id="eventBox">
-                    <h3>Event Details</h3>
-                    <button id="closeButton" class="btn btn-primary"> Close </button>
-                </div>
-                <p><strong>Title:</strong> <span id="detailTitle"></span></p>
-                <p><strong>Time Slot:</strong> <span id="detailStart"></span></p>
-                <p><strong>Description:</strong> <span id="detailText"></span></p>
-                <p style="display: inline-block"><strong>Links:&nbsp;</strong> <div id="altLink" style="display: inline-block"></div> <a id="detailLink" href="#" target="_blank" style="display: inline-block">Event Link</a> </p>
+            <aside id="eventDetails" style="display:none;">
+                <h3 id="detailTitle"></h3>
+                <p id="detailStart"></p>
+                <p><strong>Text:</strong> <span id="detailText"></span></p>
                 <p><strong>Tags:</strong> <span id="detailTags"></span></p>
-
-                <div style="display: flex; flex-direction: row">
-                    <button id="modifyButton" class="btn btn-primary"> Modify </button>
-                    <button id="deleteButton" class="btn btn-primary"> Delete </button>
+            
+                <div id="photoBox">
+                    <h4>Photos:</h4>
+                    <!-- Photos will be appended here -->
                 </div>
+            
+                <div id="friendsBox">
+                    <h4>Friends:</h4>
+                    <!-- Friends will be appended here -->
+                </div>
+            
+                <div id="linkBox">
+                    <h4>Additional Links:</h4>
+                    <!-- Additional links will be appended here -->
+                </div>
+            
+                <button id="closeButton">Close</button>
+                <button id="modifyButton">Modify Event</button>
+                <button id="deleteButton">Delete Event</button>
             </aside>
         </section>
 
@@ -281,14 +290,17 @@
     </div>
 
     <div id="linkBox" class="Box" style="display: None">
+        <div style="display: None" class="alert">No links are selected for this event</div>
         <button id="closeLink" class="close">❌</button>
     </div>
     
     <div id="friendsBox" class="Box" style="display: None">
+        <div style="display: None" class="alert">No friends are selected for this event</div>
         <button id="closeFriends" class="close">❌</button>
     </div>
 
     <div id="photoBox" class="Box" style="display: None">
+        <div style="display: None" class="alert">No photos are selected for this event</div>
         <button id="closePhoto" class="close">❌</button>
     </div>
 {% endblock %}

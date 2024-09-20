@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailTitle = document.getElementById('detailTitle');
     var detailStart = document.getElementById('detailStart');
     var detailText = document.getElementById('detailText');
-    var detailLink = document.getElementById('detailLink');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
@@ -50,8 +49,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 var color = document.getElementById('eventColor').value;
                 var text = document.getElementById('eventText').value;
                 var link = document.getElementById('eventLink').value;
-                var tag = document.getElementById('eventTags').value;  // Single tag selected from the <select>
-
+                var tag = document.getElementById('eventTags').value;
+                
+                // Gather additional data (photos, friends, links)
+                var photos = [];
+                document.querySelectorAll("#photoBox img").forEach(function(img) {
+                    photos.push(img.src);
+                });
+            
+                var friends = [];
+                document.querySelectorAll("#friendsBox p").forEach(function(friend) {
+                    friends.push(friend.textContent);
+                });
+            
+                var links = [];
+                document.querySelectorAll("#linkBox a").forEach(function(a) {
+                    links.push(a.href);
+                });
+            
                 var eventData;
                 if (title) {
                     eventData = {
@@ -62,7 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         extendedProps: {
                             text: text,
                             link: link,
-                            tags: tag  // Handle the single tag value here
+                            tags: tag,
+                            photos: photos,    // Store the photo URLs
+                            friends: friends,  // Store the list of friends
+                            links: links       // Store additional links
                         }
                     };
                     calendar.addEvent(eventData);
@@ -71,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.classList.remove('dimmed');
                 calendar.unselect();
             };
+            
 
             cancelButton.onclick = function() {
                 eventForm.style.display = 'none';
@@ -83,19 +102,42 @@ document.addEventListener('DOMContentLoaded', function() {
             detailTitle.textContent = info.event.title;
             detailStart.textContent = `${info.event.startStr} - ${info.event.endStr}`;
             detailText.textContent = info.event.extendedProps.text || 'None';
-            detailLink.href = info.event.extendedProps.link || '#';
-            if (detailLink.href.endsWith("#") ) {
-                detailLink.style.display = "none"; // Correct the "None" to "none"
-                document.getElementById('altLink').innerHTML = "None";
-            } else {
-                detailLink.style.display = "inline-block";
-                document.getElementById('altLink').style.display = "none"; // Correct "None" to "none"
-            }            
-            detailTags.textContent = info.event.extendedProps.tags || 'None';  // Display single tag
-            detailLink.textContent = info.event.extendedProps.link || 'None';
-
+            detailTags.textContent = info.event.extendedProps.tags || 'None';
+        
+            // Display photos
+            var photoBox = document.getElementById("photoBox");
+            photoBox.innerHTML = ""; // Clear previous content
+            var photos = info.event.extendedProps.photos || [];
+            photos.forEach(function(photo) {
+                var img = document.createElement("img");
+                img.src = photo;
+                img.className = "photo-preview"; // Ensure it has a proper class for styling
+                photoBox.appendChild(img);
+            });
+        
+            // Display friends
+            var friendsBox = document.getElementById("friendsBox");
+            friendsBox.innerHTML = ""; // Clear previous content
+            var friends = info.event.extendedProps.friends || [];
+            friends.forEach(function(friend) {
+                var p = document.createElement("p");
+                p.textContent = friend;
+                friendsBox.appendChild(p);
+            });
+        
+            // Display additional links
+            var linkBox = document.getElementById("linkBox");
+            linkBox.innerHTML = ""; // Clear previous content
+            var links = info.event.extendedProps.links || [];
+            links.forEach(function(link) {
+                var a = document.createElement("a");
+                a.href = link;
+                a.textContent = link;
+                a.target = "_blank"; // Open link in a new tab
+                linkBox.appendChild(a);
+            });
+        
             selectedEvent = info.event; // Store the currently selected event
-
             calendar.updateSize();
         },
         viewDidMount: function() {
@@ -213,7 +255,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     Wrapper.appendChild(newLink);
                 } else if (Box.id === "photoBox") {
                     var newPhoto = document.createElement('img');
-                    newPhoto.src = value;
+
+                    var file = input.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+            
+                        reader.onload = function(e) {
+                            newPhoto.src = e.target.result;
+                        };
+            
+                        reader.readAsDataURL(file);
+                    } else {
+                        newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                    }
+
                     newPhoto.className = "photo-preview";
                     Wrapper.appendChild(newPhoto);
                 } else if (Box.id === "friendsBox") {
@@ -258,8 +313,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     
             if (Box) {
-                Box.style.display = "block";
-                document.getElementById("blurry").style.filter = 'blur(8px)';
+                let counter = Box.querySelectorAll('.delete').length;
+                if (counter === 0) {
+                    Box.style.display = "block";
+                    document.getElementById("blurry").style.filter = 'blur(8px)';
+                    Box.querySelector('.alert').style.display = "block";    
+                } else {
+                    Box.style.display = "block";
+                    document.getElementById("blurry").style.filter = 'blur(8px)';
+                    Box.querySelector('.alert').style.display = "none";
+                }
             }
         });
     });
@@ -278,11 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box.addEventListener('click', function(event) {
             if (event.target && event.target.classList.contains('delete')) {
                 let counter = box.querySelectorAll('.delete').length;
-                if (counter === 1) {
-                    box.style.display = "none";
-                    document.getElementById("blurry").style.filter = 'none';    
-                }
-    
+
                 var parentDiv = event.target.closest('.wrapper'); 
     
                 if (parentDiv) {
@@ -311,6 +370,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     });
+
+
+                    if (counter === 1) {
+                        box.style.display = "block";
+                        document.getElementById("blurry").style.filter = 'blur(8px)'; 
+                        box.querySelector('.alert').style.display = "block";   
+                    }
+        
                 }
             }    
         });
@@ -318,96 +385,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });         
 
-
-
-/*
-    //OLD IMPLEMENTATION OF LINK ADDER AND OTHER LINK FEATURES
-    var linksCounter = 0;
-    // Event listener for adding new links
-    document.getElementById("addLink").addEventListener('click', function() {
-        let link = document.getElementById("eventLink");
-        let value = link.value;
-        if (value != "") {
-            linksCounter += 1;
-
-            let container = document.getElementById("linkBox");
-            let hiddenContainer = document.getElementById("hiddenBox");
-
-            var linkWrapper = document.createElement('div');
-            linkWrapper.className = 'link-wrapper';
-
-            var newLink = document.createElement('a');
-            newLink.href = value;
-            newLink.textContent = value;
-            newLink.target = '_blank'; // Open link in a new tab
-
-            // Create the delete button
-            var deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.className = 'deleteLink';
-
-            var hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
-            hiddenInput.className = 'hiddenLink';
-            hiddenInput.value = value; 
-
-            // Append the link and button to the wrapper
-            linkWrapper.appendChild(newLink);
-            linkWrapper.appendChild(deleteButton);
-
-            // Append the wrapper to the container
-            container.appendChild(linkWrapper);
-            hiddenContainer.appendChild(hiddenInput);
-
-            link.value = "";
-        }
-    });
-
-    // Event listeners for showing and closing the link box
-    document.getElementById("showLink").addEventListener('click', function() {
-        document.getElementById("linkBox").style.display = "block";
-        document.getElementById("blurry").style.filter = 'blur(8px)';
-    });
-
-    document.getElementById("closeLink").addEventListener('click', function() {
-        document.getElementById("linkBox").style.display = "none";
-        document.getElementById("blurry").style.filter = 'none';
-    });
-
-    // Event delegation for handling delete button clicks
-    document.getElementById("linkBox").addEventListener('click', function(event) {
-        if (event.target && event.target.classList.contains('deleteLink')) {
-            linksCounter -= 1;
-            if (linksCounter === 0) {
-                document.getElementById("linkBox").style.display = "none";
-                document.getElementById("blurry").style.filter = 'none';
-            }
-            
-            var parentDiv = event.target.closest('.link-wrapper');
-
-            if (parentDiv) {
-                let link = parentDiv.querySelector('a');
-                if (link) {
-                    let value = link.href;
-
-                    // Remove the parent div
-                    parentDiv.remove();
-
-                    // Find and remove the hidden input with the matching value
-                    let box = document.getElementById("hiddenBox");
-                    if (box) {
-                        let inputs = box.querySelectorAll(".hiddenLink");
-
-                        for (let input of inputs) {
-                            if (input.value === value) {
-                                input.remove();
-                                break; // Exit the loop after removing the element
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
-*/
 
