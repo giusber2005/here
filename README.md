@@ -1,7 +1,7 @@
 # PROJECT
 
 **LOGO**  
-![Logo](/Users/giusber2005/Desktop/workspace/repositories/HERE/static/images/logo.png)
+![Logo](https://photos.google.com/photo/AF1QipP1z2ow-TISE3O1_x-OrMjPszcK_oeO2dppIlc5)
 
 **NAME AND SURNAME**  
 Giuseppe Berardi
