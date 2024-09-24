@@ -3,3 +3,8 @@ THINGS LEFT TO DO:
     resolve the problems with the implementation of the reset of the password
     finish design of the pages actually in the websites
     continue working of the homepage features
+
+    homepage features
+        remove the informations of the previous event once it has been used 
+        add a preview of the current photo selected in the addEvent form
+        it shouldn't be possible to add a friend more than one time

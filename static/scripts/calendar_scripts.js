@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var eventDetails = document.getElementById('eventDetails');
     var detailTitle = document.getElementById('detailTitle');
     var detailStart = document.getElementById('detailStart');
+    var detailEnd = document.getElementById('detailEnd');
     var detailText = document.getElementById('detailText');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
     var calendar;
@@ -45,18 +46,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
+            
+                // Your event creation logic
                 var title = document.getElementById('eventTitle').value;
                 var color = document.getElementById('eventColor').value;
                 var text = document.getElementById('eventText').value;
                 var link = document.getElementById('eventLink').value;
                 var tag = document.getElementById('eventTags').value;
-                
+            
                 // Gather additional data (photos, friends, links)
                 var photos = [];
                 document.querySelectorAll("#photoBox img").forEach(function(img) {
                     photos.push(img.src);
                 });
-            
+
                 var friends = [];
                 document.querySelectorAll("#friendsBox p").forEach(function(friend) {
                     friends.push(friend.textContent);
@@ -67,9 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     links.push(a.href);
                 });
             
-                var eventData;
                 if (title) {
-                    eventData = {
+                    var eventData = {
                         title: title,
                         start: info.startStr,
                         end: info.endStr,
@@ -85,61 +87,102 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     calendar.addEvent(eventData);
                 }
+            
+                // Reset the form, clear dynamic content, and hide the form
+                resetFormAndContent();
                 eventForm.style.display = 'none';
                 document.body.classList.remove('dimmed');
                 calendar.unselect();
             };
             
-
+            // Cancel event creation
             cancelButton.onclick = function() {
+                resetFormAndContent();
                 eventForm.style.display = 'none';
                 document.body.classList.remove('dimmed');
                 calendar.unselect();
             };
+            
+            // Function to reset form and clear dynamic content
+            function resetFormAndContent() {
+                // Reset the form inputs
+                addEventForm.reset();
+            
+                // Clear dynamic content from photoBox, friendsBox, and linkBox
+                clearDynamicContent('photoBox');
+                clearDynamicContent('friendsBox');
+                clearDynamicContent('linkBox');
+            }
+            
+            // Helper function to clear dynamic content from a given container
+            function clearDynamicContent(containerId) {
+                var container = document.getElementById(containerId);
+                
+                // Remove all child nodes
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+            }
         },
         eventClick: function(info) {
-            eventDetails.style.display = 'block'; // Show event details
+            eventDetails.style.display = 'block'; 
             detailTitle.textContent = info.event.title;
-            detailStart.textContent = `${info.event.startStr} - ${info.event.endStr}`;
+
+            const start = new Date(info.event.start);
+            const end = new Date(info.event.end);
+
+            const options = {
+            weekday: 'long', // "Monday", "Tuesday"
+            year: 'numeric', // "2023"
+            month: 'long', // "September"
+            day: 'numeric', // "24"
+            hour: '2-digit', // "02 PM"
+            minute: '2-digit' // "02:30 PM"
+            };
+
+            const formattedStart = new Intl.DateTimeFormat('en-US', options).format(start);
+            const formattedEnd = new Intl.DateTimeFormat('en-US', options).format(end);
+
+            detailStart.textContent = `${formattedStart}`
+            detailEnd.textContent = `${formattedEnd}`;
             detailText.textContent = info.event.extendedProps.text || 'None';
             detailTags.textContent = info.event.extendedProps.tags || 'None';
         
+            // Clear previous content before adding new content
+            clearDynamicContent('photoBox');
+            clearDynamicContent('friendsBox');
+            clearDynamicContent('linkBox');
+        
             // Display photos
-            var photoBox = document.getElementById("photoBox");
-            photoBox.innerHTML = ""; // Clear previous content
             var photos = info.event.extendedProps.photos || [];
             photos.forEach(function(photo) {
                 var img = document.createElement("img");
                 img.src = photo;
-                img.className = "photo-preview"; // Ensure it has a proper class for styling
-                photoBox.appendChild(img);
+                img.className = "photo-preview";
+                document.getElementById("photoBox").appendChild(img);
             });
         
             // Display friends
-            var friendsBox = document.getElementById("friendsBox");
-            friendsBox.innerHTML = ""; // Clear previous content
             var friends = info.event.extendedProps.friends || [];
             friends.forEach(function(friend) {
                 var p = document.createElement("p");
                 p.textContent = friend;
-                friendsBox.appendChild(p);
+                document.getElementById("friendsBox").appendChild(p);
             });
         
-            // Display additional links
-            var linkBox = document.getElementById("linkBox");
-            linkBox.innerHTML = ""; // Clear previous content
+            // Display links
             var links = info.event.extendedProps.links || [];
             links.forEach(function(link) {
                 var a = document.createElement("a");
                 a.href = link;
                 a.textContent = link;
-                a.target = "_blank"; // Open link in a new tab
-                linkBox.appendChild(a);
+                a.target = "_blank";
+                document.getElementById("linkBox").appendChild(a);
             });
         
-            selectedEvent = info.event; // Store the currently selected event
+            selectedEvent = info.event;
             calendar.updateSize();
-        },
+        },        
         viewDidMount: function() {
             // Hide event form when the view is first rendered
             if (eventForm.style.display === 'block') {
@@ -170,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             eventForm.style.display = 'block';
             document.body.classList.add('dimmed');
 
-            addButton = document.getElementById("addButton");
+            var addButton = document.getElementById("addButton");
             addButton.innerHTML = "Modify Event";
 
             // Pre-fill the form with the current event details
@@ -182,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
+                //sendData();
 
                 // Get updated values from the form
                 var updatedTitle = document.getElementById('eventTitle').value;
@@ -382,7 +426,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }    
         });
     });
+
+    function  clearDynamicContent(container) {
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+    }
+
+    async function sendData() {
+        // Associate the FormData object with the form element
+        const formData = new FormData(form); // Make sure `form` is defined
     
+        try {
+            const response = await fetch("/addEvent", { // Endpoint should match your Flask route
+                method: "POST",
+                body: formData, // Sending the form data as the request body
+            });
+    
+            // Check if the response is ok (status in the range 200-299)
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            // Parse and log the JSON response from the server
+            const data = await response.json();
+            console.log(data);
+        } catch (e) {
+            console.error(e); // Log any errors that occur
+        }
+    }    
 });         
-
-

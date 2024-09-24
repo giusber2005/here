@@ -922,6 +922,12 @@ def delete_user():
     session.clear()
     return redirect("/login")
 
-
-
+# Define an endpoint to handle the addEvent in the calendar POST request
+@app.route('/addEvent', methods=['POST'])
+def post_data():
+    data = request.form  # or request.json for JSON data
+    
+    #function to store event data inside the database 
+    
+    return jsonify({"message": "Data received", "data": data})
 
