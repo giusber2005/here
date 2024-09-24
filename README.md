@@ -41,6 +41,7 @@ All more in-depth specifications are included in comments inside the code.
 
 **THINGS I LEARNED/PROBLEMS I TACKLED**
 While working on this final project i used to be, especially at the beginning, very messy with my code, and because of that i used to be very slow in the production, but with hours of pratice i finally reached a medium velocity of production, being able to send to production my application in time.
+Thinking about things that i learned, i worked a lot with javascript, learning a new programming language (one of the most important today), i also worked with an API like fullCalendar, and that help me a lot in learning how different parts of code in different languages interact each other, one final thing that i learned that will help me a lot in the future is the fact that i programmed all the application outside codespaces finally learning how to really program in the real world.
 
 **A.I ASSISTANT USED**  
 The principal assistant I used to improve my productivity has been ChatGPT (of the OpenAI group). I used it principally for code snippets of the architecture of some functions in my code (that I’ve improved to work in my web application) or simply to understand better some parts of the communication between the front-end and the back-end, which is not always simple to understand.
