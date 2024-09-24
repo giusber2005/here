@@ -8,3 +8,7 @@ THINGS LEFT TO DO:
         remove the informations of the previous event once it has been used 
         add a preview of the current photo selected in the addEvent form
         it shouldn't be possible to add a friend more than one time
+    
+    add a description to the docker hub image
+    complete the presentation on the project
+    make the web application findable on the browser 
