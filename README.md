@@ -1,7 +1,7 @@
 # PROJECT
 
 **LOGO**  
-![Logo](https://photos.google.com/photo/AF1QipP1z2ow-TISE3O1_x-OrMjPszcK_oeO2dppIlc5)
+<img width="547" alt="logo" src="https://github.com/user-attachments/assets/c8a276d5-99b0-40aa-b440-e45ff4c78423">
 
 **NAME AND SURNAME**  
 Giuseppe Berardi
