@@ -46,10 +46,12 @@ Thinking about things that i learned, i worked a lot with javascript, learning a
 **A.I ASSISTANT USED**  
 The principal assistant I used to improve my productivity has been ChatGPT (of the OpenAI group). I used it principally for code snippets of the architecture of some functions in my code (that I’ve improved to work in my web application) or simply to understand better some parts of the communication between the front-end and the back-end, which is not always simple to understand.
 
-**HOW TO START THE APPLICATION**
-To start this application you will simply need to pull the image from dockerhub, build the container and run it, than you will simply need to follow the link to the page generated
+**HOW TO USE THE APPLICATION**
+To start this application on your laptop you will simply need to pull the image from dockerhub, build the container and run it, than you will simply need to follow the link to the page generated
 
 <pre>
 docker pull whitewhite77/here:latest
 docker build whitewhite77/here:latest
 </pre>
+
+If you simply want to use the web application HERE, you can simply type his domain name "www.here.com" to use it!
