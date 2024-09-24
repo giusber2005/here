@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
+    var nextEventId = 1;
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -46,14 +47,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
-            
+
                 // Your event creation logic
                 var title = document.getElementById('eventTitle').value;
                 var color = document.getElementById('eventColor').value;
                 var text = document.getElementById('eventText').value;
                 var link = document.getElementById('eventLink').value;
                 var tag = document.getElementById('eventTags').value;
-            
+
+                // Generate a unique ID for the event
+                var eventId = nextEventId++;
+
                 // Gather additional data (photos, friends, links)
                 var photos = [];
                 document.querySelectorAll("#photoBox img").forEach(function(img) {
@@ -72,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
                 if (title) {
                     var eventData = {
+                        id: eventId,
                         title: title,
                         start: info.startStr,
                         end: info.endStr,
@@ -181,6 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         
             selectedEvent = info.event;
+            console.log(selectedEvent);
+            var form = selectedEvent
+            sendData('/addEvent', form);
+
             calendar.updateSize();
         },        
         viewDidMount: function() {
@@ -200,6 +209,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     calendar.render();
 
+    // Fetch all events from the server
+    async function fetchEvents() {
+        try {
+            const response = await fetch('/getEvents');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            var max = 0;
+            const events = await response.json();
+            events.forEach(event => {
+                if (max < event.id) {
+                    max = event.id;
+                }
+                calendar.addEvent({
+                    id: event.id,
+                    title: event.title,
+                    start: event.start,
+                    end: event.end,
+                    color: event.color,
+                    extendedProps: event.extendedProps // Include any additional properties you defined
+                });
+            });
+            if (max != 0) {
+                nextEventId = max;
+            }
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        }
+    }
+
+    // Call fetchEvents when the page loads
+    fetchEvents();
+    
     document.getElementById("closeButton").addEventListener('click', function() {
         eventDetails.style.display = "none";
         calendar.updateSize();
@@ -225,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
-                //sendData();
 
                 // Get updated values from the form
                 var updatedTitle = document.getElementById('eventTitle').value;
@@ -252,11 +293,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
             };
+
+            var form = selectedEvent
+            sendData('/modifyEvent', form);
         }
     });
 
     document.getElementById("deleteButton").addEventListener('click', function() {
         if (selectedEvent && confirm("Are you sure you want to delete this event?")) {
+            var form = selectedEvent
+            sendData('/deleteEvent', form);
+
             // Remove the event from the calendar
             selectedEvent.remove();
             selectedEvent = null; // Clear the selected event
@@ -433,12 +480,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function sendData() {
+    async function sendData(route, form) {
         // Associate the FormData object with the form element
         const formData = new FormData(form); // Make sure `form` is defined
     
         try {
-            const response = await fetch("/addEvent", { // Endpoint should match your Flask route
+            const response = await fetch(route, { // Endpoint should match your Flask route
                 method: "POST",
                 body: formData, // Sending the form data as the request body
             });

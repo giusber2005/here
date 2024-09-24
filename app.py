@@ -922,12 +922,115 @@ def delete_user():
     session.clear()
     return redirect("/login")
 
-# Define an endpoint to handle the addEvent in the calendar POST request
 @app.route('/addEvent', methods=['POST'])
-def post_data():
-    data = request.form  # or request.json for JSON data
-    
-    #function to store event data inside the database 
-    
-    return jsonify({"message": "Data received", "data": data})
+@login_required
+def load_data():
+    data = request.form  # Getting form data
+    title = data.get('title', "")
+    color = data.get('color', "")
+    notes = data.get('text', "")
+    time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
+    tag = data.get('tags', "")
 
+    # Insert event details into eventsPrincipal
+    db.execute("INSERT INTO eventsPrincipal (title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
+               title, color, notes, time_slot, tag)
+    
+    # Get the event ID of the newly created event
+    event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
+
+    # Handle photos if any
+    photos = data.getlist('photos')  # Get all photos
+    for photo_path in photos:
+        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
+    
+    # Handle links if any
+    links = data.getlist('links')  # Get all links
+    for link_path in links:
+        db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
+    
+    # Handle friends if any
+    friends = data.getlist('friends')  # Get all friends
+    for friend in friends:
+        user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
+        db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
+
+    return jsonify({"message": "Data received and stored", "data": data})
+
+
+# Define an endpoint to handle the modifyEvent of the calendar POST request
+@app.route('/modifyEvent', methods=['POST'])
+@login_required
+def modify_data():
+    data = request.form  # Getting form data
+    event_id = data.get('id', "") 
+
+    title = data.get('title', "")
+    color = data.get('color', "")
+    notes = data.get('text', "")
+    time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
+    tag = data.get('tags', "")
+    
+    # Update event details in eventsPrincipal
+    db.execute("UPDATE eventsPrincipal SET title = ?, color = ?, notes = ?, time_slot = ?, tag = ? WHERE id = ?", 
+               title, color, notes, time_slot, tag, event_id)
+    
+    # Clear existing photos, links, and friends associated with the event
+    db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", event_id)
+    db.execute("DELETE FROM eventsLinks WHERE event_id = ?", event_id)
+    db.execute("DELETE FROM eventsConnections WHERE event_id = ?", event_id)
+
+    # Handle new photos if any
+    photos = data.getlist('photos')
+    for photo_path in photos:
+        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
+
+    # Handle new links if any
+    links = data.getlist('links')
+    for link_path in links:
+        db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
+
+    # Handle new friends if any
+    friends = data.getlist('friends')
+    for friend in friends:
+        user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
+        db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
+
+    return jsonify({"message": "Event successfully modified!", "data": data})
+
+
+# Define an endpoint to handle the deleteEvent of the calendar POST request
+@app.route('/deleteEvent', methods=['POST'])
+@login_required
+def remove_data():
+    data = request.form  # Getting form data
+    event_id = data.get('id', "") 
+
+    # Delete event details from eventsPrincipal
+    db.execute("DELETE FROM eventsPrincipal WHERE id = ?", event_id)
+
+    return jsonify({"message": "Event successfully cancelled!", "data": data})
+
+@app.route('/getEvents', methods=['GET'])
+@login_required
+def get_events():
+    events = db.execute("SELECT * FROM eventsPrincipal")  # Adjust the SQL query as needed
+    formatted_events = []
+
+    for event in events:
+        formatted_events.append({
+            'id': event['id'],
+            'title': event['title'],
+            'start': event['time_slot'],  # Make sure this is the correct column for the start time
+            'end': event.get('end_time', None),  # Adjust if you have an end_time column
+            'color': event['color'],
+            'extendedProps': {
+                'text': event['notes'],
+                'tags': event['tag'],  # Adjust as necessary
+                'photos': [],  # Include any associated photos if needed
+                'friends': [],  # Include associated friends if needed
+                'links': []  # Include any associated links if needed
+            }
+        })
+    
+    return jsonify(formatted_events)

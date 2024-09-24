@@ -8,12 +8,19 @@ THINGS LEFT TO DO:
         remove the informations of the previous event once it has been used 
         add a preview of the current photo selected in the addEvent form
         it shouldn't be possible to add a friend more than one time
+        check problems in the connection between the database and the calendar
+        add security check for the images
+        load images file in the "events_images" folder (just like with the profile images)
+            and manage their modification or deletion
     
     FINAL STEPS
     complete the presentation page:
         change the actual domain name in the actual one
         load the youtube video and write the production date 
-    make the web application findable on the browser 
+    make the web application findable on the browser
+    delete this file  
     record the video presentation of the web application
     submit the form 
     submit50 cs50/problems/2024/x/project
+    delete this folder on the mac
+    
