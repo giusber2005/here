@@ -12,3 +12,6 @@ THINGS LEFT TO DO:
     add a description to the docker hub image
     complete the presentation on the project
     make the web application findable on the browser 
+    record the video presentation of the web application
+    submit the form 
+    submit50 cs50/problems/2024/x/project
