@@ -9,8 +9,10 @@ THINGS LEFT TO DO:
         add a preview of the current photo selected in the addEvent form
         it shouldn't be possible to add a friend more than one time
     
-    add a description to the docker hub image
-    complete the presentation on the project
+    FINAL STEPS
+    complete the presentation page:
+        change the actual domain name in the actual one
+        load the youtube video and write the production date 
     make the web application findable on the browser 
     record the video presentation of the web application
     submit the form 

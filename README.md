@@ -28,7 +28,7 @@ This is HERE, a management web application that has as its principal objective t
 
 **FEATURES**
 HERE has not a huge amount of features because it’s structured to be simple and easy to work with it.
-It has a complete user management part that keep track of all the users principal informations, along with also their unique token for interact with other users as friend in the application, than there’ is the calendar part which is structured to be as complete as possible, we have the possibility to select and personalise events, we can set their duration, we can specify the members of the events, we can make it private or public, we can add links, photos, text, an alarm that acts as a reminder and we can also set the periodicity of it, all that in an easy and intuitive interface that comes with different views (day, week, month, year) and also permit the user to see some of the principals public events of their friends
+It has a complete user management part that keep track of all the users principal informations, along with also their unique token for interact with other users as friends in the application, than there’ is the calendar part which is structured to be as complete as possible, we have the possibility to select and personalise events, we can set their duration, we can specify the members of the events, we can make it private or public, we can add links, photos, text, an alarm that acts as a reminder and we can also set the periodicity of it, all that in an easy and intuitive interface that comes with different views (day, week, month, year) and also permit the user to see some of the principals public events of their friends
 Another important feature correlated to the calendar is the organisation feature, along with all the different things we can add to an event we can also integrate a so call “organisation page”, an intuitive way to manage our spaces: along with that feature comes built-in templates (like for example the beach template or the houses template) that permit the user that own a particular space and have a business in that area to keep track of the situation over time (thanks to the integration with the calendar), but the user has also the possibility to start from a blank template to create an unique organisation page that exactly mimics the characteristic of that business area.
 
 **TECHNICAL SPECIFICATIONS**  
@@ -41,7 +41,9 @@ All more in-depth specifications are included in comments inside the code.
 
 **THINGS I LEARNED/PROBLEMS I TACKLED**
 While working on this final project i used to be, especially at the beginning, very messy with my code, and because of that i used to be very slow in the production, but with hours of pratice i finally reached a medium velocity of production, being able to send to production my application in time.
-Thinking about things that i learned, i worked a lot with javascript, learning a new programming language (one of the most important today), i also worked with an API like fullCalendar, and that help me a lot in learning how different parts of code in different languages interact each other, one final thing that i learned that will help me a lot in the future is the fact that i programmed all the application outside codespaces finally learning how to really program in the real world.
+Thinking about things that i learned, i worked a lot with javascript, learning a new programming language (one of the most important today), i also worked with an API like fullCalendar, that help me a lot in learning how different parts of code in different languages interact each other.
+Another thing that i learned that will help me a lot in the future is the fact that i programmed all the application outside codespaces finally learning how to really program in the real world.
+One finally thing that i want to mention that i learned through this process is the production part, not mentioned at all in course, that helped me understand how an application developed from anybody can start living in the web.
 
 **A.I ASSISTANT USED**  
 The principal assistant I used to improve my productivity has been ChatGPT (of the OpenAI group). I used it principally for code snippets of the architecture of some functions in my code (that I’ve improved to work in my web application) or simply to understand better some parts of the communication between the front-end and the back-end, which is not always simple to understand.
@@ -54,4 +56,4 @@ docker pull whitewhite77/here:latest
 docker build whitewhite77/here:latest
 </pre>
 
-If you simply want to use the web application HERE, you can simply type his domain name "www.here.com" to use it!
+If you simply want to use the web application HERE, you can simply type his domain name "www.herecalendar.com" to use it!
