@@ -302,7 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (file) {
             const fileType = file.type;
-            const fileName = file.name
             const validImageTypes = ['image/jpeg', 'image/png', 'image/heic']
 
             if (!validImageTypes.includes(fileType)) {

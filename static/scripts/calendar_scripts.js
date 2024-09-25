@@ -154,9 +154,9 @@ document.addEventListener('DOMContentLoaded', function() {
             detailTags.textContent = info.event.extendedProps.tags || 'None';
         
             // Clear previous content before adding new content
-            clearDynamicContent('photoBox');
-            clearDynamicContent('friendsBox');
-            clearDynamicContent('linkBox');
+            clearDynamicContent('detailsPhotoBox');
+            clearDynamicContent('detailsFriendsBox');
+            clearDynamicContent('detailsLinkBox');
         
             // Display photos
             var photos = info.event.extendedProps.photos || [];
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var img = document.createElement("img");
                 img.src = photo;
                 img.className = "photo-preview";
-                document.getElementById("photoBox").appendChild(img);
+                document.getElementById("detailsPhotoBox").appendChild(img);
             });
         
             // Display friends
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
             friends.forEach(function(friend) {
                 var p = document.createElement("p");
                 p.textContent = friend;
-                document.getElementById("friendsBox").appendChild(p);
+                document.getElementById("detailsFriendsBox").appendChild(p);
             });
         
             // Display links
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 a.href = link;
                 a.textContent = link;
                 a.target = "_blank";
-                document.getElementById("linkBox").appendChild(a);
+                document.getElementById("detailsLinkBox").appendChild(a);
             });
         
             selectedEvent = info.event;
@@ -502,4 +502,62 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(e); // Log any errors that occur
         }
     }    
+
+    //function to display a preview of the photo in the add event
+    var input = document.getElementById('eventPhoto');
+    var preview = document.getElementById('PhotoPreview');
+
+    input.addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        }
+    });
+
+    //check validation for the photo field
+    let error_field_NP = document.getElementById('error_NP');
+
+    photo.addEventListener('input', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const fileType = file.type;
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/heic']
+
+            if (!validImageTypes.includes(fileType)) {
+                error_field_NP.style.color = "red"
+                error_field_NP.innerText = "File type not in the permitted list"
+            } else {
+                error_field_NP.style.color = "green"
+                error_field_NP.innerText = "File valid!!"
+            }
+        } else {
+            error_field_NP.style.color = "black"
+            error_field_NP.innerText = "No file selected"
+        }
+    });        
+
+
+    //function to avoid inserting multiple time the same friend
+    var friends_options = document.getElementById("eventFriends");
+    var options = friends_options.querySelectorAll("option")
+    var sel_options_container = document.getElementById("friendsBox");
+    var sel_options = sel_options_container.querySelectorAll("p");
+
+    options.forEach(option => {
+        sel_options.forEach(sel_option => {
+            if (sel_option.innerHTML === option.value) {
+                option.remove();
+            }
+        });
+    });
+
 });         

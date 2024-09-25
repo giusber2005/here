@@ -194,18 +194,18 @@
                 <p><strong>Text:</strong> <span id="detailText"></span></p>
                 <p><strong>Tags:</strong> <span id="detailTags"></span></p>
             
-                <div id="photoBox">
-                    <h4>Photos:</h4>
+                <h4>Photos:</h4>
+                <div id="detailsPhotoBox">
                     <!-- Photos will be appended here -->
                 </div>
             
-                <div id="friendsBox">
-                    <h4>Friends:</h4>
+                <h4>Friends:</h4>
+                <div id="detailsFriendsBox">
                     <!-- Friends will be appended here -->
                 </div>
             
-                <div id="linkBox">
-                    <h4>Additional Links:</h4>
+                <h4>Links:</h4>
+                <div id="detailsLinkBox">
                     <!-- Additional links will be appended here -->
                 </div>
             
@@ -276,7 +276,11 @@
                         <label for="eventPhoto" class="form-label">Avatar photo</label>
                         <div id="hiddenPhoto" class="hidden" style="display: none"></div>
                         <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
-                        
+                        <div id="error_NP" class="error error-message"></div>
+                        <div class="photo-preview-container">
+                            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
+                        </div>
+
                         <div id="photoButtonContainer">
                             <div class="button-like-div add" id="addPhoto">Add photo</div>
                             <div class="button-like-div show" id="showPhoto">Show all photos</div>
