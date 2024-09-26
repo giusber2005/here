@@ -926,6 +926,10 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form  # Getting form data
+    
+    for key, value in data.items():
+        print(f"{key}: {value}")
+ 
     title = data.get('title', "")
     color = data.get('color', "")
     notes = data.get('text', "")
@@ -943,7 +947,7 @@ def load_data():
     photos = data.getlist('photos')  # Get all photos
     for photo_path in photos:
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
-    
+        
     # Handle links if any
     links = data.getlist('links')  # Get all links
     for link_path in links:
@@ -954,7 +958,10 @@ def load_data():
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
-
+    
+    #insert also in the connections the creator of the event
+    db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, session["user_id"])
+    
     return jsonify({"message": "Data received and stored", "data": data})
 
 
@@ -963,6 +970,10 @@ def load_data():
 @login_required
 def modify_data():
     data = request.form  # Getting form data
+    
+    for key, value in data.items():
+        print(f"{key}: {value}")
+
     event_id = data.get('id', "") 
 
     title = data.get('title', "")
@@ -984,7 +995,7 @@ def modify_data():
     photos = data.getlist('photos')
     for photo_path in photos:
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
-
+    
     # Handle new links if any
     links = data.getlist('links')
     for link_path in links:
@@ -1017,20 +1028,27 @@ def get_events():
     events = db.execute("SELECT * FROM eventsPrincipal")  # Adjust the SQL query as needed
     formatted_events = []
 
-    for event in events:
-        formatted_events.append({
-            'id': event['id'],
-            'title': event['title'],
-            'start': event['time_slot'],  # Make sure this is the correct column for the start time
-            'end': event.get('end_time', None),  # Adjust if you have an end_time column
-            'color': event['color'],
-            'extendedProps': {
-                'text': event['notes'],
-                'tags': event['tag'],  # Adjust as necessary
-                'photos': [],  # Include any associated photos if needed
-                'friends': [],  # Include associated friends if needed
-                'links': []  # Include any associated links if needed
-            }
-        })
-    
+    if events:         
+        for event in events:
+            photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])
+            friends = db.execute("SELECT * FROM eventsFriends WHERE event_id = ?", event['id'])
+            links = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
+            start = ""
+            end = ""
+            
+            formatted_events.append({
+                'id': event['id'],
+                'title': event['title'],
+                'start': start,
+                'end': end,
+                'color': event['color'],
+                'extendedProps': {
+                    'text': event['notes'],
+                    'tags': event['tag'],
+                    'photos': photos,  
+                    'friends': friends,
+                    'links': links 
+                }
+            })
+        
     return jsonify(formatted_events)

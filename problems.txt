@@ -6,10 +6,9 @@ THINGS LEFT TO DO:
 
     homepage features
         remove the informations of the previous event once it has been used 
-        add a preview of the current photo selected in the addEvent form
+        improve the preview of the photo select in the addEvent box
         it shouldn't be possible to add a friend more than one time
         check problems in the connection between the database and the calendar
-        add security check for the images
         load images file in the "events_images" folder (just like with the profile images)
             and manage their modification or deletion
     

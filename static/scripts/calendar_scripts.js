@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 var title = document.getElementById('eventTitle').value;
                 var color = document.getElementById('eventColor').value;
                 var text = document.getElementById('eventText').value;
-                var link = document.getElementById('eventLink').value;
                 var tag = document.getElementById('eventTags').value;
 
                 // Generate a unique ID for the event
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         color: color,
                         extendedProps: {
                             text: text,
-                            link: link,
                             tags: tag,
                             photos: photos,    // Store the photo URLs
                             friends: friends,  // Store the list of friends
@@ -91,6 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     };
                     calendar.addEvent(eventData);
+
+                    console.log(eventData);
+                    sendData('/addEvent', eventData);        
                 }
             
                 // Reset the form, clear dynamic content, and hide the form
@@ -184,11 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 a.target = "_blank";
                 document.getElementById("detailsLinkBox").appendChild(a);
             });
-        
-            selectedEvent = info.event;
-            console.log(selectedEvent);
-            var form = selectedEvent
-            sendData('/addEvent', form);
 
             calendar.updateSize();
         },        
@@ -507,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var input = document.getElementById('eventPhoto');
     var preview = document.getElementById('PhotoPreview');
 
-    input.addEventListener('change', function(event) {
+    input.addEventListener('input', function(event) {
         var file = event.target.files[0];
         if (file) {
             var reader = new FileReader();
