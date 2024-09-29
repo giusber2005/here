@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     calendar.addEvent(eventData);
 
-                    console.log(eventData);
-                    sendData('/addEvent', eventData);        
+                    console.log(e);
+                    sendData('/addEvent', e);        
                 }
             
                 // Reset the form, clear dynamic content, and hide the form
@@ -282,6 +282,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 eventForm.style.display = 'none';
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
+
+                sendData('/modifyEvent', e);
             };
 
             cancelButton.onclick = function() {
@@ -289,16 +291,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
             };
-
-            var form = selectedEvent
-            sendData('/modifyEvent', form);
         }
     });
 
     document.getElementById("deleteButton").addEventListener('click', function() {
         if (selectedEvent && confirm("Are you sure you want to delete this event?")) {
             var form = selectedEvent
-            sendData('/deleteEvent', form);
+            sendData('/deleteEvent', form.id);
 
             // Remove the event from the calendar
             selectedEvent.remove();
@@ -340,6 +339,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     newLink.textContent = value;
                     newLink.target = '_blank'; // Open link in a new tab
                     Wrapper.appendChild(newLink);
+
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+                    hiddenInput.className = 'hiddenLink';
+                    hiddenInput.value = value; 
+
                 } else if (Box.id === "photoBox") {
                     var newPhoto = document.createElement('img');
 
@@ -349,6 +354,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
                         reader.onload = function(e) {
                             newPhoto.src = e.target.result;
+
+                            const base64Image = e.target.result;  // The Base64-encoded image
+
+                            var hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+                            hiddenInput.className = 'hiddenPhoto';
+                            hiddenInput.value = base64Image; 
                         };
             
                         reader.readAsDataURL(file);
@@ -358,21 +370,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     newPhoto.className = "photo-preview";
                     Wrapper.appendChild(newPhoto);
+
                 } else if (Box.id === "friendsBox") {
                     var newFriend = document.createElement('p');
                     newFriend.innerHTML = value;
                     Wrapper.appendChild(newFriend);
+
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+                    hiddenInput.className = 'hiddenFriend';
+                    hiddenInput.value = value; 
                 }
     
                 // Create the delete button
                 var deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.className = 'delete';
-    
-                var hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden'; // Set the type to 'hidden'
-                hiddenInput.className = 'hiddenInstance';
-                hiddenInput.value = value; 
     
                 Wrapper.appendChild(deleteButton);
     
@@ -478,7 +491,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function sendData(route, form) {
         // Associate the FormData object with the form element
-        const formData = new FormData(form); // Make sure `form` is defined
+        if (route === '/deleteEvent') {
+            var formData = JSON.stringify(form);
+        } else {
+            var formData = new FormData(form); // Make sure `form` is defined
+        }
     
         try {
             const response = await fetch(route, { // Endpoint should match your Flask route

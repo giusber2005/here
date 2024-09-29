@@ -153,7 +153,6 @@ def index():
     
     friends_dict = dict(zip(friendsId, friends))     
     
-    print(friends_dict)
     return render_template("homepage.html", friends_dict=friends_dict)
 
 """
@@ -560,7 +559,6 @@ def informations():
             optional_informations["prefix"] = None
             optional_informations["phone_number"] = None
 
-        print(optional_informations.get('gender', 0))
         return render_template("informations.html", informations=informations.items(), optional_informations=optional_informations.items(), gender=optional_informations.get('gender'))
     else:
         informations = db.execute("SELECT * FROM user WHERE id = ?", session["user_id"])[0].items()
@@ -925,7 +923,7 @@ def delete_user():
 @app.route('/addEvent', methods=['POST'])
 @login_required
 def load_data():
-    data = request.form  # Getting form data
+    data = request.form # Getting form data
     
     for key, value in data.items():
         print(f"{key}: {value}")
@@ -944,17 +942,26 @@ def load_data():
     event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
 
     # Handle photos if any
-    photos = data.getlist('photos')  # Get all photos
-    for photo_path in photos:
-        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
+    photos = request.files.getlist("hiddenPhoto", None)
+    for photo in photos:
+        if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
+            message = "Invalid file type detected"
+            flash(message)
+            return redirect("/")
+    
+    for photo in photos:
+        filename = secure_filename(photo.filename) 
+        photo.save(os.path.join("static", "events_images", filename))
+        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
+        
         
     # Handle links if any
-    links = data.getlist('links')  # Get all links
+    links = data.getlist('hiddenLink')  # Get all links
     for link_path in links:
         db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
     
     # Handle friends if any
-    friends = data.getlist('friends')  # Get all friends
+    friends = data.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
@@ -991,18 +998,26 @@ def modify_data():
     db.execute("DELETE FROM eventsLinks WHERE event_id = ?", event_id)
     db.execute("DELETE FROM eventsConnections WHERE event_id = ?", event_id)
 
-    # Handle new photos if any
-    photos = data.getlist('photos')
-    for photo_path in photos:
-        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, photo_path)
+    # Handle photos if any
+    photos = request.files.getlist("hiddenPhoto", None)
+    for photo in photos:
+        if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
+            message = "Invalid file type detected"
+            flash(message)
+            return redirect("/")
     
+    for photo in photos:
+        filename = secure_filename(photo.filename) 
+        photo.save(os.path.join("static", "events_images", filename))
+        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
+        
     # Handle new links if any
-    links = data.getlist('links')
+    links = data.getlist('hiddenLink')
     for link_path in links:
         db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
 
     # Handle new friends if any
-    friends = data.getlist('friends')
+    friends = data.getlist('hiddenFriend')
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
@@ -1014,8 +1029,8 @@ def modify_data():
 @app.route('/deleteEvent', methods=['POST'])
 @login_required
 def remove_data():
-    data = request.form  # Getting form data
-    event_id = data.get('id', "") 
+    data = request.get_json()  # Getting form data
+    event_id = data
 
     # Delete event details from eventsPrincipal
     db.execute("DELETE FROM eventsPrincipal WHERE id = ?", event_id)
@@ -1052,3 +1067,4 @@ def get_events():
             })
         
     return jsonify(formatted_events)
+
