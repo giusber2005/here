@@ -9,8 +9,6 @@ THINGS LEFT TO DO:
         improve the preview of the photo select in the addEvent box
         it shouldn't be possible to add a friend more than one time
         check problems in the connection between the database and the calendar
-        load images file in the "events_images" folder (just like with the profile images)
-            and manage their modification or deletion
     
     FINAL STEPS
     complete the presentation page:

@@ -56,9 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             id.value = eventId;
             start.value = info.startStr; 
-            console.log(start.value);
             end.value = info.endStr;
-            console.log(end.value);
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
@@ -104,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     calendar.addEvent(eventData);
 
                     console.log(e);
-                    sendData('/addEvent', e);        
+                    sendData('/addEvent', this);        
                 }
             
                 // Reset the form, clear dynamic content, and hide the form
@@ -296,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
 
-                sendData('/modifyEvent', e);
+                sendData('/modifyEvent', this);
             };
 
             cancelButton.onclick = function() {
@@ -590,3 +588,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });         
+
+
+console.log

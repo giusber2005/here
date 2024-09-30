@@ -930,16 +930,16 @@ def load_data():
     
     for key, value in data.items():
         print(f"{key}: {value}")
-
-    event_id = data.get('eventId', "") 
-    #id validation
+                
+    title = data.get('eventTitle', "")
+    #title validation
     if not title:
         message = ""
         flash(message)
         redirect("/")
-        
-    title = data.get('eventTitle', "")
-    #title validation
+
+    event_id = data.get('eventId', "") 
+    #id validation
     if not title:
         message = ""
         flash(message)
@@ -1188,10 +1188,11 @@ def get_events():
 
     if events:         
         for event in events:
-            photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])['photo_path']
+            photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])
+            photo_paths = [photo['photo_path'] for photo in photos]
             data_urls = {}
             for filename in os.listdir(os.path.join('static', 'events_images')):
-                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add other formats as needed
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')) and filename in photo_paths:  # Add other formats as needed
                     file_path = os.path.join('static', 'events_images', filename)
                     with open(file_path, "rb") as image_file:
                         base64_string = base64.b64encode(image_file.read()).decode('utf-8')
@@ -1199,7 +1200,7 @@ def get_events():
                         data_url = f"data:image/jpeg;base64,{base64_string}"  # Adjust MIME type as needed
                         data_urls[filename] = data_url
     
-            friends = db.execute("SELECT * FROM eventsFriends WHERE event_id = ?", event['id'])
+            friends = db.execute("SELECT * FROM eventsConnections WHERE event_id = ?", event['id'])
             links = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
             time_slot = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", event['id'])[0]['time_slot']
             
