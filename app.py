@@ -30,6 +30,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 import secrets
 
+#function to read base64 formatted images (used in the events manipulations in the calendar)
+import base64
+
 #some functions to weight down the code in app.py
 from helpers import *
 
@@ -928,11 +931,11 @@ def load_data():
     for key, value in data.items():
         print(f"{key}: {value}")
  
-    title = data.get('title', "")
-    color = data.get('color', "")
-    notes = data.get('text', "")
+    title = data.get('eventTitle', "")
+    color = data.get('eventColor', "")
+    notes = data.get('eventText', "")
     time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
-    tag = data.get('tags', "")
+    tag = data.get('eventTags', "")
 
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
@@ -943,15 +946,34 @@ def load_data():
 
     # Handle photos if any
     photos = request.files.getlist("hiddenPhoto", None)
+    images_base64 = {}
+    images_mimetype = {}
+    counter = 0
     for photo in photos:
-        if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
-            message = "Invalid file type detected"
-            flash(message)
-            return redirect("/")
+        if photo.startswith('data:image'):
+            base64_image = photo.split(",")[1]
+            
+            mime_type_match = re.match(r'data:(.*?);base64,', base64_image)
+            if mime_type_match:
+                mimetype = mime_type_match.group(1)
+
+            if mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
+                message = "Invalid file type detected"
+                flash(message)
+                return redirect("/")
+            
+            # Decode the image
+            image_data = base64.b64decode(base64_image)
+            images_base64[counter] = image_data 
+            images_mimetype[counter] = mimetype 
+            counter += 1
+            
     
-    for photo in photos:
-        filename = secure_filename(photo.filename) 
-        photo.save(os.path.join("static", "events_images", filename))
+    for index, photo in images_base64:
+        filename = generate_unique_filename(images_mimetype[index])
+        with open(os.path.join("static", "events_images", filename), "wb") as f:
+            f.write(photo)
+            
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
         
         

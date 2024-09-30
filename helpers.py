@@ -7,6 +7,9 @@ from datetime import datetime
 #library to work with strings
 import re
 
+#library to generate unique filenames
+import uuid
+
 from flask import redirect, render_template, session
 from functools import wraps
 from cs50 import SQL
@@ -212,7 +215,9 @@ def split_phonenumber(phonenumber):
         phone_number = ' '.join(sectors[split_index:])
 
         return prefix, phone_number
-
+    
+def generate_unique_filename(extension):
+    return f"{uuid.uuid4().hex}.{extension}"
 
 
 

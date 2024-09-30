@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailEnd = document.getElementById('detailEnd');
     var detailText = document.getElementById('detailText');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
+
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
     var nextEventId = 1;
@@ -44,6 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
             eventForm.style.display = 'block';
             document.body.classList.add('dimmed');
             selectedEvent = null; // Clear selected event when creating a new one
+
+            //add informations about the start and the end of the event
+            start = document.getElementById("start");
+            end = document.getElementById("end");
+            
+            start.value = info.startStr; 
+            end.value = info.endStr;
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
@@ -343,6 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var hiddenInput = document.createElement('input');
                     hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                     hiddenInput.className = 'hiddenLink';
+                    hiddenInput.name = 'hiddenLink';
                     hiddenInput.value = value; 
 
                 } else if (Box.id === "photoBox") {
@@ -360,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             var hiddenInput = document.createElement('input');
                             hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                             hiddenInput.className = 'hiddenPhoto';
+                            hiddenInput.name = 'hiddenPhoto';
                             hiddenInput.value = base64Image; 
                         };
             
@@ -379,9 +389,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     var hiddenInput = document.createElement('input');
                     hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                     hiddenInput.className = 'hiddenFriend';
+                    hiddenInput.name = 'hiddenFriend';
                     hiddenInput.value = value; 
                 }
-    
+
                 // Create the delete button
                 var deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
