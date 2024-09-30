@@ -930,19 +930,48 @@ def load_data():
     
     for key, value in data.items():
         print(f"{key}: {value}")
- 
-    title = data.get('eventTitle', "")
-    color = data.get('eventColor', "")
-    notes = data.get('eventText', "")
-    time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
-    tag = data.get('eventTags', "")
 
-    # Insert event details into eventsPrincipal
-    db.execute("INSERT INTO eventsPrincipal (title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
-               title, color, notes, time_slot, tag)
-    
-    # Get the event ID of the newly created event
-    event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
+    event_id = data.get('eventId', "") 
+    #id validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+        
+    title = data.get('eventTitle', "")
+    #title validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    color = data.get('eventColor', "")
+    #color validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    notes = data.get('eventText', "")
+    #notes validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+        
+    time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
+    #time_slot validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    tag = data.get('eventTags', "")
+    #tag validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
 
     # Handle photos if any
     photos = request.files.getlist("hiddenPhoto", None)
@@ -967,8 +996,32 @@ def load_data():
             images_base64[counter] = image_data 
             images_mimetype[counter] = mimetype 
             counter += 1
-            
+              
+    # Handle links if any
+    links = data.getlist('hiddenLink')  # Get all links
+    #links validation
+    for link_path in links:  
+        if not title:
+            message = ""
+            flash(message)
+            redirect("/")
     
+    # Handle friends if any
+    friends = data.getlist('hiddenFriend')  # Get all friends
+    for friend in friends:
+        #tag validation
+        if not title:
+            message = ""
+            flash(message)
+            redirect("/")
+            
+    # Insert event details into eventsPrincipal
+    db.execute("INSERT INTO eventsPrincipal (title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
+               title, color, notes, time_slot, tag)
+    
+    # Get the event ID of the newly created event
+    event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
+          
     for index, photo in images_base64:
         filename = generate_unique_filename(images_mimetype[index])
         with open(os.path.join("static", "events_images", filename), "wb") as f:
@@ -976,14 +1029,9 @@ def load_data():
             
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
         
-        
-    # Handle links if any
-    links = data.getlist('hiddenLink')  # Get all links
     for link_path in links:
         db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
-    
-    # Handle friends if any
-    friends = data.getlist('hiddenFriend')  # Get all friends
+            
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
@@ -1003,14 +1051,90 @@ def modify_data():
     for key, value in data.items():
         print(f"{key}: {value}")
 
-    event_id = data.get('id', "") 
+    event_id = data.get('eventId', "") 
+    #id validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+        
+    title = data.get('eventTitle', "")
+    #title validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
 
-    title = data.get('title', "")
-    color = data.get('color', "")
-    notes = data.get('text', "")
+    color = data.get('eventColor', "")
+    #color validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    notes = data.get('eventText', "")
+    #notes validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+        
     time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
-    tag = data.get('tags', "")
-    
+    #time_slot validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    tag = data.get('eventTags', "")
+    #tag validation
+    if not title:
+        message = ""
+        flash(message)
+        redirect("/")
+
+    # Handle photos if any
+    photos = request.files.getlist("hiddenPhoto", None)
+    images_base64 = {}
+    images_mimetype = {}
+    counter = 0
+    for photo in photos:
+        if photo.startswith('data:image'):
+            base64_image = photo.split(",")[1]
+            
+            mime_type_match = re.match(r'data:(.*?);base64,', base64_image)
+            if mime_type_match:
+                mimetype = mime_type_match.group(1)
+
+            if mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
+                message = "Invalid file type detected"
+                flash(message)
+                return redirect("/")
+            
+            # Decode the image
+            image_data = base64.b64decode(base64_image)
+            images_base64[counter] = image_data 
+            images_mimetype[counter] = mimetype 
+            counter += 1
+        
+    # Handle links if any
+    links = data.getlist('hiddenLink')  # Get all links
+    #links validation
+    for link_path in links:  
+        if not title:
+            message = ""
+            flash(message)
+            redirect("/")
+
+    # Handle friends if any
+    friends = data.getlist('hiddenFriend')  # Get all friends
+    for friend in friends:
+        #tag validation
+        if not title:
+            message = ""
+            flash(message)
+            redirect("/")
+            
     # Update event details in eventsPrincipal
     db.execute("UPDATE eventsPrincipal SET title = ?, color = ?, notes = ?, time_slot = ?, tag = ? WHERE id = ?", 
                title, color, notes, time_slot, tag, event_id)
@@ -1019,31 +1143,23 @@ def modify_data():
     db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", event_id)
     db.execute("DELETE FROM eventsLinks WHERE event_id = ?", event_id)
     db.execute("DELETE FROM eventsConnections WHERE event_id = ?", event_id)
-
-    # Handle photos if any
-    photos = request.files.getlist("hiddenPhoto", None)
-    for photo in photos:
-        if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
-            message = "Invalid file type detected"
-            flash(message)
-            return redirect("/")
     
+                  
     for photo in photos:
         filename = secure_filename(photo.filename) 
         photo.save(os.path.join("static", "events_images", filename))
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
-        
-    # Handle new links if any
-    links = data.getlist('hiddenLink')
+    
     for link_path in links:
         db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
-
-    # Handle new friends if any
-    friends = data.getlist('hiddenFriend')
+    
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
-
+    
+    #insert also in the connections the creator of the event
+    db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, session["user_id"])
+          
     return jsonify({"message": "Event successfully modified!", "data": data})
 
 
@@ -1053,6 +1169,11 @@ def modify_data():
 def remove_data():
     data = request.get_json()  # Getting form data
     event_id = data
+    
+    photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", event_id)
+    for photo in photos:
+        filename = photo['photo_path']
+        os.remove(os.path.join('static', 'events_images', filename))
 
     # Delete event details from eventsPrincipal
     db.execute("DELETE FROM eventsPrincipal WHERE id = ?", event_id)
@@ -1067,11 +1188,22 @@ def get_events():
 
     if events:         
         for event in events:
-            photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])
+            photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])['photo_path']
+            data_urls = {}
+            for filename in os.listdir(os.path.join('static', 'events_images')):
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Add other formats as needed
+                    file_path = os.path.join('static', 'events_images', filename)
+                    with open(file_path, "rb") as image_file:
+                        base64_string = base64.b64encode(image_file.read()).decode('utf-8')
+                        # Format as a Data URL
+                        data_url = f"data:image/jpeg;base64,{base64_string}"  # Adjust MIME type as needed
+                        data_urls[filename] = data_url
+    
             friends = db.execute("SELECT * FROM eventsFriends WHERE event_id = ?", event['id'])
             links = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
-            start = ""
-            end = ""
+            time_slot = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", event['id'])[0]['time_slot']
+            
+            start, end = time_slot.split('/')
             
             formatted_events.append({
                 'id': event['id'],
@@ -1082,7 +1214,7 @@ def get_events():
                 'extendedProps': {
                     'text': event['notes'],
                     'tags': event['tag'],
-                    'photos': photos,  
+                    'photos': data_urls,  
                     'friends': friends,
                     'links': links 
                 }

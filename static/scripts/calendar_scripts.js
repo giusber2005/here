@@ -47,11 +47,18 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedEvent = null; // Clear selected event when creating a new one
 
             //add informations about the start and the end of the event
-            start = document.getElementById("start");
-            end = document.getElementById("end");
-            
+            var id = document.getElementById("eventId")
+            var start = document.getElementById("start");
+            var end = document.getElementById("end");
+
+            // Generate a unique ID for the event
+            var eventId = nextEventId++;
+
+            id.value = eventId;
             start.value = info.startStr; 
+            console.log(start.value);
             end.value = info.endStr;
+            console.log(end.value);
 
             addEventForm.onsubmit = function(e) {
                 e.preventDefault();
@@ -62,8 +69,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 var text = document.getElementById('eventText').value;
                 var tag = document.getElementById('eventTags').value;
 
-                // Generate a unique ID for the event
-                var eventId = nextEventId++;
 
                 // Gather additional data (photos, friends, links)
                 var photos = [];
