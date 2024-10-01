@@ -1223,3 +1223,4 @@ def get_events():
         
     return jsonify(formatted_events)
 
+

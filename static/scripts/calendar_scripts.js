@@ -530,23 +530,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }    
 
-    //function to display a preview of the photo in the add event
     var input = document.getElementById('eventPhoto');
     var preview = document.getElementById('PhotoPreview');
+    var photoButton = document.getElementById("addPhoto");
 
-    input.addEventListener('input', function(event) {
-        var file = event.target.files[0];
+    // Function to show the image preview
+    function showPreview(file) {
         if (file) {
             var reader = new FileReader();
-
             reader.onload = function(e) {
                 preview.src = e.target.result;
             };
-
             reader.readAsDataURL(file);
         } else {
-            preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+            preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";  // Placeholder when no image is selected
         }
+    }
+
+    // Listen for file selection from input
+    input.addEventListener('input', function(event) {
+        var file = event.target.files[0];  // Get the first file
+        showPreview(file);
+    });
+
+    // Listen for click on "Add Photo" button
+    photoButton.addEventListener('click', function() {
+        input.value = "";
+        preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
     });
 
     //check validation for the photo field
@@ -573,21 +583,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });        
 
 
-    //function to avoid inserting multiple time the same friend
     var friends_options = document.getElementById("eventFriends");
-    var options = friends_options.querySelectorAll("option")
     var sel_options_container = document.getElementById("friendsBox");
-    var sel_options = sel_options_container.querySelectorAll("p");
-
-    options.forEach(option => {
-        sel_options.forEach(sel_option => {
-            if (sel_option.innerHTML === option.value) {
-                option.remove();
-            }
-        });
+    
+    var friendButton = document.getElementById("addFriend");
+    friendButton.addEventListener('click', function() {
+        var selectedOption = friends_options.options[friends_options.selectedIndex];
+        if (selectedOption) {
+            var alreadyAdded = false;
+    
+            // Check if the friend is already in the selected friends list
+            sel_options_container.querySelectorAll("p").forEach(sel_option => {
+                if (sel_option.innerHTML === selectedOption.value) {
+                    alreadyAdded = true;
+                }
+            });
+    
+            if (alreadyAdded) {
+                // Remove the option from the dropdown to prevent re-selection
+                friends_options.remove(friends_options.selectedIndex);
+            };
+        }
     });
+    
 
 });         
-
-
-console.log
