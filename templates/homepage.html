@@ -264,7 +264,7 @@
                         <label for="eventFriends">Friends: </label>
                         <div id="hiddenFriends" class="hidden" style="display: none"></div>
                         <select id="eventFriends" name="eventFriends" class="form-control addInput">
-                            <option value="none"> </option>
+                            <option value=""> </option>
                             {% for id, name in friends_dict.items() %}
                                 <option value={{ name }}>{{ name }}</option>
                             {% endfor %}

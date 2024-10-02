@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailText = document.getElementById('detailText');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
 
+    //elements for event connnections management
+    var friends_options = document.getElementById("eventFriends");
+    var sel_options_container = document.getElementById("friendsBox");
+    
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
     var nextEventId = 1;
@@ -194,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 a.href = link;
                 a.textContent = link;
                 a.target = "_blank";
+                a.style.display = "inline-block"
                 document.getElementById("detailsLinkBox").appendChild(a);
             });
 
@@ -385,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Wrapper.appendChild(newPhoto);
 
                 } else if (Box.id === "friendsBox") {
+                    //when a friend is being added to the box, his option is eliminated from the list 
                     var newFriend = document.createElement('p');
                     newFriend.innerHTML = value;
                     Wrapper.appendChild(newFriend);
@@ -393,7 +399,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                     hiddenInput.className = 'hiddenFriend';
                     hiddenInput.name = 'hiddenFriend';
-                    hiddenInput.value = value; 
+                    hiddenInput.value = value;
+                    
+                    var options = friends_options.querySelectorAll('option');
+                    for (var i = options.length - 1; i >= 0; i--) {
+                        var option = options[i];
+                        if (option.value === value) {
+                            friends_options.removeChild(option);
+                        }
+                    }
+                    
                 }
 
                 // Create the delete button
@@ -459,18 +474,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 var parentDiv = event.target.closest('.wrapper'); 
     
                 if (parentDiv) {
-                    let value;
-                    if (box.id === 'links') {
+                    var value;
+                    if (box.id === 'linkBox') {
                         let link = parentDiv.querySelector('a');
                         value = link.href;
-                    } else if (box.id === "photo") {
+                    } else if (box.id === "photoBox") {
                         let photo = parentDiv.querySelector('img');
                         value = photo.src;
-                    } else if (box.id === "friends") {
+                    } else if (box.id === "friendsBox") {
                         let friend = parentDiv.querySelector('p');
                         value = friend.innerHTML;
+
+                        //function to re-insert the eliminated friend in the list of options
+                        resetFriend(value);
                     }
-    
+
                     parentDiv.remove();
     
                     let hiddenBoxes = document.querySelectorAll('.hidden');
@@ -582,29 +600,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });        
 
-
-    var friends_options = document.getElementById("eventFriends");
-    var sel_options_container = document.getElementById("friendsBox");
+    function resetFriend(value) {
+        console.log(value);
+        var optionsContainer = document.getElementById('eventFriends');
     
-    var friendButton = document.getElementById("addFriend");
-    friendButton.addEventListener('click', function() {
-        var selectedOption = friends_options.options[friends_options.selectedIndex];
-        if (selectedOption) {
-            var alreadyAdded = false;
+        // Create a new option element
+        var option = document.createElement('option');
+        option.value = value;
+        option.textContent = value; // Use textContent instead of innerHTML for simple text
     
-            // Check if the friend is already in the selected friends list
-            sel_options_container.querySelectorAll("p").forEach(sel_option => {
-                if (sel_option.innerHTML === selectedOption.value) {
-                    alreadyAdded = true;
-                }
-            });
+        // Append the new option to the select element
+        optionsContainer.appendChild(option);
+    };
     
-            if (alreadyAdded) {
-                // Remove the option from the dropdown to prevent re-selection
-                friends_options.remove(friends_options.selectedIndex);
-            };
-        }
-    });
-    
-
 });         
+

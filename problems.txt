@@ -6,7 +6,6 @@ THINGS LEFT TO DO:
 
     homepage features
         remove the informations of the previous event once it has been used 
-        it shouldn't be possible to add a friend more than one time
         check problems in the connection between the database and the calendar
         add security protections when inserting details of events in the database 
             don't only validate the inputs with js
