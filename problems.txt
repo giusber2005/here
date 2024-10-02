@@ -1,3 +1,7 @@
+ANNOTATIONS:
+    while working with the flask application set "export FLASK_DEBUG=1"
+    when you finish the project set "export FLASK_DEBUG=0"
+
 THINGS LEFT TO DO:
     see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
