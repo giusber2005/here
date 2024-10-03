@@ -116,7 +116,7 @@
             width: 100%; /* Optional: defines the width of the flex container */
         }
 
-        .Box {
+        .Box, .profileBox {
             position: fixed; /* Fixes the div to the viewport */
             top: 50%;
             left: 50%;
@@ -315,8 +315,22 @@
         <button id="closePhoto" class="close">❌</button>
     </div>
 
-    <div id="friendProfile" class="profileBox" style="display: None">
-        <button id="closeProfile" class="close">❌</button>
+    <div id="frienprofile" class="profileBox" style="display: None">
+        <button id="closeprofile" class="close">❌</button>
+        <br>
+        <div id="username" class="profile"></div>
+        <div id="FirstName" class="profile"></div>
+        <div id="LastName" class="profile"></div>
+        <div id="birthday" class="profile"></div>
+        <div id="email" class="profile"></div>
+        <div id="number" class="profile"></div>
+        <div id="nation" class="profile"></div>
+        <div id="city" class="profile"></div>
+        <div id="description" class="profile"></div>
+        <div class="photo-preview-container">
+            <img id="Photo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview profile" />
+        </div>
+        <div id="gender" class="profile"></div>
     </div>
 {% endblock %}
 

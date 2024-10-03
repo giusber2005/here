@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Create the view profile button
                 var profileButton = document.createElement('button');
                 profileButton.textContent = 'View profile';
-                profileButton.className = 'profile';
+                profileButton.className = 'profileButton';
                         
                 Wrapper.appendChild(profileButton);
 
@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Create the view profile button
                     var profileButton = document.createElement('button');
                     profileButton.textContent = 'View profile';
-                    profileButton.className = 'profile';
+                    profileButton.className = 'profileButton';
         
                     Wrapper.appendChild(profileButton);
                 }
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     //event listeners for the button to show the friend informations 
-    var viewProfileButtons = document.querySelectorAll('.profile');
+    var viewProfileButtons = document.querySelectorAll('.profileButton');
     viewProfileButtons.forEach(function(Button) {
             Button.addEventListener('click', async function() {
                 var viewFriend = viewProfile.closest('p');
@@ -661,10 +661,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 } 
 
                 createInfoPage(friend_info);
+
+                var profileBox= document.getElementById('friendProfile');
+                profileBox.style.display = "block";
+                document.getElementById("blurry").style.filter = 'blur(8px)';
             });
 
             function createInfoPage(friend_info) {
                 console.log(`Info page about your friend has been created, here are his informations ${friend_info}`);
+
+                for (const [key, value] of Object.entries(friend_info)) {  // Correct loop syntax
+                    if (key === 'photo') {
+                        var sector = document.getElementById('Photo');  // Correct method name
+                
+                        var imagePath = 'static/profile_images/' + value;  // Build the image path
+                        sector.src = imagePath;  // Update image src
+                    } else {
+                        var sector = document.getElementById(key);  // Correct method name
+                
+                        if (sector) {  // Check if element exists
+                            sector.textContent = value;  // Correct capitalization
+                        }
+                    }
+                }
+                
             }
     });
 });         

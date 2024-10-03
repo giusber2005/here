@@ -1034,10 +1034,10 @@ def load_data():
             
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
-        db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
+        db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
     
     #insert also in the connections the creator of the event
-    db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, session["user_id"])
+    db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
     
     return jsonify({"message": "Data received and stored", "data": data})
 
@@ -1155,10 +1155,10 @@ def modify_data():
     
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
-        db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, user_id)
+        db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
     
     #insert also in the connections the creator of the event
-    db.execute("INSERT INTO eventsConnections (event_id, user_id) VALUES (?, ?)", event_id, session["user_id"])
+    db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
           
     return jsonify({"message": "Event successfully modified!", "data": data})
 
@@ -1237,6 +1237,7 @@ def sendProfile():
     friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name)[0]
     
     friend_info = {**friend, **friend_optionals} 
+    print(friend_info)
     
     return jsonify(friend_info)
     
