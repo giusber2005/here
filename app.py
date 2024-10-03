@@ -1224,3 +1224,28 @@ def get_events():
     return jsonify(formatted_events)
 
 
+@app.route('/getFriendProfile', methods=['POST', 'GET'])
+@login_required
+def sendProfile():
+    name = request.get_json()
+
+    friend = db.execute("SELECT * FROM user WHERE username = ?", name)[0]
+    del friend['hash']
+    del friend['conn_token']
+    del friend['email']
+    
+    friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name)[0]
+    
+    friend_info = {**friend, **friend_optionals} 
+    
+    return jsonify(friend_info)
+    
+
+    
+""" 
+TEMPLATE FOR AN APP.ROUTE
+
+@app.route('/MEMO', methods=['POST', 'GET'])
+@login_required
+def MEMO():
+"""

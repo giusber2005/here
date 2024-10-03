@@ -186,9 +186,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Display friends
             var friends = info.event.extendedProps.friends || [];
             friends.forEach(function(friend) {
+                var Wrapper = document.createElement('div');
+                Wrapper.className = 'friendWrapper';
+
                 var p = document.createElement("p");
+                p.style.display = "inline-block";
                 p.textContent = friend;
-                document.getElementById("detailsFriendsBox").appendChild(p);
+
+                Wrapper.appendChild(p);
+
+                // Create the view profile button
+                var profileButton = document.createElement('button');
+                profileButton.textContent = 'View profile';
+                profileButton.className = 'profile';
+                        
+                Wrapper.appendChild(profileButton);
+
+                document.getElementById("detailsFriendsBox").appendChild(Wrapper);
             });
         
             // Display links
@@ -392,6 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (Box.id === "friendsBox") {
                     //when a friend is being added to the box, his option is eliminated from the list 
                     var newFriend = document.createElement('p');
+                    newFriend.style.display = "inline-block";
                     newFriend.innerHTML = value;
                     Wrapper.appendChild(newFriend);
 
@@ -408,7 +423,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             friends_options.removeChild(option);
                         }
                     }
-                    
+
+                    // Create the view profile button
+                    var profileButton = document.createElement('button');
+                    profileButton.textContent = 'View profile';
+                    profileButton.className = 'profile';
+        
+                    Wrapper.appendChild(profileButton);
                 }
 
                 // Create the delete button
@@ -459,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let closeButtons = document.querySelectorAll('.close');
     closeButtons.forEach(function(button) {
         button.addEventListener('click', function() {
-            let Box = this.closest('.Box');
+            let Box = this.closest('.Box') || this.closest('.profileBox');
             Box.style.display = "none";
             document.getElementById("blurry").style.filter = 'none';
         });
@@ -612,6 +633,39 @@ document.addEventListener('DOMContentLoaded', function() {
         // Append the new option to the select element
         optionsContainer.appendChild(option);
     };
+
+    //event listeners for the button to show the friend informations 
+    var viewProfileButtons = document.querySelectorAll('.profile');
+    viewProfileButtons.forEach(function(Button) {
+            Button.addEventListener('click', async function() {
+                var viewFriend = viewProfile.closest('p');
+                friendName = viewFriend.textContent;
     
+                data = JSON.stringify(friendName);
+                try {
+                    const response = await fetch('/getFriendProfile', { // Endpoint should match your Flask route
+                        method: "POST",
+                        body: data, // Sending the form data as the request body
+                    });
+            
+                    // Check if the response is ok (status in the range 200-299)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+            
+                    // Parse and log the JSON response from the server
+                    const friend_info = await response.json();
+                    console.log(friend_info);
+                } catch (error) {
+                    console.error('Error fetching events:', error);
+                } 
+
+                createInfoPage(friend_info);
+            });
+
+            function createInfoPage(friend_info) {
+                console.log(`Info page about your friend has been created, here are his informations ${friend_info}`);
+            }
+    });
 });         
 

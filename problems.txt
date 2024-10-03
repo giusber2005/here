@@ -13,7 +13,9 @@ THINGS LEFT TO DO:
         check problems in the connection between the database and the calendar
         add security protections when inserting details of events in the database 
             don't only validate the inputs with js
-    
+        continue the preview of friends profile
+        create a photo gallery preview when you click on an event and select the specific gallery button
+            
     FINAL STEPS
     complete the presentation page:
         change the actual domain name in the actual one
