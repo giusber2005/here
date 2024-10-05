@@ -139,24 +139,29 @@ def email_check(emailcheck):
         return message
     return 1
 
-def nationcity_check(check, city):
-    with open('data/worldcities.csv', 'r') as f:
-        reader = csv.reader(f, delimiter=';')
-        next(reader)  # Skip header if there's one
-        city_to_nation = {rows[0].strip().lower(): rows[1].strip().lower() for rows in reader}
+# Load cities and their corresponding nations into a dictionary
+with open('data/worldcities.csv', 'r') as f:
+    reader = csv.reader(f, delimiter=';')
+    next(reader)  # Skip header if there's one
+    city_to_nation = {rows[0].strip().lower(): rows[1].strip().lower() for rows in reader}
 
-        if city == None:
-                message = "This nation doesn't exist"
-                return message
-        if city != None:
-            if check not in set(city_to_nation):
-                message = "This city doesn't exist"
-            if check not in set(city_to_nation.values()):
-                return message
-            if city_to_nation.get(check) != city:
-                message = "City and nation don't correspond"
-                return message
-        return 1
+def nation_check(nation):     
+    # Check if nation exists in the values of the dictionary
+    if nation.lower() not in set(city_to_nation.values()):
+        return "This nation doesn't exist"
+    return True
+        
+def city_check(city, nation):
+    # Check if city exists in the dictionary
+    if city.lower() not in city_to_nation:
+        return "City not in the list"
+
+    # Check if the city corresponds to the nation
+    if city_to_nation[city.lower()] != nation.lower():
+        return "City and nation don't correspond"
+    
+    return True
+
 
 # Define the path to your local CSV file
 file_path = 'data/nations_and_prefixes.csv'
@@ -218,6 +223,8 @@ def split_phonenumber(phonenumber):
     
 def generate_unique_filename(extension):
     return f"{uuid.uuid4().hex}.{extension}"
+
+
 
 
 

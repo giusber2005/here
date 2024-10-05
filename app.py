@@ -403,7 +403,7 @@ def register():
                 if field == "NewNation":
                     #create validation for the nation (check against list)
                     Nation = x.lower()
-                    result = nationcity_check(Nation, None)
+                    result = nation_check(Nation)
                     if result != 1:
                         flash(result)
                         return render_template("registration.html")
@@ -415,7 +415,7 @@ def register():
                     if not Nation:
                         flash("Please select a nation to select a city")
                         return render_template("registration.html")
-                    result = nationcity_check(City, Nation)
+                    result = city_check(City, Nation)
                     if result != 1:
                         flash(result)
                         return render_template("registration.html")
@@ -668,7 +668,7 @@ def informations():
                 if field == "nation":
                     #create validation for the nation (check against list)
                     Nation = x.lower()
-                    result = nationcity_check(Nation, None)
+                    result = nation_check(Nation)
                     if result != 1:
                         # Assuming the apology returns a tuple (error, status_code)
                         flash(result)
@@ -677,7 +677,7 @@ def informations():
                     #create validation for the city (check against list)
                     City = x.lower()
                     Nation = request.form.get("nation").lower()
-                    result = nationcity_check(City, Nation)
+                    result = city_check(City, Nation)
                     if result != 1:
                         # Assuming the apology returns a tuple (error, status_code)
                         flash(result)
@@ -1229,12 +1229,12 @@ def get_events():
 def sendProfile():
     name = request.get_json()
 
-    friend = db.execute("SELECT * FROM user WHERE username = ?", name)[0]
+    friend = db.execute("SELECT * FROM user WHERE username = ?", name['friendName'])[0]
     del friend['hash']
     del friend['conn_token']
     del friend['email']
     
-    friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name)[0]
+    friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name['friendName'])[0]
     
     friend_info = {**friend, **friend_optionals} 
     print(friend_info)

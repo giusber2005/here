@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var friends = info.event.extendedProps.friends || [];
             friends.forEach(function(friend) {
                 var Wrapper = document.createElement('div');
-                Wrapper.className = 'friendWrapper';
+                Wrapper.className = 'wrapper';
 
                 var p = document.createElement("p");
                 p.style.display = "inline-block";
@@ -634,58 +634,71 @@ document.addEventListener('DOMContentLoaded', function() {
         optionsContainer.appendChild(option);
     };
 
-    //event listeners for the button to show the friend informations 
-    var viewProfileButtons = document.querySelectorAll('.profileButton');
-    viewProfileButtons.forEach(function(Button) {
-            Button.addEventListener('click', async function() {
-                var viewFriend = viewProfile.closest('p');
-                friendName = viewFriend.textContent;
-    
-                data = JSON.stringify(friendName);
-                try {
-                    const response = await fetch('/getFriendProfile', { // Endpoint should match your Flask route
-                        method: "POST",
-                        body: data, // Sending the form data as the request body
-                    });
-            
-                    // Check if the response is ok (status in the range 200-299)
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-            
-                    // Parse and log the JSON response from the server
-                    const friend_info = await response.json();
-                    console.log(friend_info);
-                } catch (error) {
-                    console.error('Error fetching events:', error);
-                } 
+    // Event delegation to handle clicks on dynamically inserted .profileButton elements
+    document.body.addEventListener('click', async function(event) {
+        // Check if the clicked element has the class .delete (adjust this if it's meant for delete buttons)
+        if (event.target && event.target.classList.contains('profileButton')) {
+            console.log("The button has been clicked!");
 
+            var viewFriendWrapper= event.target.closest('.wrapper');
+            var viewFriend = viewFriendWrapper.querySelector('p');
+            var friendName = viewFriend ? viewFriend.textContent.trim() : null;
+
+            if (!friendName) {
+                console.error("Friend name not found.");
+                return;
+            }
+
+            var data = JSON.stringify({ friendName });
+
+            try {
+                const response = await fetch('/getFriendProfile', {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },  // Set the correct headers
+                    body: data,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const friend_info = await response.json();
+                console.log(friend_info);
+
+                // Call the function to display the friend's info
                 createInfoPage(friend_info);
 
-                var profileBox= document.getElementById('friendProfile');
-                profileBox.style.display = "block";
-                document.getElementById("blurry").style.filter = 'blur(8px)';
-            });
-
-            function createInfoPage(friend_info) {
-                console.log(`Info page about your friend has been created, here are his informations ${friend_info}`);
-
-                for (const [key, value] of Object.entries(friend_info)) {  // Correct loop syntax
-                    if (key === 'photo') {
-                        var sector = document.getElementById('Photo');  // Correct method name
-                
-                        var imagePath = 'static/profile_images/' + value;  // Build the image path
-                        sector.src = imagePath;  // Update image src
-                    } else {
-                        var sector = document.getElementById(key);  // Correct method name
-                
-                        if (sector) {  // Check if element exists
-                            sector.textContent = value;  // Correct capitalization
-                        }
-                    }
+                var profileBox = document.getElementById('friendProfile');
+                if (profileBox) {
+                    profileBox.style.display = "block";
                 }
-                
+                document.getElementById("blurry").style.filter = 'blur(8px)';
+
+            } catch (error) {
+                console.error('Error fetching friend profile:', error);
             }
+        }
     });
+
+    // Function to create and display the friend's info page
+    function createInfoPage(friend_info) {
+        console.log(`Info page about your friend has been created, here are their details: ${friend_info}`);
+
+        for (const [key, value] of Object.entries(friend_info)) {
+            if (key === 'photo') {
+                var imageElement = document.getElementById('Photo');
+                if (imageElement) {
+                    var imagePath = 'static/profile_images/' + value;
+                    imageElement.src = imagePath;
+                }
+            } else {
+                var infoElement = document.getElementById(key);
+                if (infoElement) {
+                    infoElement.textContent = `${key}: ${value}`;
+                }
+            }
+        }
+    }
+
 });         
 
