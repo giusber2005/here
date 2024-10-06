@@ -47,6 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ],
         select: function(info) {
             eventForm.style.display = 'block';
+            document.getElementById("blurry").style.filter = 'blur(8px)';
+            document.getElementById("blurry").style.pointerEvents = "none";
+            document.body.style.overflow = 'hidden';
+
             document.body.classList.add('dimmed');
             selectedEvent = null; // Clear selected event when creating a new one
 
@@ -69,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var title = document.getElementById('eventTitle').value;
                 var color = document.getElementById('eventColor').value;
                 var text = document.getElementById('eventText').value;
-                var tag = document.getElementById('eventTags').value;
-
+                var select = document.getElementById('eventTags');
+                var tag = select.options[select.selectedIndex].textContent;
 
                 // Gather additional data (photos, friends, links)
                 var photos = [];
@@ -118,6 +122,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Cancel event creation
             cancelButton.onclick = function() {
+                document.getElementById("blurry").style.filter = 'none';
+                document.getElementById("blurry").style.pointerEvents = "all";
+                document.body.style.overflow = 'auto';
+
                 resetFormAndContent();
                 eventForm.style.display = 'none';
                 document.body.classList.remove('dimmed');
@@ -225,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.classList.remove('dimmed');
             }
         },
-        viewDidChange: function() {
+        datesSet: function() {
             // Hide event form when the view changes
             if (eventForm.style.display === 'block') {
                 eventForm.style.display = 'none';
@@ -317,6 +325,10 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             cancelButton.onclick = function() {
+                document.getElementById("blurry").style.filter = 'none';
+                document.getElementById("blurry").style.pointerEvents = "all";
+                document.body.style.overflow = 'auto';
+
                 eventForm.style.display = 'none';
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
@@ -463,14 +475,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     
             if (Box) {
+                document.getElementById("blurry").style.filter = 'blur(8px)';
+                document.getElementById("blurry").style.pointerEvents = "none";
+                document.body.style.overflow = 'hidden';
                 let counter = Box.querySelectorAll('.delete').length;
                 if (counter === 0) {
                     Box.style.display = "block";
-                    document.getElementById("blurry").style.filter = 'blur(8px)';
                     Box.querySelector('.alert').style.display = "block";    
                 } else {
                     Box.style.display = "block";
-                    document.getElementById("blurry").style.filter = 'blur(8px)';
                     Box.querySelector('.alert').style.display = "none";
                 }
             }
@@ -482,7 +495,6 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             let Box = this.closest('.Box') || this.closest('.profileBox');
             Box.style.display = "none";
-            document.getElementById("blurry").style.filter = 'none';
         });
     });
     
@@ -528,6 +540,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (counter === 1) {
                         box.style.display = "block";
                         document.getElementById("blurry").style.filter = 'blur(8px)'; 
+                        document.getElementById("blurry").style.pointerEvents = "none";
+                        document.body.style.overflow = 'hidden';
                         box.querySelector('.alert').style.display = "block";   
                     }
         
@@ -673,7 +687,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     profileBox.style.display = "block";
                 }
                 document.getElementById("blurry").style.filter = 'blur(8px)';
-
+                document.getElementById("blurry").style.pointerEvents = "none";
+                document.body.style.overflow = 'hidden';
             } catch (error) {
                 console.error('Error fetching friend profile:', error);
             }

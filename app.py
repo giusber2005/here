@@ -1232,7 +1232,6 @@ def sendProfile():
     friend = db.execute("SELECT * FROM user WHERE username = ?", name['friendName'])[0]
     del friend['hash']
     del friend['conn_token']
-    del friend['email']
     
     friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name['friendName'])[0]
     
