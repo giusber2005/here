@@ -21,7 +21,8 @@ THINGS LEFT TO DO:
             don't only validate the inputs with js
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
-       
+        when an event change time it doesn't appear any change at the same time in the Detail Box
+               
     FINAL STEPS
     complete the presentation page:
         change the actual domain name in the actual one
