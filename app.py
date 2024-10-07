@@ -998,7 +998,7 @@ def load_data():
             counter += 1
               
     # Handle links if any
-    links = data.getlist('hiddenLink')  # Get all links
+    links = request.form.getlist('hiddenLink')  # Get all links
     #links validation
     for link_path in links:  
         if not title:
@@ -1007,7 +1007,7 @@ def load_data():
             redirect("/")
     
     # Handle friends if any
-    friends = data.getlist('hiddenFriend')  # Get all friends
+    friends = request.form.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
         #tag validation
         if not title:
@@ -1118,7 +1118,7 @@ def modify_data():
             counter += 1
         
     # Handle links if any
-    links = data.getlist('hiddenLink')  # Get all links
+    links = request.form.getlist('hiddenLink')  # Get all links
     #links validation
     for link_path in links:  
         if not title:
@@ -1127,7 +1127,7 @@ def modify_data():
             redirect("/")
 
     # Handle friends if any
-    friends = data.getlist('hiddenFriend')  # Get all friends
+    friends = request.form.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
         #tag validation
         if not title:
@@ -1183,7 +1183,7 @@ def remove_data():
 @app.route('/getEvents', methods=['GET'])
 @login_required
 def get_events():
-    events = db.execute("SELECT * FROM eventsPrincipal")  # Adjust the SQL query as needed
+    events = db.execute("SELECT * FROM eventsPrincipal WHERE id IN (SELECT event_id FROM eventsConnections WHERE user = ?)", session["user_id"])
     formatted_events = []
 
     if events:         
@@ -1200,8 +1200,15 @@ def get_events():
                         data_url = f"data:image/jpeg;base64,{base64_string}"  # Adjust MIME type as needed
                         data_urls[filename] = data_url
     
-            friends = db.execute("SELECT * FROM eventsConnections WHERE event_id = ?", event['id'])
-            links = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
+            friends = []
+            friends_ids = db.execute("SELECT * FROM eventsConnections WHERE event_id = ?", event['id'])
+            for friend_id in friends_ids:
+                friend = db.execute("SELECT * FROM user WHERE id = ?", friend_id['user'])[0]['username'] 
+                friends.append(friend)
+            links = []
+            links_path = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
+            for link_path in links_path:
+                links.append(link_path['links_path'])
             time_slot = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", event['id'])[0]['time_slot']
             
             start, end = time_slot.split('/')

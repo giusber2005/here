@@ -165,3 +165,15 @@ function remove_errors() {
         errors[i].innerHTML = '';
     }
 }
+
+// Helper function to clear dynamic content from a given container
+function clearDynamicContent(containerId) {
+
+                
+    var container = document.getElementById(containerId);
+                
+    // Remove all child nodes
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+}

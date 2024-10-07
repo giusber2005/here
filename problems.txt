@@ -15,7 +15,6 @@ THINGS LEFT TO DO:
         see the logic of the connections between users in the application
 
     homepage features
-        remove the informations of the previous event once it has been used 
         check problems in the connection between the database and the calendar
         add security protections when inserting details of events in the database 
             don't only validate the inputs with js

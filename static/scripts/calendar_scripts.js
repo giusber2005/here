@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //elements for event connnections management
     var friends_options = document.getElementById("eventFriends");
-    var sel_options_container = document.getElementById("friendsBox");
     
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     calendar.addEvent(eventData);
 
-                    console.log(e);
+                    console.log(this);
                     sendData('/addEvent', this);        
                 }
             
@@ -119,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById("blurry").style.filter = 'none';
                 document.getElementById("blurry").style.pointerEvents = "all";
                 document.body.style.overflow = 'auto';
-                
+
                 document.body.classList.remove('dimmed');
                 calendar.unselect();
             };
@@ -146,16 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearDynamicContent('friendsBox');
                 clearDynamicContent('linkBox');
             }
-            
-            // Helper function to clear dynamic content from a given container
-            function clearDynamicContent(containerId) {
-                var container = document.getElementById(containerId);
-                
-                // Remove all child nodes
-                while (container.firstChild) {
-                    container.removeChild(container.firstChild);
-                }
-            }
+        
         },
         eventClick: function(info) {
             eventDetails.style.display = 'block'; 
@@ -188,45 +178,52 @@ document.addEventListener('DOMContentLoaded', function() {
         
             // Display photos
             var photos = info.event.extendedProps.photos || [];
-            photos.forEach(function(photo) {
-                var img = document.createElement("img");
-                img.src = photo;
-                img.className = "photo-preview";
-                document.getElementById("detailsPhotoBox").appendChild(img);
-            });
+            if (Array.isArray(photos)) {
+                photos.forEach(function(photo) {
+                    var img = document.createElement("img");
+                    img.src = photo;
+                    img.className = "photo-preview";
+                    document.getElementById("detailsPhotoBox").appendChild(img);
+    
+                });
+            };
         
             // Display friends
             var friends = info.event.extendedProps.friends || [];
-            friends.forEach(function(friend) {
-                var Wrapper = document.createElement('div');
-                Wrapper.className = 'wrapper';
-
-                var p = document.createElement("p");
-                p.style.display = "inline-block";
-                p.textContent = friend;
-
-                Wrapper.appendChild(p);
-
-                // Create the view profile button
-                var profileButton = document.createElement('button');
-                profileButton.textContent = 'View profile';
-                profileButton.className = 'profileButton';
-                        
-                Wrapper.appendChild(profileButton);
-
-                document.getElementById("detailsFriendsBox").appendChild(Wrapper);
-            });
+            if (friends.length != 0) {
+                friends.forEach(function(friend) {
+                    var Wrapper = document.createElement('div');
+                    Wrapper.className = 'wrapper';
+    
+                    var p = document.createElement("p");
+                    p.style.display = "inline-block";
+                    p.textContent = friend;
+    
+                    Wrapper.appendChild(p);
+    
+                    // Create the view profile button
+                    var profileButton = document.createElement('button');
+                    profileButton.textContent = 'View profile';
+                    profileButton.className = 'profileButton';
+                            
+                    Wrapper.appendChild(profileButton);
+    
+                    document.getElementById("detailsFriendsBox").appendChild(Wrapper);
+                });
+            };
         
             // Display links
             var links = info.event.extendedProps.links || [];
-            links.forEach(function(link) {
-                var a = document.createElement("a");
-                a.href = link;
-                a.textContent = link;
-                a.target = "_blank";
-                a.style.display = "inline-block"
-                document.getElementById("detailsLinkBox").appendChild(a);
-            });
+            if (links.length != 0) {
+                links.forEach(function(link) {
+                    var a = document.createElement("a");
+                    a.href = link;
+                    a.textContent = link;
+                    a.target = "_blank";
+                    a.style.display = "inline-block"
+                    document.getElementById("detailsLinkBox").appendChild(a);
+                });
+            };
 
             calendar.updateSize();
         },        
@@ -503,6 +500,12 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             let Box = this.closest('.Box') || this.closest('.profileBox');
             Box.style.display = "none";
+
+            if (document.getElementById('eventForm').style.display === "none") {
+                document.getElementById("blurry").style.filter = 'none';
+                document.getElementById("blurry").style.pointerEvents = "all";
+                document.body.style.overflow = 'auto';
+            }
         });
     });
     
@@ -557,12 +560,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }    
         });
     });
-
-    function  clearDynamicContent(container) {
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-    }
 
     async function sendData(route, form) {
         // Associate the FormData object with the form element
@@ -644,7 +641,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });        
 
     function resetFriend(value) {
-        console.log(value);
         var optionsContainer = document.getElementById('eventFriends');
     
         // Create a new option element
@@ -660,7 +656,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('click', async function(event) {
         // Check if the clicked element has the class .delete (adjust this if it's meant for delete buttons)
         if (event.target && event.target.classList.contains('profileButton')) {
-            console.log("The button has been clicked!");
 
             var viewFriendWrapper= event.target.closest('.wrapper');
             var viewFriend = viewFriendWrapper.querySelector('p');
@@ -685,7 +680,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 const friend_info = await response.json();
-                console.log(friend_info);
 
                 // Call the function to display the friend's info
                 createInfoPage(friend_info);
@@ -705,7 +699,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to create and display the friend's info page
     function createInfoPage(friend_info) {
-        console.log(`Info page about your friend has been created, here are their details: ${friend_info}`);
 
         for (const [key, value] of Object.entries(friend_info)) {
             if (key === 'photo') {
