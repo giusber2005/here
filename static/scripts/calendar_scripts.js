@@ -116,6 +116,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset the form, clear dynamic content, and hide the form
                 resetFormAndContent();
                 eventForm.style.display = 'none';
+                document.getElementById("blurry").style.filter = 'none';
+                document.getElementById("blurry").style.pointerEvents = "all";
+                document.body.style.overflow = 'auto';
+                
                 document.body.classList.remove('dimmed');
                 calendar.unselect();
             };
@@ -318,6 +322,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Hide the form and remove dimming
                 eventForm.style.display = 'none';
+                document.getElementById("blurry").style.filter = 'none';
+                document.getElementById("blurry").style.pointerEvents = "all";
+                document.body.style.overflow = 'auto';
+
                 addButton.innerHTML = "Add Event";
                 document.body.classList.remove('dimmed');
 
