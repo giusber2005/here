@@ -178,79 +178,78 @@ function clearDynamicContent(containerId) {
     }
 }
 
-//Function to add an element to the box and store his hidden value in an hidden box
-function addElement(el="", preValue="", keyword="") {
+// Function to add an element to the box and store its hidden value in a hidden box
+function addElement(el = "", preValue = "", keyword = "") {
+    let value;
+    let input;
 
-    if (preValue==="") {
-        let input = el.closest('.column-container').querySelector('.addInput');
-        var value = input.value;
+    if (preValue === "") {
+        input = el.closest('.column-container').querySelector('.addInput');
+        value = input.value;
     } else {
-        var value = preValue;
+        value = preValue;
     }
 
-    if (value != "") {
-        if (keyword != "") {
-            if (keyword === "photo") {
-                var Box = document.getElementById('photoBox');
-                var hiddenContainer = document.getElementById('hiddenPhoto')
-            } else if (keyword === "friend") {
-                var Box = document.getElementById('friendsBox');
-                var hiddenContainer = document.getElementById('hiddenFriends');
-            } else if (keyword === "link") {
-                var Box = document.getElementById('link');
-                var hiddenContainer = document.getElementById('hiddenBox');
-            };
-        } else {
-            var column = el.closest('.column-container').id;
-            var hiddenContainer = el.closest('.column-container').querySelector('.hidden');
+    if (value !== "") {
+        let Box, hiddenContainer;
 
-            var containers = document.querySelectorAll(".Box");
-            var Box = null;
-            containers.forEach(function(container) {
-                var id = container.id;
-                if (id.includes(column)) {
-                    Box = container;
-                }
-            });
+        if (keyword !== "") {
+            if (keyword === "photo") {
+                Box = document.getElementById('photoBox');
+                hiddenContainer = document.getElementById('hiddenPhoto');
+            } else if (keyword === "friend") {
+                Box = document.getElementById('friendsBox');
+                hiddenContainer = document.getElementById('hiddenFriends');
+            } else if (keyword === "link") {
+                Box = document.getElementById('linkBox');
+                hiddenContainer = document.getElementById('hiddenBox');
+            }
+        } else {
+            const column = el.closest('.column-container').id;
+            hiddenContainer = el.closest('.column-container').querySelector('.hidden');
+
+            const containers = document.querySelectorAll(".Box");
+            Box = Array.from(containers).find(container => container.id.includes(column));
         }
 
         if (!Box) return; // If no box found, exit
 
-        var Wrapper = document.createElement('div');
+        const Wrapper = document.createElement('div');
         Wrapper.className = 'wrapper';
 
+        let hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+
         if (Box.id === 'linkBox') {
-            var newLink = document.createElement('a');
+            const newLink = document.createElement('a');
             newLink.href = value;
             newLink.textContent = value;
             newLink.target = '_blank'; // Open link in a new tab
             Wrapper.appendChild(newLink);
 
-            var hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
             hiddenInput.className = 'hiddenLink';
             hiddenInput.name = 'hiddenLink';
-            hiddenInput.value = value; 
+            hiddenInput.value = value;
 
         } else if (Box.id === "photoBox") {
-            var newPhoto = document.createElement('img');
+            const newPhoto = document.createElement('img');
 
-            var file = input.files[0];
+            const file = input.files[0];
             if (file) {
-                var reader = new FileReader();
-    
+                const reader = new FileReader();
+
                 reader.onload = function(e) {
                     newPhoto.src = e.target.result;
 
                     const base64Image = e.target.result;  // The Base64-encoded image
 
-                    var hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
                     hiddenInput.className = 'hiddenPhoto';
                     hiddenInput.name = 'hiddenPhoto';
-                    hiddenInput.value = base64Image; 
+                    hiddenInput.value = base64Image;
+
+                    hiddenContainer.appendChild(hiddenInput); // Append hidden input after setting its value
                 };
-    
+
                 reader.readAsDataURL(file);
             } else {
                 newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
@@ -260,28 +259,27 @@ function addElement(el="", preValue="", keyword="") {
             Wrapper.appendChild(newPhoto);
 
         } else if (Box.id === "friendsBox") {
-            //when a friend is being added to the box, his option is eliminated from the list 
-            var newFriend = document.createElement('p');
+            // When a friend is being added to the box, their option is eliminated from the list 
+            const newFriend = document.createElement('p');
             newFriend.style.display = "inline-block";
             newFriend.innerHTML = value;
             Wrapper.appendChild(newFriend);
 
-            var hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
             hiddenInput.className = 'hiddenFriend';
             hiddenInput.name = 'hiddenFriend';
             hiddenInput.value = value;
-            
-            var options = friends_options.querySelectorAll('option');
-            for (var i = options.length - 1; i >= 0; i--) {
-                var option = options[i];
+
+            var friends_options = document.getElementById("eventFriends");
+            const options = friends_options.querySelectorAll('option');
+            for (let i = options.length - 1; i >= 0; i--) {
+                const option = options[i];
                 if (option.value === value) {
                     friends_options.removeChild(option);
                 }
             }
 
             // Create the view profile button
-            var profileButton = document.createElement('button');
+            const profileButton = document.createElement('button');
             profileButton.textContent = 'View profile';
             profileButton.className = 'profileButton';
 
@@ -289,7 +287,7 @@ function addElement(el="", preValue="", keyword="") {
         }
 
         // Create the delete button
-        var deleteButton = document.createElement('button');
+        const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.className = 'delete';
 
@@ -297,8 +295,13 @@ function addElement(el="", preValue="", keyword="") {
 
         // Append the wrapper to the container
         Box.appendChild(Wrapper);
-        hiddenContainer.appendChild(hiddenInput);
 
-        input.value = ""; // Clear the input
+        if (Box.id !== "photoBox") {
+            hiddenContainer.appendChild(hiddenInput); // Append hidden input for non-photo cases
+        }
+
+        if (input) {
+            input.value = ""; // Clear the input
+        }
     }
-};
+}

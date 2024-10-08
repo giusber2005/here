@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailText = document.getElementById('detailText');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
     var addButton = document.getElementById("addButton");
-
-    //elements for event connnections management
-    var friends_options = document.getElementById("eventFriends");
     
     var calendar;
     var selectedEvent = null; // Variable to store the currently selected event
@@ -304,17 +301,19 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('eventLink').value = selectedEvent.extendedProps.link || '';
             document.getElementById('eventTags').value = selectedEvent.extendedProps.tags || '';  // Populate the select with the single tag
 
-            var photosInsert = selectedEvent.extendedProps.photos;
+            var photosInsert = Array.isArray(selectedEvent.extendedProps.photos) ? selectedEvent.extendedProps.photos : [];
             photosInsert.forEach(function(_photo_) {
                 addElement(undefined, _photo_, "photo");
             }); 
-            var friendsInsert = selectedEvent.extendedProps.friends;
+            
+            var friendsInsert = Array.isArray(selectedEvent.extendedProps.friends) ? selectedEvent.extendedProps.friends : [];
             friendsInsert.forEach(function(_friend_) {
                 addElement(undefined, _friend_, "friend");
             });
-            var linksInsert = selectedEvent.extendedProps.links;
+            
+            var linksInsert = Array.isArray(selectedEvent.extendedProps.links) ? selectedEvent.extendedProps.links : [];
             linksInsert.forEach(function(_link_) {
-                addElement(undefined, _link_, "photo");
+                addElement(undefined, _link_, "link");
             });
         }
     });
@@ -437,31 +436,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function sendData(route, form) {
-        // Associate the FormData object with the form element
+        let formData;
+        let headers = {};
+
         if (route === '/deleteEvent') {
-            var formData = JSON.stringify(form);
+            formData = JSON.stringify(form);
+            headers['Content-Type'] = 'application/json'; // Set the correct content type for JSON
         } else {
-            var formData = new FormData(form); // Make sure `form` is defined
+            formData = new FormData(form); // Make sure `form` is defined
+            // No need to set Content-Type for FormData; the browser will set it automatically
         }
-    
+
         try {
-            const response = await fetch(route, { // Endpoint should match your Flask route
+            const response = await fetch(route, {
                 method: "POST",
+                headers: headers, // Include headers
                 body: formData, // Sending the form data as the request body
             });
-    
+
             // Check if the response is ok (status in the range 200-299)
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             // Parse and log the JSON response from the server
             const data = await response.json();
             console.log(data);
         } catch (e) {
             console.error(e); // Log any errors that occur
         }
-    }    
+    }   
 
     var input = document.getElementById('eventPhoto');
     var preview = document.getElementById('PhotoPreview');

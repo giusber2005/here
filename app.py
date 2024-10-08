@@ -930,7 +930,14 @@ def load_data():
     
     for key, value in data.items():
         print(f"{key}: {value}")
-                
+        
+    rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
+    if len(rows) > 0:
+        db.execute("DELETE FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
+        db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", data.get('eventId', ""))
+        db.execute("DELETE FROM eventsLinks WHERE event_id = ?", data.get('eventId', ""))
+        db.execute("DELETE FROM eventsConnections WHERE event_id = ?", data.get('eventId', ""))
+    
     title = data.get('eventTitle', "")
     #title validation
     if not title:
@@ -1016,8 +1023,8 @@ def load_data():
             redirect("/")
             
     # Insert event details into eventsPrincipal
-    db.execute("INSERT INTO eventsPrincipal (title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
-               title, color, notes, time_slot, tag)
+    db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
+               event_id, title, color, notes, time_slot, tag)
     
     # Get the event ID of the newly created event
     event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
@@ -1040,128 +1047,6 @@ def load_data():
     db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
     
     return jsonify({"message": "Data received and stored", "data": data})
-
-
-# Define an endpoint to handle the modifyEvent of the calendar POST request
-@app.route('/modifyEvent', methods=['POST'])
-@login_required
-def modify_data():
-    data = request.form  # Getting form data
-    
-    for key, value in data.items():
-        print(f"{key}: {value}")
-
-    event_id = data.get('eventId', "") 
-    #id validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-        
-    title = data.get('eventTitle', "")
-    #title validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-
-    color = data.get('eventColor', "")
-    #color validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-
-    notes = data.get('eventText', "")
-    #notes validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-        
-    time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
-    #time_slot validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-
-    tag = data.get('eventTags', "")
-    #tag validation
-    if not title:
-        message = ""
-        flash(message)
-        redirect("/")
-
-    # Handle photos if any
-    photos = request.files.getlist("hiddenPhoto", None)
-    images_base64 = {}
-    images_mimetype = {}
-    counter = 0
-    for photo in photos:
-        if photo.startswith('data:image'):
-            base64_image = photo.split(",")[1]
-            
-            mime_type_match = re.match(r'data:(.*?);base64,', base64_image)
-            if mime_type_match:
-                mimetype = mime_type_match.group(1)
-
-            if mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
-                message = "Invalid file type detected"
-                flash(message)
-                return redirect("/")
-            
-            # Decode the image
-            image_data = base64.b64decode(base64_image)
-            images_base64[counter] = image_data 
-            images_mimetype[counter] = mimetype 
-            counter += 1
-        
-    # Handle links if any
-    links = request.form.getlist('hiddenLink')  # Get all links
-    #links validation
-    for link_path in links:  
-        if not title:
-            message = ""
-            flash(message)
-            redirect("/")
-
-    # Handle friends if any
-    friends = request.form.getlist('hiddenFriend')  # Get all friends
-    for friend in friends:
-        #tag validation
-        if not title:
-            message = ""
-            flash(message)
-            redirect("/")
-            
-    # Update event details in eventsPrincipal
-    db.execute("UPDATE eventsPrincipal SET title = ?, color = ?, notes = ?, time_slot = ?, tag = ? WHERE id = ?", 
-               title, color, notes, time_slot, tag, event_id)
-    
-    # Clear existing photos, links, and friends associated with the event
-    db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", event_id)
-    db.execute("DELETE FROM eventsLinks WHERE event_id = ?", event_id)
-    db.execute("DELETE FROM eventsConnections WHERE event_id = ?", event_id)
-    
-                  
-    for photo in photos:
-        filename = secure_filename(photo.filename) 
-        photo.save(os.path.join("static", "events_images", filename))
-        db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
-    
-    for link_path in links:
-        db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
-    
-    for friend in friends:
-        user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
-        db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
-    
-    #insert also in the connections the creator of the event
-    db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
-          
-    return jsonify({"message": "Event successfully modified!", "data": data})
-
 
 # Define an endpoint to handle the deleteEvent of the calendar POST request
 @app.route('/deleteEvent', methods=['POST'])
