@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var detailEnd = document.getElementById('detailEnd');
     var detailText = document.getElementById('detailText');
     var detailTags = document.getElementById('detailTags');  // Will handle a single tag now
+    var addButton = document.getElementById("addButton");
 
     //elements for event connnections management
     var friends_options = document.getElementById("eventFriends");
@@ -51,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'hidden';
 
             document.body.classList.add('dimmed');
-            selectedEvent = null; // Clear selected event when creating a new one
 
             //add informations about the start and the end of the event
             var id = document.getElementById("eventId")
@@ -111,7 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(this);
                     sendData('/addEvent', this);        
                 }
-            
+
+                addButton.innerHTML = "Add Event";
+
                 // Reset the form, clear dynamic content, and hide the form
                 resetFormAndContent();
                 eventForm.style.display = 'none';
@@ -148,6 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         },
         eventClick: function(info) {
+            selectedEvent = info.event;
+
             eventDetails.style.display = 'block'; 
             detailTitle.textContent = info.event.title;
 
@@ -283,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("modifyButton").addEventListener('click', function() {
+        console.log(selectedEvent);
         if (selectedEvent) {
             // Hide the event details and show the form to modify the event
             eventDetails.style.display = "none";
@@ -290,7 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
             eventForm.style.display = 'block';
             document.body.classList.add('dimmed');
 
-            var addButton = document.getElementById("addButton");
             addButton.innerHTML = "Modify Event";
 
             // Pre-fill the form with the current event details
@@ -300,44 +304,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('eventLink').value = selectedEvent.extendedProps.link || '';
             document.getElementById('eventTags').value = selectedEvent.extendedProps.tags || '';  // Populate the select with the single tag
 
-            addEventForm.onsubmit = function(e) {
-                e.preventDefault();
-
-                // Get updated values from the form
-                var updatedTitle = document.getElementById('eventTitle').value;
-                var updatedColor = document.getElementById('eventColor').value;
-                var updatedText = document.getElementById('eventText').value;
-                var updatedLink = document.getElementById('eventLink').value;
-                var updatedTag = document.getElementById('eventTags').value;  // Single tag selected from the <select>
-
-                // Update the event with the new values
-                selectedEvent.setProp('title', updatedTitle);
-                selectedEvent.setProp('backgroundColor', updatedColor);
-                selectedEvent.setExtendedProp('text', updatedText);
-                selectedEvent.setExtendedProp('link', updatedLink);
-                selectedEvent.setExtendedProp('tags', updatedTag);  // Update single tag
-
-                // Hide the form and remove dimming
-                eventForm.style.display = 'none';
-                document.getElementById("blurry").style.filter = 'none';
-                document.getElementById("blurry").style.pointerEvents = "all";
-                document.body.style.overflow = 'auto';
-
-                addButton.innerHTML = "Add Event";
-                document.body.classList.remove('dimmed');
-
-                sendData('/modifyEvent', this);
-            };
-
-            cancelButton.onclick = function() {
-                document.getElementById("blurry").style.filter = 'none';
-                document.getElementById("blurry").style.pointerEvents = "all";
-                document.body.style.overflow = 'auto';
-
-                eventForm.style.display = 'none';
-                addButton.innerHTML = "Add Event";
-                document.body.classList.remove('dimmed');
-            };
+            var photosInsert = selectedEvent.extendedProps.photos;
+            photosInsert.forEach(function(_photo_) {
+                addElement(undefined, _photo_, "photo");
+            }); 
+            var friendsInsert = selectedEvent.extendedProps.friends;
+            friendsInsert.forEach(function(_friend_) {
+                addElement(undefined, _friend_, "friend");
+            });
+            var linksInsert = selectedEvent.extendedProps.links;
+            linksInsert.forEach(function(_link_) {
+                addElement(undefined, _link_, "photo");
+            });
         }
     });
 
@@ -358,110 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addButtons.forEach(function(item) {
         item.addEventListener('click', function() {
-
-            let input = this.closest('.column-container').querySelector('.addInput');
-            let value = input.value;
-
-            if (value != "") {
-                let column = this.closest('.column-container').id;
-                let hiddenContainer = this.closest('.column-container').querySelector('.hidden');
-    
-                let containers = document.querySelectorAll(".Box");
-                let Box = null;
-                containers.forEach(function(container) {
-                    var id = container.id;
-                    if (id.includes(column)) {
-                        Box = container;
-                    }
-                });
-    
-                if (!Box) return; // If no box found, exit
-    
-                var Wrapper = document.createElement('div');
-                Wrapper.className = 'wrapper';
-
-                if (Box.id === 'linkBox') {
-                    var newLink = document.createElement('a');
-                    newLink.href = value;
-                    newLink.textContent = value;
-                    newLink.target = '_blank'; // Open link in a new tab
-                    Wrapper.appendChild(newLink);
-
-                    var hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
-                    hiddenInput.className = 'hiddenLink';
-                    hiddenInput.name = 'hiddenLink';
-                    hiddenInput.value = value; 
-
-                } else if (Box.id === "photoBox") {
-                    var newPhoto = document.createElement('img');
-
-                    var file = input.files[0];
-                    if (file) {
-                        var reader = new FileReader();
-            
-                        reader.onload = function(e) {
-                            newPhoto.src = e.target.result;
-
-                            const base64Image = e.target.result;  // The Base64-encoded image
-
-                            var hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
-                            hiddenInput.className = 'hiddenPhoto';
-                            hiddenInput.name = 'hiddenPhoto';
-                            hiddenInput.value = base64Image; 
-                        };
-            
-                        reader.readAsDataURL(file);
-                    } else {
-                        newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-                    }
-
-                    newPhoto.className = "photo-preview";
-                    Wrapper.appendChild(newPhoto);
-
-                } else if (Box.id === "friendsBox") {
-                    //when a friend is being added to the box, his option is eliminated from the list 
-                    var newFriend = document.createElement('p');
-                    newFriend.style.display = "inline-block";
-                    newFriend.innerHTML = value;
-                    Wrapper.appendChild(newFriend);
-
-                    var hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
-                    hiddenInput.className = 'hiddenFriend';
-                    hiddenInput.name = 'hiddenFriend';
-                    hiddenInput.value = value;
-                    
-                    var options = friends_options.querySelectorAll('option');
-                    for (var i = options.length - 1; i >= 0; i--) {
-                        var option = options[i];
-                        if (option.value === value) {
-                            friends_options.removeChild(option);
-                        }
-                    }
-
-                    // Create the view profile button
-                    var profileButton = document.createElement('button');
-                    profileButton.textContent = 'View profile';
-                    profileButton.className = 'profileButton';
-        
-                    Wrapper.appendChild(profileButton);
-                }
-
-                // Create the delete button
-                var deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.className = 'delete';
-    
-                Wrapper.appendChild(deleteButton);
-    
-                // Append the wrapper to the container
-                Box.appendChild(Wrapper);
-                hiddenContainer.appendChild(hiddenInput);
-    
-                input.value = ""; // Clear the input
-            }
+            addElement(this, undefined, undefined);
         });
     });
     

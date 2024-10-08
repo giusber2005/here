@@ -177,3 +177,128 @@ function clearDynamicContent(containerId) {
         container.removeChild(container.firstChild);
     }
 }
+
+//Function to add an element to the box and store his hidden value in an hidden box
+function addElement(el="", preValue="", keyword="") {
+
+    if (preValue==="") {
+        let input = el.closest('.column-container').querySelector('.addInput');
+        var value = input.value;
+    } else {
+        var value = preValue;
+    }
+
+    if (value != "") {
+        if (keyword != "") {
+            if (keyword === "photo") {
+                var Box = document.getElementById('photoBox');
+                var hiddenContainer = document.getElementById('hiddenPhoto')
+            } else if (keyword === "friend") {
+                var Box = document.getElementById('friendsBox');
+                var hiddenContainer = document.getElementById('hiddenFriends');
+            } else if (keyword === "link") {
+                var Box = document.getElementById('link');
+                var hiddenContainer = document.getElementById('hiddenBox');
+            };
+        } else {
+            var column = el.closest('.column-container').id;
+            var hiddenContainer = el.closest('.column-container').querySelector('.hidden');
+
+            var containers = document.querySelectorAll(".Box");
+            var Box = null;
+            containers.forEach(function(container) {
+                var id = container.id;
+                if (id.includes(column)) {
+                    Box = container;
+                }
+            });
+        }
+
+        if (!Box) return; // If no box found, exit
+
+        var Wrapper = document.createElement('div');
+        Wrapper.className = 'wrapper';
+
+        if (Box.id === 'linkBox') {
+            var newLink = document.createElement('a');
+            newLink.href = value;
+            newLink.textContent = value;
+            newLink.target = '_blank'; // Open link in a new tab
+            Wrapper.appendChild(newLink);
+
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+            hiddenInput.className = 'hiddenLink';
+            hiddenInput.name = 'hiddenLink';
+            hiddenInput.value = value; 
+
+        } else if (Box.id === "photoBox") {
+            var newPhoto = document.createElement('img');
+
+            var file = input.files[0];
+            if (file) {
+                var reader = new FileReader();
+    
+                reader.onload = function(e) {
+                    newPhoto.src = e.target.result;
+
+                    const base64Image = e.target.result;  // The Base64-encoded image
+
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+                    hiddenInput.className = 'hiddenPhoto';
+                    hiddenInput.name = 'hiddenPhoto';
+                    hiddenInput.value = base64Image; 
+                };
+    
+                reader.readAsDataURL(file);
+            } else {
+                newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+            }
+
+            newPhoto.className = "photo-preview";
+            Wrapper.appendChild(newPhoto);
+
+        } else if (Box.id === "friendsBox") {
+            //when a friend is being added to the box, his option is eliminated from the list 
+            var newFriend = document.createElement('p');
+            newFriend.style.display = "inline-block";
+            newFriend.innerHTML = value;
+            Wrapper.appendChild(newFriend);
+
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden'; // Set the type to 'hidden'
+            hiddenInput.className = 'hiddenFriend';
+            hiddenInput.name = 'hiddenFriend';
+            hiddenInput.value = value;
+            
+            var options = friends_options.querySelectorAll('option');
+            for (var i = options.length - 1; i >= 0; i--) {
+                var option = options[i];
+                if (option.value === value) {
+                    friends_options.removeChild(option);
+                }
+            }
+
+            // Create the view profile button
+            var profileButton = document.createElement('button');
+            profileButton.textContent = 'View profile';
+            profileButton.className = 'profileButton';
+
+            Wrapper.appendChild(profileButton);
+        }
+
+        // Create the delete button
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete';
+
+        Wrapper.appendChild(deleteButton);
+
+        // Append the wrapper to the container
+        Box.appendChild(Wrapper);
+        hiddenContainer.appendChild(hiddenInput);
+
+        input.value = ""; // Clear the input
+    }
+};
