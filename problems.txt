@@ -15,13 +15,14 @@ THINGS LEFT TO DO:
         see the logic of the connections between users in the application
 
     homepage features
-        check problems in the connection between the database and the calendar
         add security protections when inserting details of events in the database 
             don't only validate the inputs with js
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
         when an event change time it doesn't appear any change at the same time in the Detail Box
         control the ids logic
+        search for bugs
+        debug the file detection for the photo of the events in js
         complete the feature of modifying an event
 
     FINAL STEPS

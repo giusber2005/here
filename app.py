@@ -930,7 +930,8 @@ def load_data():
     
     for key, value in data.items():
         print(f"{key}: {value}")
-        
+    print("end of data")
+    
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         db.execute("DELETE FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
@@ -979,31 +980,47 @@ def load_data():
         message = ""
         flash(message)
         redirect("/")
-
+        
+        
     # Handle photos if any
-    photos = request.files.getlist("hiddenPhoto", None)
+    photos = request.form.getlist("hiddenPhoto", None)
+    print(len(photos))
     images_base64 = {}
     images_mimetype = {}
     counter = 0
     for photo in photos:
+        print(f"Processing photo: {photo}")
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
+            print(f"Base64 image data: {base64_image[:30]}...")  # Print first 30 characters for debug
             
-            mime_type_match = re.match(r'data:(.*?);base64,', base64_image)
+            mime_type_match = re.match(r'data:(.*?);base64,', photo)
             if mime_type_match:
                 mimetype = mime_type_match.group(1)
-
-            if mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
+                print(f"MIME type: {mimetype}")
+            
+            # Remove the 'image/' prefix
+            if mimetype.startswith('image/'):
+                mimetype = mimetype.split('/')[1]
+                print(f"Modified MIME type: {mimetype}")
+                
+            if mimetype not in ['jpeg', 'png', 'heic']:
                 message = "Invalid file type detected"
                 flash(message)
                 return redirect("/")
             
+        try:
             # Decode the image
             image_data = base64.b64decode(base64_image)
-            images_base64[counter] = image_data 
-            images_mimetype[counter] = mimetype 
+            images_base64[counter] = image_data
+            images_mimetype[counter] = mimetype
             counter += 1
-              
+            print(f"Image {counter} processed successfully")
+        except Exception as e:
+            flash(f"Error decoding image: {str(e)}")
+            print(f"Error decoding image: {str(e)}")
+            return redirect("/") 
+            
     # Handle links if any
     links = request.form.getlist('hiddenLink')  # Get all links
     #links validation
@@ -1023,13 +1040,13 @@ def load_data():
             redirect("/")
             
     # Insert event details into eventsPrincipal
-    db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?)", 
+    db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
                event_id, title, color, notes, time_slot, tag)
     
     # Get the event ID of the newly created event
     event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
           
-    for index, photo in images_base64:
+    for index, photo in images_base64.items():
         filename = generate_unique_filename(images_mimetype[index])
         with open(os.path.join("static", "events_images", filename), "wb") as f:
             f.write(photo)
@@ -1075,21 +1092,20 @@ def get_events():
         for event in events:
             photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])
             photo_paths = [photo['photo_path'] for photo in photos]
-            data_urls = {}
+            data_urls = []
             for filename in os.listdir(os.path.join('static', 'events_images')):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')) and filename in photo_paths:  # Add other formats as needed
                     file_path = os.path.join('static', 'events_images', filename)
-                    with open(file_path, "rb") as image_file:
-                        base64_string = base64.b64encode(image_file.read()).decode('utf-8')
-                        # Format as a Data URL
-                        data_url = f"data:image/jpeg;base64,{base64_string}"  # Adjust MIME type as needed
-                        data_urls[filename] = data_url
+                    data_urls.append(file_path)
     
             friends = []
             friends_ids = db.execute("SELECT * FROM eventsConnections WHERE event_id = ?", event['id'])
             for friend_id in friends_ids:
+                if friend_id['user'] == session["user_id"]:
+                    continue    
                 friend = db.execute("SELECT * FROM user WHERE id = ?", friend_id['user'])[0]['username'] 
                 friends.append(friend)
+                
             links = []
             links_path = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
             for link_path in links_path:
@@ -1128,7 +1144,6 @@ def sendProfile():
     friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name['friendName'])[0]
     
     friend_info = {**friend, **friend_optionals} 
-    print(friend_info)
     
     return jsonify(friend_info)
     
