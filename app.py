@@ -1147,7 +1147,19 @@ def sendProfile():
     
     return jsonify(friend_info)
     
-
+@app.route('/getBase64', methods=['POST', 'GET'])
+@login_required
+def getBase64():
+    image_path = request.get_json()
+    images = db.execute("SELECT * FROM eventsPhotos")
+    for image in images:
+        image = 'static/events_images/' + image['photo_path']
+        if image == image_path:
+            with open(image, 'rb') as f:
+                image_data = f.read()
+                base64_image = base64.b64encode(image_data).decode('utf-8')
+        
+    return jsonify({"base64": base64_image})
     
 """ 
 TEMPLATE FOR AN APP.ROUTE

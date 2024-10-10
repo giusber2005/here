@@ -233,27 +233,40 @@ function addElement(el = "", preValue = "", keyword = "") {
 
         } else if (Box.id === "photoBox") {
             const newPhoto = document.createElement('img');
+            
+            let file;
+            let base64Image;
+            if (el !== "") {
+                file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+    
+                    reader.onload = function(e) {
+                        newPhoto.src = e.target.result;
+    
+                        base64Image = e.target.result;  // The Base64-encoded image
+    
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                }
 
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    newPhoto.src = e.target.result;
-
-                    const base64Image = e.target.result;  // The Base64-encoded image
-
-                    hiddenInput.className = 'hiddenPhoto';
-                    hiddenInput.name = 'hiddenPhoto';
-                    hiddenInput.value = base64Image;
-
-                    hiddenContainer.appendChild(hiddenInput); // Append hidden input after setting its value
-                };
-
-                reader.readAsDataURL(file);
             } else {
-                newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                file = value;
+                if (file) {
+                    newPhoto.src = file;
+                    base64Image = getBase64Image(file);
+                } else {
+                    newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                }
             }
+
+            hiddenInput.className = 'hiddenPhoto';
+            hiddenInput.name = 'hiddenPhoto';
+            hiddenInput.value = base64Image;
+
+            hiddenContainer.appendChild(hiddenInput); // Append hidden input after setting its value
 
             newPhoto.className = "photo-preview";
             Wrapper.appendChild(newPhoto);
@@ -304,4 +317,32 @@ function addElement(el = "", preValue = "", keyword = "") {
             input.value = ""; // Clear the input
         }
     }
+}
+
+//function to fetch the base64 image of a photo 
+async function getBase64Images(src) {
+    let header = {}
+    let data;
+    try {
+        file_path= JSON.stringify(src);
+        header['Content-Type'] = 'application/json'; // Set the correct content type for JSON
+
+        const response = await fetch("/getBase64", {
+            method: "POST", 
+            headers: header,
+            body: file_path, // Sending the form data as the request body
+        });
+
+        // Check if the response is ok (status in the range 200-299)
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // Parse and log the JSON response from the server
+        data = await response.json();
+    } catch (e) {
+        console.error(e); // Log any errors that occur
+    }
+
+    return data;
 }

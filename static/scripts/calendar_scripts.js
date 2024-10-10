@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("modifyButton").addEventListener('click', function() {
-        console.log(selectedEvent);
+        console.log(`this is the selected event: ${selectedEvent.extendedProps.photos}`);
         if (selectedEvent) {
             // Hide the event details and show the form to modify the event
             eventDetails.style.display = "none";
