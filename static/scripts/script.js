@@ -168,13 +168,17 @@ function remove_errors() {
 
 // Helper function to clear dynamic content from a given container
 function clearDynamicContent(containerId) {
-
-                
     var container = document.getElementById(containerId);
-                
-    // Remove all child nodes
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
+
+    // Iterate over the children in reverse order to avoid issues with live collections
+    for (let i = container.children.length - 1; i >= 0; i--) {
+        const child = container.children[i];
+
+        // Check if the child has the class 'close' or 'alert'
+        if (!child.classList.contains('close') && !child.classList.contains('alert')) {
+            // Remove the child if it does not have the class 'close' or 'alert'
+            container.removeChild(child);
+        }
     }
 }
 
@@ -320,7 +324,7 @@ function addElement(el = "", preValue = "", keyword = "") {
 }
 
 //function to fetch the base64 image of a photo 
-async function getBase64Images(src) {
+async function getBase64Image(src) {
     let header = {}
     let data;
     try {
@@ -346,3 +350,4 @@ async function getBase64Images(src) {
 
     return data;
 }
+
