@@ -240,6 +240,7 @@ function addElement(el = "", preValue = "", keyword = "") {
             
             let file;
             let base64Image;
+
             if (el !== "") {
                 file = input.files[0];
                 if (file) {
@@ -247,13 +248,14 @@ function addElement(el = "", preValue = "", keyword = "") {
     
                     reader.onload = function(e) {
                         newPhoto.src = e.target.result;
-    
-                        base64Image = e.target.result;  // The Base64-encoded image
-    
+
+                        base64Image = newPhoto.src;  // The Base64-encoded image
+                        hiddenInput.value = base64Image;
                     };
                     reader.readAsDataURL(file);
                 } else {
                     newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                    hiddenInput.value = "";
                 }
 
             } else {
@@ -264,11 +266,13 @@ function addElement(el = "", preValue = "", keyword = "") {
                 } else {
                     newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
                 }
+
+                hiddenInput.value = base64Image;
             }
 
             hiddenInput.className = 'hiddenPhoto';
             hiddenInput.name = 'hiddenPhoto';
-            hiddenInput.value = base64Image;
+
 
             hiddenContainer.appendChild(hiddenInput); // Append hidden input after setting its value
 

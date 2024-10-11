@@ -928,10 +928,6 @@ def delete_user():
 def load_data():
     data = request.form # Getting form data
     
-    for key, value in data.items():
-        print(f"{key}: {value}")
-    print("end of data")
-    
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         db.execute("DELETE FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
@@ -984,12 +980,11 @@ def load_data():
         
     # Handle photos if any
     photos = request.form.getlist("hiddenPhoto", None)
-    print(len(photos))
     images_base64 = {}
     images_mimetype = {}
     counter = 0
     for photo in photos:
-        print(f"Processing photo: {photo}")
+        print(f"Processing photo")
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
             print(f"Base64 image data: {base64_image[:30]}...")  # Print first 30 characters for debug
@@ -1058,6 +1053,7 @@ def load_data():
             
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
+        print(f"Adding friend {friend} with ID {user_id} to event {event_id}")
         db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
     
     #insert also in the connections the creator of the event

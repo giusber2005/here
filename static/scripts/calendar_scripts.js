@@ -202,17 +202,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var photosInsert = Array.isArray(selectedEvent.extendedProps.photos) ? selectedEvent.extendedProps.photos : [];
             photosInsert.forEach(function(_photo_) {
-                addElement(undefined, _photo_, "photo");
+                addElement("", _photo_, "photo");
             }); 
             
             var friendsInsert = Array.isArray(selectedEvent.extendedProps.friends) ? selectedEvent.extendedProps.friends : [];
             friendsInsert.forEach(function(_friend_) {
-                addElement(undefined, _friend_, "friend");
+                addElement("", _friend_, "friend");
             });
             
             var linksInsert = Array.isArray(selectedEvent.extendedProps.links) ? selectedEvent.extendedProps.links : [];
             linksInsert.forEach(function(_link_) {
-                addElement(undefined, _link_, "link");
+                addElement("", _link_, "link");
             });
         }
     });
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addButtons.forEach(function(item) {
         item.addEventListener('click', function() {
-            addElement(this, undefined, undefined);
+            addElement(this, "", "");
         });
     });
     
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var end = document.getElementById("end");
 
         // Generate a unique ID for the event
-        var eventId = nextEventId++;
+        var eventId = nextEventId += 1;
 
         id.value = eventId;
         start.value = info.startStr; 
@@ -598,6 +598,9 @@ document.addEventListener('DOMContentLoaded', function() {
         clearDynamicContent('photoBox');
         clearDynamicContent('friendsBox');
         clearDynamicContent('linkBox');
+        clearDynamicContent('hiddenPhoto');
+        clearDynamicContent('hiddenFriends');
+        clearDynamicContent('hiddenBox');
     }
 });         
 
