@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run All",
+      "dependsOn": [
+        "Run Flask App",
+        "Open SQLite3"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Flask App",
+      "type": "shell",
+      "command": "source hereEnv/bin/activate && export FLASK_DEBUG=1 && flask run",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Open SQLite3",
+      "type": "shell",
+      "command": "sqlite3 database.db",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

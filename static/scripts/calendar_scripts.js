@@ -183,15 +183,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("modifyButton").addEventListener('click', function() {
-        console.log(`this is the selected event: ${selectedEvent.extendedProps.photos}`);
         if (selectedEvent) {
             // Hide the event details and show the form to modify the event
             eventDetails.style.display = "none";
             calendar.updateSize();
-            eventForm.style.display = 'block';
             document.body.classList.add('dimmed');
 
             addButton.innerHTML = "Modify Event";
+
+
+            var eventInfo = {};
+            var eventStart = document.getElementById('detailStart')
+            var eventEnd = document.getElementById('detailEnd')
+            eventInfo.startStr = eventStart.textContent;
+            eventInfo.endStr = eventEnd.textContent;
 
             // Pre-fill the form with the current event details
             document.getElementById('eventTitle').value = selectedEvent.title;
@@ -214,6 +219,8 @@ document.addEventListener('DOMContentLoaded', function() {
             linksInsert.forEach(function(_link_) {
                 addElement("", _link_, "link");
             });
+
+            select(eventInfo);
         }
     });
 
@@ -496,6 +503,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //function for the logic after clicking in the calendar to create an event or to modify an already present event
     function select(info) {
+        console.log("the event form is selected");
+
         eventForm.style.display = 'block';
         document.getElementById("blurry").style.filter = 'blur(8px)';
         document.getElementById("blurry").style.pointerEvents = "none";
@@ -503,79 +512,86 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.classList.add('dimmed');
 
+        addEventForm.onsubmit = function(e) {
+            console.log("the event form is submitted");
+            submitEventForm(e, info, this);
+        };
+    } 
+
+    //function to submit the event data to the server
+    function submitEventForm(e, info, thisEvent) {
+        e.preventDefault();
+
         //add informations about the start and the end of the event
         var id = document.getElementById("eventId")
+        if (id.value === "") {
+            // Generate a unique ID for the event
+            var eventId = nextEventId += 1;
+            id.value = eventId;
+        } 
+
         var start = document.getElementById("start");
         var end = document.getElementById("end");
 
-        // Generate a unique ID for the event
-        var eventId = nextEventId += 1;
-
-        id.value = eventId;
         start.value = info.startStr; 
         end.value = info.endStr;
 
-        addEventForm.onsubmit = function(e) {
-            e.preventDefault();
+        // Your event creation logic
+        var title = document.getElementById('eventTitle').value;
+        var color = document.getElementById('eventColor').value;
+        var text = document.getElementById('eventText').value;
+        var select = document.getElementById('eventTags');
+        var tag = select.options[select.selectedIndex].textContent;
 
-            // Your event creation logic
-            var title = document.getElementById('eventTitle').value;
-            var color = document.getElementById('eventColor').value;
-            var text = document.getElementById('eventText').value;
-            var select = document.getElementById('eventTags');
-            var tag = select.options[select.selectedIndex].textContent;
+        // Gather additional data (photos, friends, links)
+        var photos = [];
+        document.querySelectorAll("#photoBox img").forEach(function(img) {
+            photos.push(img.src);
+        });
 
-            // Gather additional data (photos, friends, links)
-            var photos = [];
-            document.querySelectorAll("#photoBox img").forEach(function(img) {
-                photos.push(img.src);
-            });
+        var friends = [];
+        document.querySelectorAll("#friendsBox p").forEach(function(friend) {
+            friends.push(friend.textContent);
+        });
 
-            var friends = [];
-            document.querySelectorAll("#friendsBox p").forEach(function(friend) {
-                friends.push(friend.textContent);
-            });
+        var links = [];
+        document.querySelectorAll("#linkBox a").forEach(function(a) {
+            links.push(a.href);
+        });
 
-            var links = [];
-            document.querySelectorAll("#linkBox a").forEach(function(a) {
-                links.push(a.href);
-            });
+        if (title) {
+            var eventData = {
+                id: eventId,
+                title: title,
+                start: start.value,
+                end: end.value,
+                color: color,
+                extendedProps: {
+                    text: text,
+                    tags: tag,
+                    photos: photos,    // Store the photo URLs
+                    friends: friends,  // Store the list of friends
+                    links: links       // Store additional links
+                }
+            };
+            calendar.addEvent(eventData);
 
-            if (title) {
-                var eventData = {
-                    id: eventId,
-                    title: title,
-                    start: info.startStr,
-                    end: info.endStr,
-                    color: color,
-                    extendedProps: {
-                        text: text,
-                        tags: tag,
-                        photos: photos,    // Store the photo URLs
-                        friends: friends,  // Store the list of friends
-                        links: links       // Store additional links
-                    }
-                };
-                calendar.addEvent(eventData);
+            console.log(thisEvent);
+            sendData('/addEvent', thisEvent);        
+        }
 
-                console.log(this);
-                sendData('/addEvent', this);        
-            }
+        addButton.innerHTML = "Add Event";
 
-            addButton.innerHTML = "Add Event";
+        // Reset the form, clear dynamic content, and hide the form
+        resetFormAndContent();
+        eventForm.style.display = 'none';
+        document.getElementById("blurry").style.filter = 'none';
+        document.getElementById("blurry").style.pointerEvents = "all";
+        document.body.style.overflow = 'auto';
 
-            // Reset the form, clear dynamic content, and hide the form
-            resetFormAndContent();
-            eventForm.style.display = 'none';
-            document.getElementById("blurry").style.filter = 'none';
-            document.getElementById("blurry").style.pointerEvents = "all";
-            document.body.style.overflow = 'auto';
-
-            document.body.classList.remove('dimmed');
-            calendar.unselect();
-        };
-
-    } 
+        document.body.classList.remove('dimmed');
+        calendar.unselect();
+    };
 
     // Cancel event creation
     cancelButton.onclick = function() {
