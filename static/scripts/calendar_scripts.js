@@ -198,6 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
             eventInfo.startStr = eventStart.textContent;
             eventInfo.endStr = eventEnd.textContent;
 
+            var eventId = document.getElementById('eventId');
+            eventId.value = selectedEvent.id;
+            
             // Pre-fill the form with the current event details
             document.getElementById('eventTitle').value = selectedEvent.title;
             document.getElementById('eventColor').value = selectedEvent.backgroundColor;
@@ -514,6 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         addEventForm.onsubmit = function(e) {
             console.log("the event form is submitted");
+            console.log(this);
             submitEventForm(e, info, this);
         };
     } 
