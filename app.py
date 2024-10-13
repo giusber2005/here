@@ -68,6 +68,10 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///database.db")
 
+@app.before_request
+def enable_foreign_keys():
+    db.execute("PRAGMA foreign_keys = ON")
+    
 # set session to expire after 30 minutes of inactivity
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
@@ -1037,9 +1041,6 @@ def load_data():
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
                event_id, title, color, notes, time_slot, tag)
-    
-    # Get the event ID of the newly created event
-    event_id = db.execute("SELECT last_insert_rowid() AS id")[0]['id']
           
     for index, photo in images_base64.items():
         filename = generate_unique_filename(images_mimetype[index])
@@ -1057,6 +1058,7 @@ def load_data():
         db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
     
     #insert also in the connections the creator of the event
+    print(f"Adding creator {session['user_id']} to event {event_id}")
     db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
     
     return jsonify({"message": "Data received and stored", "data": data})
@@ -1124,7 +1126,7 @@ def get_events():
                     'links': links 
                 }
             })
-        
+            
     return jsonify(formatted_events)
 
 

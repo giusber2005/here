@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var max = 0;
             const events = await response.json();
             events.forEach(event => {
+                console.log(event);
                 if (max < event.id) {
                     max = event.id;
                 }
@@ -193,14 +194,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             var eventInfo = {};
-            var eventStart = document.getElementById('detailStart')
-            var eventEnd = document.getElementById('detailEnd')
-            eventInfo.startStr = eventStart.textContent;
-            eventInfo.endStr = eventEnd.textContent;
+
+            var eventStart = document.getElementById('detailStart');
+            const Start = moment(eventStart.textContent, 'dddd, MMMM D, YYYY [at] h:mm A').toDate();
+            eventInfo.startStr = moment(Start).format('YYYY-MM-DD');
+            
+            var eventEnd = document.getElementById('detailEnd');
+            const End = moment(eventEnd.textContent, 'dddd, MMMM D, YYYY [at] h:mm A').toDate();
+            eventInfo.endStr = moment(End).format('YYYY-MM-DD');
 
             var eventId = document.getElementById('eventId');
             eventId.value = selectedEvent.id;
-            
+
             // Pre-fill the form with the current event details
             document.getElementById('eventTitle').value = selectedEvent.title;
             document.getElementById('eventColor').value = selectedEvent.backgroundColor;
@@ -611,6 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to reset form and clear dynamic content
     function resetFormAndContent() {
+        document.getElementById('eventId').value = "";
+
         // Reset the form inputs
         addEventForm.reset();
 
