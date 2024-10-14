@@ -140,6 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 eventForm.style.display = 'none';
                 document.body.classList.remove('dimmed');
             }
+        },
+        eventDrop: function(info) {
+            // Handle when the event's date is changed (moved)
+            console.log('Event dropped:', info.event);
+            console.log('New start date:', info.event.start);
+            console.log('New end date:', info.event.end); // If it has an end date
         }
     });
     calendar.render();
@@ -154,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function() {
             var max = 0;
             const events = await response.json();
             events.forEach(event => {
-                console.log(event);
                 if (max < event.id) {
                     max = event.id;
                 }
@@ -325,8 +330,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
                     let hiddenBoxes = document.querySelectorAll('.hidden');
                     hiddenBoxes.forEach(function(hiddenBox) {
-                        let hiddenInputs = hiddenBox.querySelectorAll(".hiddenInstance");
-    
+                        if (box.id === "linkBox") {
+                            var hiddenInputs = hiddenBox.querySelectorAll(".hiddenLink");
+                        } else if (box.id === "photoBox") {
+                            var hiddenInputs = hiddenBox.querySelectorAll(".hiddenPhoto");
+                        } else if (box.id === "friendsBox") {   
+                            var hiddenInputs = hiddenBox.querySelectorAll(".hiddenFriend");
+                        }
+
                         for (let input of hiddenInputs) {
                             if (input.value === value) {
                                 input.remove();
@@ -375,7 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Parse and log the JSON response from the server
             const data = await response.json();
-            console.log(data);
         } catch (e) {
             console.error(e); // Log any errors that occur
         }
@@ -412,8 +422,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //check validation for the photo field
     let error_field_NP = document.getElementById('error_NP');
+    let photoPreview = document.getElementById('eventPhoto');
 
-    photo.addEventListener('input', function(event) {
+    photoPreview.addEventListener('input', function(event) {
         const file = event.target.files[0];
 
         if (file) {
@@ -423,13 +434,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!validImageTypes.includes(fileType)) {
                 error_field_NP.style.color = "red"
                 error_field_NP.innerText = "File type not in the permitted list"
+
+                document.getElementById('addPhoto').disabled = true;
+                document.getElementById('addPhoto').style.pointerEvents = 'none';
             } else {
                 error_field_NP.style.color = "green"
                 error_field_NP.innerText = "File valid!!"
+                document.getElementById('addPhoto').disabled = false;
+                document.getElementById('addPhoto').style.pointerEvents = 'all';
             }
         } else {
-            error_field_NP.style.color = "black"
-            error_field_NP.innerText = "No file selected"
+            document.getElementById('addPhoto').disabled = false;
+            document.getElementById('addPhoto').style.pointerEvents = 'all';
         }
     });        
 
@@ -521,8 +537,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('dimmed');
 
         addEventForm.onsubmit = function(e) {
+            // function to remove the modified evento from the calendar in the page
+            if (selectedEvent && Object.keys(info).length === 2) {
+                selectedEvent.remove();
+                selectedEvent = null;
+            }
+
             console.log("the event form is submitted");
-            console.log(this);
             submitEventForm(e, info, this);
         };
     } 
@@ -585,7 +606,6 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             calendar.addEvent(eventData);
 
-            console.log(thisEvent);
             sendData('/addEvent', thisEvent);        
         }
 

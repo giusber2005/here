@@ -15,7 +15,7 @@ from datetime import timedelta, datetime
 from cs50 import SQL
 
 #libraries to connect the application with templates and to persist data between templates with session
-from flask import Flask, flash, redirect, render_template, request, session, send_from_directory, url_for, jsonify
+from flask import Flask, flash, redirect, render_template, request, session, send_from_directory, url_for, jsonify, get_flashed_messages
 from flask_session import Session
 
 #library to retrieve data from list in the data folder
@@ -142,25 +142,27 @@ def check_number(number):
     return jsonify({"exists": exists})
 
 #app page after the login
-@app.route("/")
+@app.route("/",  methods=["GET", "POST"])
 @login_required
 def index():
-
-    friendsId = []
-    friends1 = db.execute("SELECT * FROM connections WHERE id1 = ?", session["user_id"])
-    for friend in friends1:
-        friendsId.append(friend["id2"])
-    friends2 = db.execute("SELECT * FROM connections WHERE id2 = ?", session["user_id"])
-    for friend in friends2:
-        friendsId.append(friend["id1"])
-    
-    friends = []
-    for friend in friendsId:
-         friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend)[0]["username"])
-    
-    friends_dict = dict(zip(friendsId, friends))     
-    
-    return render_template("homepage.html", friends_dict=friends_dict)
+    if request.method == "GET" or request.method == "POST":
+        
+        # Query to get all the friends of the user
+        friendsId = []
+        friends1 = db.execute("SELECT * FROM connections WHERE id1 = ?", session["user_id"])
+        for friend in friends1:
+            friendsId.append(friend["id2"])
+        friends2 = db.execute("SELECT * FROM connections WHERE id2 = ?", session["user_id"])
+        for friend in friends2:
+            friendsId.append(friend["id1"])
+        
+        friends = []
+        for friend in friendsId:
+            friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend)[0]["username"])
+        
+        friends_dict = dict(zip(friendsId, friends))
+        
+        return render_template("homepage.html", friends_dict=friends_dict)
 
 """
 Initializing the environment for the login enforcement with the MAX tempt. block
@@ -931,9 +933,14 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
-    
+     
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
+        photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))
+        for photo in photos:
+            filename = photo['photo_path']
+            os.remove(os.path.join('static', 'events_images', filename))
+            
         db.execute("DELETE FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
         db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", data.get('eventId', ""))
         db.execute("DELETE FROM eventsLinks WHERE event_id = ?", data.get('eventId', ""))
@@ -942,7 +949,7 @@ def load_data():
     title = data.get('eventTitle', "")
     #title validation
     if not title:
-        message = ""
+        message = "The event must have a title"
         flash(message)
         redirect("/")
 
@@ -955,31 +962,34 @@ def load_data():
 
     color = data.get('eventColor', "")
     #color validation
-    if not title:
-        message = ""
+    hex_color_regex = re.compile(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')
+    if not bool(hex_color_regex.match(color)):
+        message = "Invalid color format"
         flash(message)
-        redirect("/")
+        return redirect("/")
+
 
     notes = data.get('eventText', "")
     #notes validation
     if not title:
-        message = ""
+        print("a flash message is arriving")
+        message = "THIS IS A FLASH MESSAGE"
         flash(message)
-        redirect("/")
+        return redirect("/")
         
     time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
     #time_slot validation
     if not title:
         message = ""
         flash(message)
-        redirect("/")
+        return redirect("/")
 
     tag = data.get('eventTags', "")
     #tag validation
     if not title:
         message = ""
         flash(message)
-        redirect("/")
+        return redirect("/")
         
         
     # Handle photos if any
@@ -1027,16 +1037,18 @@ def load_data():
         if not title:
             message = ""
             flash(message)
-            redirect("/")
+            return redirect("/")
     
     # Handle friends if any
     friends = request.form.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
-        #tag validation
-        if not title:
-            message = ""
-            flash(message)
-            redirect("/")
+        #friend validation
+            rows1 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", session['user_id'], friend)
+            rows2 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", friend, session['user_id'])
+            if not rows1 and not rows2:
+                message = "You and this user are not friends"
+                flash(message)
+                return redirect("/")
             
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 

@@ -9,23 +9,21 @@ ANNOTATIONS:
 THINGS LEFT TO DO:
     see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
-    finish design of the pages actually in the websites
-    continue working of the homepage features
-    organizators
+    finish design of the pages
 
     whole application features
         see the logic of the connections between users in the application
 
     homepage features
-        add security protections when inserting details of events in the database 
-            don't only validate the inputs with js
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
         when an event change time it doesn't appear any change at the same time in the Detail Box
         control the ids logic in the database
-        debug the file detection for the photo of the events in js
-        complete the feature of modifying an event
-            delete the original event in js
+        weight down logic in the DOMContentLoaded event
+        the events are not modifying correctly
+        the data of the events are not working translated if there are also hours and second
+        flash messages are not working properly
+        all the part where an event change positions is not working properly
 
     FINAL STEPS
     complete the presentation page:
