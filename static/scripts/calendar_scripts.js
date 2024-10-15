@@ -200,13 +200,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var eventInfo = {};
 
+            // Get the event start date from the element
             var eventStart = document.getElementById('detailStart');
-            const Start = moment(eventStart.textContent, 'dddd, MMMM D, YYYY [at] h:mm A').toDate();
-            eventInfo.startStr = moment(Start).format('YYYY-MM-DD');
-            
+            const Start = moment(eventStart.textContent, 'dddd, MMMM D, YYYY [at] h:mm A');
+
+            // Get the event end date from the element
             var eventEnd = document.getElementById('detailEnd');
-            const End = moment(eventEnd.textContent, 'dddd, MMMM D, YYYY [at] h:mm A').toDate();
-            eventInfo.endStr = moment(End).format('YYYY-MM-DD');
+            const End = moment(eventEnd.textContent, 'dddd, MMMM D, YYYY [at] h:mm A');
+
+            // Check if the start and end dates are the same day
+            if (Start.isSame(End, 'day')) {
+                // If they are on the same day, return YYYY-MM-DD format
+                eventInfo.startStr = Start.format('YYYY-MM-DD'); // No need to wrap in moment() again
+                eventInfo.endStr = End.format('YYYY-MM-DD'); // Same here
+            } else {
+                // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
+                eventInfo.startStr = Start.format('YYYY-MM-DDTHH:mm:ss+02:00');
+                eventInfo.endStr = End.format('YYYY-MM-DDTHH:mm:ss+02:00');
+            }
+
+            console.log("the event started at: ", eventStart.textContent);
+            console.log("the event ended at: ", eventEnd.textContent);
+
+            console.log("2 the event started at: ", eventInfo.startStr);
+            console.log("2 the event ended at: ", eventInfo.endStr);
 
             var eventId = document.getElementById('eventId');
             eventId.value = selectedEvent.id;
@@ -565,6 +582,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         start.value = info.startStr; 
         end.value = info.endStr;
+
+        console.log(":) the event started at: ", start.value);
+        console.log(":) the event ended at: ", end.value);
 
         // Your event creation logic
         var title = document.getElementById('eventTitle').value;
