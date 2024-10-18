@@ -286,7 +286,7 @@ function addElement(el = "", preValue = "", keyword = "") {
             newFriend.innerHTML = value;
             Wrapper.appendChild(newFriend);
 
-            hiddenInput.className = 'hiddenFriend';
+            hiddenInput.className = 'hiddenFriend';                      
             hiddenInput.name = 'hiddenFriend';
             hiddenInput.value = value;
 
@@ -355,3 +355,46 @@ async function getBase64Image(src) {
     return data;
 }
 
+// Function to format data into a FormData object to be sent to the server
+function createEventFormData(event) {
+    // Create a new FormData object
+    const formData = new FormData();
+
+    // Get the values from the specified fields
+    const eventTitle = event.title;
+    const eventId = event.id;
+    const eventColor = event.color;
+    const eventText = event.extendedProps.text;
+    const start = event.start.toISOString(); // Convert to ISO string
+    const end = event.end.toISOString(); // Convert to ISO string
+    const eventTags = event.extendedProps.tags;
+    const eventHiddenPhoto = event.extendedProps.photos;
+    const hiddenLinks = event.extendedProps.links;
+    const hiddenFriends = event.extendedProps.friends;
+
+    // Append the values to the FormData object
+    formData.append('eventTitle', eventTitle);
+    formData.append('eventId', eventId);
+    formData.append('eventColor', eventColor);
+    formData.append('eventText', eventText);
+    formData.append('start', start);
+    formData.append('end', end);
+    formData.append('eventTags', eventTags);
+
+    // Append files to FormData
+    for (let i = 0; i < eventHiddenPhoto.length; i++) {
+        formData.append('hiddenPhoto', eventHiddenPhoto[i]);
+    }
+
+    // Append hidden links to FormData
+    hiddenLinks.forEach(link => {
+        formData.append('hiddenLink', link.value);
+    });
+
+    // Append hidden friends to FormData
+    hiddenFriends.forEach(friend => {
+        formData.append('hiddenFriend', friend.value);
+    });
+
+    return formData;
+}

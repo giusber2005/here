@@ -142,10 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventDrop: function(info) {
-            // Handle when the event's date is changed (moved)
-            console.log('Event dropped:', info.event);
-            console.log('New start date:', info.event.start);
-            console.log('New end date:', info.event.end); // If it has an end date
+            const eventInfo = createEventFormData(info.event);
+
+            sendData('/addEvent2', eventInfo);
         }
     });
     calendar.render();
@@ -195,8 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
             calendar.updateSize();
             document.body.classList.add('dimmed');
 
+            
             addButton.innerHTML = "Modify Event";
-
 
             var eventInfo = {};
 
@@ -208,9 +207,9 @@ document.addEventListener('DOMContentLoaded', function() {
             var eventEnd = document.getElementById('detailEnd');
             const End = moment(eventEnd.textContent, 'dddd, MMMM D, YYYY [at] h:mm A');
 
-            // Check if the start and end dates are the same day
-            if (Start.isSame(End, 'day')) {
-                // If they are on the same day, return YYYY-MM-DD format
+            // Check if the start and end dates are exactly one day apart
+            if (End.diff(Start, 'days') === 1) {
+                // If they are one day apart, return in the format YYYY-MM-DD
                 eventInfo.startStr = Start.format('YYYY-MM-DD'); // No need to wrap in moment() again
                 eventInfo.endStr = End.format('YYYY-MM-DD'); // Same here
             } else {
@@ -218,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 eventInfo.startStr = Start.format('YYYY-MM-DDTHH:mm:ss+02:00');
                 eventInfo.endStr = End.format('YYYY-MM-DDTHH:mm:ss+02:00');
             }
+
 
             console.log("the event started at: ", eventStart.textContent);
             console.log("the event ended at: ", eventEnd.textContent);
@@ -384,9 +384,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (route === '/deleteEvent') {
             formData = JSON.stringify(form);
             headers['Content-Type'] = 'application/json'; // Set the correct content type for JSON
-        } else {
+        } else if (route === '/addEvent') {
             formData = new FormData(form); // Make sure `form` is defined
             // No need to set Content-Type for FormData; the browser will set it automatically
+        } else if (route === '/addEvent2') {
+            formData = form;
+            route = '/addEvent';
         }
 
         try {
@@ -591,6 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var color = document.getElementById('eventColor').value;
         var text = document.getElementById('eventText').value;
         var select = document.getElementById('eventTags');
+        console.log(select.selectedIndex);
         var tag = select.options[select.selectedIndex].textContent;
 
         // Gather additional data (photos, friends, links)
@@ -650,6 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         resetFormAndContent();
         eventForm.style.display = 'none';
+        addButton.innerHTML = "Add Event";
         document.body.classList.remove('dimmed');
         calendar.unselect();
     };
