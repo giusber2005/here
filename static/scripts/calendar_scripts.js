@@ -665,6 +665,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reset the form inputs
         addEventForm.reset();
+        document.getElementById('eventColor').value = "#000000"; 
 
         // Clear dynamic content from photoBox, friendsBox, and linkBox
         clearDynamicContent('photoBox');

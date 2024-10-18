@@ -933,6 +933,7 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
+    print(data)
      
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:

@@ -364,13 +364,13 @@ function createEventFormData(event) {
     const eventTitle = event.title;
     const eventId = event.id;
     const eventColor = event.color;
-    const eventText = event.extendedProps.text;
-    const start = event.start.toISOString(); // Convert to ISO string
-    const end = event.end.toISOString(); // Convert to ISO string
-    const eventTags = event.extendedProps.tags;
-    const eventHiddenPhoto = event.extendedProps.photos;
-    const hiddenLinks = event.extendedProps.links;
-    const hiddenFriends = event.extendedProps.friends;
+    const eventText = event.extendedProps.text || '';
+    const start = event.start ? event.start.toISOString() : '';
+    const end = event.end ? event.end.toISOString() : '';
+    const eventTags = event.extendedProps.tags || [];
+    const eventHiddenPhoto = event.extendedProps.photos || [];
+    const hiddenLinks = event.extendedProps.links || [];
+    const hiddenFriends = event.extendedProps.friends || [];
 
     // Append the values to the FormData object
     formData.append('eventTitle', eventTitle);
@@ -379,21 +379,25 @@ function createEventFormData(event) {
     formData.append('eventText', eventText);
     formData.append('start', start);
     formData.append('end', end);
-    formData.append('eventTags', eventTags);
 
-    // Append files to FormData
+    // Append event tags (if it's an array of strings)
+    eventTags.forEach(tag => {
+        formData.append('eventTags[]', tag);
+    });
+
+    // Append files (photos) to FormData
     for (let i = 0; i < eventHiddenPhoto.length; i++) {
-        formData.append('hiddenPhoto', eventHiddenPhoto[i]);
+        formData.append('hiddenPhoto[]', eventHiddenPhoto[i]);
     }
 
     // Append hidden links to FormData
     hiddenLinks.forEach(link => {
-        formData.append('hiddenLink', link.value);
+        formData.append('hiddenLink[]', link.value);
     });
 
     // Append hidden friends to FormData
     hiddenFriends.forEach(friend => {
-        formData.append('hiddenFriend', friend.value);
+        formData.append('hiddenFriend[]', friend.value);
     });
 
     return formData;

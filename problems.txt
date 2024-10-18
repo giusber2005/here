@@ -18,13 +18,11 @@ THINGS LEFT TO DO:
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
         when an event change time it doesn't appear any change at the same time in the Detail Box
-        control the ids logic in the database
         weight down logic in the DOMContentLoaded event
         the events are not modifying correctly
         the data of the events are not working translated if there are also hours and second
         flash messages are not working properly
         all the part where an event change positions is not working properly
-        change the textContent of the submit button during differents requests
         
     FINAL STEPS
     complete the presentation page:
