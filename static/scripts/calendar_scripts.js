@@ -51,20 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
             eventDetails.style.display = 'block'; 
             detailTitle.textContent = info.event.title;
 
-            const start = new Date(info.event.start);
-            const end = new Date(info.event.end);
-
-            const options = {
-            weekday: 'long', // "Monday", "Tuesday"
-            year: 'numeric', // "2023"
-            month: 'long', // "September"
-            day: 'numeric', // "24"
-            hour: '2-digit', // "02 PM"
-            minute: '2-digit' // "02:30 PM"
-            };
-
-            const formattedStart = new Intl.DateTimeFormat('en-US', options).format(start);
-            const formattedEnd = new Intl.DateTimeFormat('en-US', options).format(end);
+            const formattedStart = datesFormatter(info.event.start);
+            const formattedEnd = datesFormatter(info.event.end);  
 
             detailStart.textContent = `${formattedStart}`
             detailEnd.textContent = `${formattedEnd}`;
@@ -142,8 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventDrop: function(info) {
-            const eventInfo = createEventFormData(info.event);
 
+            var eventInfo = createEventFormData(info.event);
+            sendData('/addEvent2', eventInfo);
+        },
+        eventResize: function(info) {
+
+            var eventInfo = createEventFormData(info.event);
             sendData('/addEvent2', eventInfo);
         }
     });
@@ -217,10 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 eventInfo.startStr = Start.format('YYYY-MM-DDTHH:mm:ss+02:00');
                 eventInfo.endStr = End.format('YYYY-MM-DDTHH:mm:ss+02:00');
             }
-
-
-            console.log("the event started at: ", eventStart.textContent);
-            console.log("the event ended at: ", eventEnd.textContent);
 
             console.log("2 the event started at: ", eventInfo.startStr);
             console.log("2 the event ended at: ", eventInfo.endStr);
@@ -594,7 +583,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var color = document.getElementById('eventColor').value;
         var text = document.getElementById('eventText').value;
         var select = document.getElementById('eventTags');
-        console.log(select.selectedIndex);
         var tag = select.options[select.selectedIndex].textContent;
 
         // Gather additional data (photos, friends, links)

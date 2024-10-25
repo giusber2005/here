@@ -363,27 +363,43 @@ function createEventFormData(event) {
     // Get the values from the specified fields
     const eventTitle = event.title;
     const eventId = event.id;
-    const eventColor = event.color;
+    const eventColor = event.backgroundColor;
     const eventText = event.extendedProps.text || '';
 
 
     var start = event.start;
+    console.log(start);
     start = moment(start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
     var end = event.end;
-    end = moment(end, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+    console.log(end);
+    if (end != null) {
+        end = moment(end, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+    }
 
     // Check if the start and end dates are exactly one day apart
-    if (end.diff(start, 'days') === 1) {
+    if (end === null) {
         // If they are one day apart, return in the format YYYY-MM-DD
+        end = moment(start).add(1, 'days');
         start = start.format('YYYY-MM-DD'); // Format start date
-        end = end.format('YYYY-MM-DD'); // Format end date
     } else {
         // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
         start = start.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
         end = end.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
     }
 
-    console.log(start, end);
+    var detailsBox = document.getElementById('eventDetails');
+    var startDate = document.getElementById('detailStart');
+    var endDate =  document.getElementById('detailEnd');
+    if (detailsBox.style.display != 'hidden') {
+        startDate.textContent = datesFormatter(event.start);
+
+        if (event.end != null) {
+            endDate.textContent = datesFormatter(event.end);
+        } else {
+            var startPoint = moment(event.start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+            endDate.textContent = datesFormatter(moment(startPoint).add(1, 'days'));
+        }
+    }
 
     const eventTags = event.extendedProps.tags || [];
     const eventHiddenPhoto = event.extendedProps.photos || [];
@@ -419,4 +435,24 @@ function createEventFormData(event) {
     });
 
     return formData;
+}
+
+function datesFormatter(date) {
+    if (date != null) {
+        const object = new Date(date);
+
+        const options = {
+        weekday: 'long', // "Monday", "Tuesday"
+        year: 'numeric', // "2023"
+        month: 'long', // "September"
+        day: 'numeric', // "24"
+        hour: '2-digit', // "02 PM"
+        minute: '2-digit' // "02:30 PM"
+        };
+
+        const formattedObject = new Intl.DateTimeFormat('en-US', options).format(object);
+        return formattedObject;
+    }
+
+    return "";
 }

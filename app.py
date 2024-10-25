@@ -1044,10 +1044,11 @@ def load_data():
     friends = request.form.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
         #friend validation
-            rows1 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", session['user_id'], friend)
-            rows2 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", friend, session['user_id'])
+            friend_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]["id"]
+            rows1 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", session['user_id'], friend_id)
+            rows2 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", friend_id, session['user_id'])
             if not rows1 and not rows2:
-                message = "You and this user are not friends"
+                print(message)
                 flash(message)
                 return redirect("/")
             
