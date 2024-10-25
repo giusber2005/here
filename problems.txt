@@ -20,7 +20,7 @@ THINGS LEFT TO DO:
         when an event change time it doesn't appear any change at the same time in the Detail Box
         weight down logic in the DOMContentLoaded event
         the events are not modifying correctly
-        the data of the events are not working translated if there are also hours and second
+        the data of the events are not properly translated if there are also hours and second
         flash messages are not working properly
         all the part where an event change positions is not working properly
         

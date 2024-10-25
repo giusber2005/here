@@ -338,7 +338,7 @@ async function getBase64Image(src) {
         const response = await fetch("/getBase64", {
             method: "POST", 
             headers: header,
-            body: file_path, // Sending the form data as the request body
+            body: file_path, //sending the form data as the request body
         });
 
         // Check if the response is ok (status in the range 200-299)
@@ -365,8 +365,26 @@ function createEventFormData(event) {
     const eventId = event.id;
     const eventColor = event.color;
     const eventText = event.extendedProps.text || '';
-    const start = event.start ? event.start.toISOString() : '';
-    const end = event.end ? event.end.toISOString() : '';
+
+
+    var start = event.start;
+    start = moment(start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+    var end = event.end;
+    end = moment(end, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+
+    // Check if the start and end dates are exactly one day apart
+    if (end.diff(start, 'days') === 1) {
+        // If they are one day apart, return in the format YYYY-MM-DD
+        start = start.format('YYYY-MM-DD'); // Format start date
+        end = end.format('YYYY-MM-DD'); // Format end date
+    } else {
+        // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
+        start = start.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
+        end = end.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
+    }
+
+    console.log(start, end);
+
     const eventTags = event.extendedProps.tags || [];
     const eventHiddenPhoto = event.extendedProps.photos || [];
     const hiddenLinks = event.extendedProps.links || [];
