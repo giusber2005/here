@@ -211,9 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 eventInfo.endStr = End.format('YYYY-MM-DDTHH:mm:ss+02:00');
             }
 
-            console.log("2 the event started at: ", eventInfo.startStr);
-            console.log("2 the event ended at: ", eventInfo.endStr);
-
             var eventId = document.getElementById('eventId');
             eventId.value = selectedEvent.id;
 
@@ -427,6 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
     photoButton.addEventListener('click', function() {
         input.value = "";
         preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        document.getElementById('error_NP').innerText = "";
     });
 
     //check validation for the photo field
@@ -568,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var eventId = nextEventId += 1;
             id.value = eventId;
         } 
+        console.log("the event id is: ", id.value);
 
         var start = document.getElementById("start");
         var end = document.getElementById("end");

@@ -363,24 +363,28 @@ function createEventFormData(event) {
     // Get the values from the specified fields
     const eventTitle = event.title;
     const eventId = event.id;
+
     const eventColor = event.backgroundColor;
     const eventText = event.extendedProps.text || '';
 
 
     var start = event.start;
-    console.log(start);
     start = moment(start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
     var end = event.end;
-    console.log(end);
     if (end != null) {
         end = moment(end, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
     }
 
-    // Check if the start and end dates are exactly one day apart
+
     if (end === null) {
+        // If the end date is null, add one day to the start date
+        end = moment(start).add(1, 'days').format('YYYY-MM-DD');
+        start = start.format('YYYY-MM-DD');
+    }else if (end.diff(start, 'days') === 1) {
         // If they are one day apart, return in the format YYYY-MM-DD
-        end = moment(start).add(1, 'days');
         start = start.format('YYYY-MM-DD'); // Format start date
+        end = end.format('YYYY-MM-DD'); // Format end date
+        console.log(start, end);
     } else {
         // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
         start = start.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
@@ -401,7 +405,7 @@ function createEventFormData(event) {
         }
     }
 
-    const eventTags = event.extendedProps.tags || [];
+    const eventTags = event.extendedProps.tags;
     const eventHiddenPhoto = event.extendedProps.photos || [];
     const hiddenLinks = event.extendedProps.links || [];
     const hiddenFriends = event.extendedProps.friends || [];
@@ -413,26 +417,26 @@ function createEventFormData(event) {
     formData.append('eventText', eventText);
     formData.append('start', start);
     formData.append('end', end);
-
-    // Append event tags (if it's an array of strings)
-    eventTags.forEach(tag => {
-        formData.append('eventTags[]', tag);
-    });
+    formData.append('eventTags', eventTags);
 
     // Append files (photos) to FormData
     for (let i = 0; i < eventHiddenPhoto.length; i++) {
-        formData.append('hiddenPhoto[]', eventHiddenPhoto[i]);
+        photo_data = eventHiddenPhoto[i] //getBase64Image(eventHiddenPhoto[i]);
+        console.log(photo_data);
+        formData.append('hiddenPhoto', photo_data);
     }
 
     // Append hidden links to FormData
     hiddenLinks.forEach(link => {
-        formData.append('hiddenLink[]', link.value);
+        formData.append('hiddenLink', link);
     });
+    console.log(hiddenLinks);
 
     // Append hidden friends to FormData
     hiddenFriends.forEach(friend => {
-        formData.append('hiddenFriend[]', friend.value);
+        formData.append('hiddenFriend', friend);
     });
+    console.log(hiddenFriends);
 
     return formData;
 }

@@ -933,7 +933,6 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
-    print(data)
      
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
@@ -999,6 +998,7 @@ def load_data():
     images_mimetype = {}
     counter = 0
     for photo in photos:
+        print(photo)
         print(f"Processing photo")
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
@@ -1051,7 +1051,8 @@ def load_data():
                 print(message)
                 flash(message)
                 return redirect("/")
-            
+    
+    print(event_id, title, color, notes, time_slot, tag)  
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
                event_id, title, color, notes, time_slot, tag)
