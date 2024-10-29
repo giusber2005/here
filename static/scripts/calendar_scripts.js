@@ -561,12 +561,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //add informations about the start and the end of the event
         var id = document.getElementById("eventId")
-        if (id.value === "") {
+        if (id.value === undefined || id.value === "") { 
             // Generate a unique ID for the event
             var eventId = nextEventId += 1;
             id.value = eventId;
         } 
-        console.log("the event id is: ", id.value);
 
         var start = document.getElementById("start");
         var end = document.getElementById("end");
@@ -602,7 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (title) {
             var eventData = {
-                id: eventId,
+                id: id.value,
                 title: title,
                 start: start.value,
                 end: end.value,
