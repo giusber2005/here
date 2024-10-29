@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var eventForm = document.getElementById('eventForm');
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initialView: 'dayGridMonth',
         selectable: true,
         editable: true,
+        eventDurationEditable: true,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -586,6 +588,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Gather additional data (photos, friends, links)
         var photos = [];
         document.querySelectorAll("#photoBox img").forEach(function(img) {
+            if (img.src.startsWith("h")) {
+                console.log("ciao")
+                img.src = getBase64Image(img.src);
+            }                 
+                
             photos.push(img.src);
         });
 

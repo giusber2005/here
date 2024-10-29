@@ -18,6 +18,7 @@ THINGS LEFT TO DO:
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
         weight down logic in the DOMContentLoaded event
+        problems with events photos
         flash messages are not working properly
         
     FINAL STEPS
