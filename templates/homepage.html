@@ -195,21 +195,21 @@
                 <p id="detailStart"></p>
                 <div>To:</div>
                 <p id="detailEnd"></p>
-                <p><strong>Text:</strong> <span id="detailText"></span></p>
-                <p><strong>Tags:</strong> <span id="detailTags"></span></p>
+                <p><strong class="label" id="TextLabel">Text:</strong> <span class="detail" id="detailText"></span></p>
+                <p><strong class="label" id="TagsLabel">Tags:</strong> <span class="detail" id="detailTags"></span></p>
             
-                <h4>Photos:</h4>
-                <div id="detailsPhotoBox">
+                <h4 class="label" id="PhotoLabel">Photos:</h4>
+                <div class="detail" id="detailsPhotoBox">
                     <!-- Photos will be appended here -->
                 </div>
             
-                <h4>Friends:</h4>
-                <div id="detailsFriendsBox">
+                <h4 class="label" id="FriendsLabel">Friends:</h4>
+                <div class="detail" id="detailsFriendsBox">
                     <!-- Friends will be appended here -->
                 </div>
             
-                <h4>Links:</h4>
-                <div id="detailsLinkBox">
+                <h4 class="label" id="LinkLabel">Links:</h4>
+                <div class="detail" id="detailsLinkBox">
                     <!-- Additional links will be appended here -->
                 </div>
             
@@ -317,6 +317,12 @@
     <div id="photoBox" class="Box" style="display: None">
         <div style="display: None" class="alert">No photos are selected for this event</div>
         <button id="closePhoto" class="close">❌</button>
+    </div>
+
+    <div id="sure" class="Box" style="display: None">
+        <div>Are you sure you want to delete this event?</div>
+        <button id="yes" class="button-like-div">Yes</button>
+        <button id="no" class="button-like-div">No</button>
     </div>
 
     <div id="friendProfile" class="profileBox" style="display: None">

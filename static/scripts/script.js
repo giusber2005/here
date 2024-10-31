@@ -368,10 +368,8 @@ async function createEventFormData(event) {
     // Get the values from the specified fields
     const eventTitle = event.title;
     const eventId = event.id;
-
     const eventColor = event.backgroundColor;
     const eventText = event.extendedProps.text || '';
-
 
     var start = event.start;
     start = moment(start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
@@ -427,10 +425,10 @@ async function createEventFormData(event) {
     // Append files (photos) to FormData
     for (let i = 0; i < eventHiddenPhoto.length; i++) {
         if (!eventHiddenPhoto[i].startsWith('data:image')) {
-            photo_data = await getBase64Image(eventHiddenPhoto[i]);
-            console.log("ciao" + photo_data);
+            var photo_data = await getBase64Image(eventHiddenPhoto[i]);
+            photo_data = photo_data.base64;
         } else {
-            photo_data = eventHiddenPhoto[i];
+            var photo_data = eventHiddenPhoto[i];
         }
         formData.append('hiddenPhoto', photo_data);
     }
@@ -467,3 +465,4 @@ function datesFormatter(date) {
 
     return "";
 }
+

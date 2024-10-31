@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var nextEventId = 1;
 
     calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+    initialView: 'dayGridMonth',
         selectable: true,
         editable: true,
         eventDurationEditable: true,
@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
         eventClick: function(info) {
             selectedEvent = info.event;
 
-            eventDetails.style.display = 'block'; 
             detailTitle.textContent = info.event.title;
 
             const formattedStart = datesFormatter(info.event.start);
@@ -115,6 +114,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             };
 
+            var labels = document.querySelectorAll('.label');
+            var details = document.querySelectorAll('.detail');
+            var counter = 0;
+            labels.forEach(function(label) {
+                var counter2 = 0;
+                details.forEach(function(detail) {
+                    if (counter === counter2) {
+                        if (detail.innerHTML === '') {
+                            label.style.display = 'none';
+                        }
+                    }
+                    counter2++;
+                });
+                counter++;
+            });
+
+            eventDetails.style.display = 'block'; 
             calendar.updateSize();
         },        
         viewDidMount: function() {
@@ -132,15 +148,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventDrop: function(info) {
-
-            console.log(info.event.extendedProps)
-            var eventInfo = createEventFormData(info.event);
-            sendData('/addEvent2', eventInfo);
+            createEventFormData(info.event)
+            .then(eventInfo => {
+                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
+            })
+            .catch(error => {
+                console.error("Error creating FormData:", error);
+            });
         },
         eventResize: function(info) {
-
-            var eventInfo = createEventFormData(info.event);
-            sendData('/addEvent2', eventInfo);
+            createEventFormData(info.event)
+            .then(eventInfo => {
+                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
+            })
+            .catch(error => {
+                console.error("Error creating FormData:", error);
+            });
         }
     });
     calendar.render();
@@ -244,17 +267,30 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("deleteButton").addEventListener('click', function() {
-        if (selectedEvent && confirm("Are you sure you want to delete this event?")) {
-            var form = selectedEvent
-            sendData('/deleteEvent', form.id);
+        var sureBox = document.getElementById('sure');
+        sureBox.style.display = "block";
+    
+        // Use querySelector to find "yes" and "no" buttons within sureBox
+        sureBox.querySelector("#yes").addEventListener('click', function() {
+            if (selectedEvent) {
+                var form = selectedEvent;
+                sendData('/deleteEvent', form.id);
+    
+                // Remove the event from the calendar
+                selectedEvent.remove();
+                selectedEvent = null; // Clear the selected event
+                eventDetails.style.display = "none";
+            }
+            sureBox.style.display = "none"; // Hide the confirmation box
+            calendar.updateSize();
+        });
+    
+        sureBox.querySelector("#no").addEventListener('click', function() {
+            sureBox.style.display = "none"; // Hide the confirmation box
+        });
 
-            // Remove the event from the calendar
-            selectedEvent.remove();
-            selectedEvent = null; // Clear the selected event
-            eventDetails.style.display = "none";
-        }
-        calendar.updateSize();
     });
+    
 
     var addButtons = document.querySelectorAll(".add");
 
@@ -671,5 +707,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });         
 
+//function to change the periodicity of an event
+function eventPeriodicity() {
 
-
+};

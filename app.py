@@ -32,6 +32,8 @@ import secrets
 
 #function to read base64 formatted images (used in the events manipulations in the calendar)
 import base64
+#function to understand the type of the image (used in the events manipulations in the calendar)
+import imghdr
 
 #some functions to weight down the code in app.py
 from helpers import *
@@ -932,6 +934,7 @@ def delete_user():
 @app.route('/addEvent', methods=['POST'])
 @login_required
 def load_data():
+    print("Loading data")
     data = request.form # Getting form data
      
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
@@ -947,6 +950,7 @@ def load_data():
         db.execute("DELETE FROM eventsConnections WHERE event_id = ?", data.get('eventId', ""))
     
     title = data.get('eventTitle', "")
+    print("Title:", title)
     #title validation
     if not title:
         message = "The event must have a title"
@@ -967,7 +971,6 @@ def load_data():
         message = "Invalid color format"
         flash(message)
         return redirect("/")
-
 
     notes = data.get('eventText', "")
     #notes validation
@@ -990,15 +993,14 @@ def load_data():
         message = ""
         flash(message)
         return redirect("/")
-        
-        
+           
     # Handle photos if any
     photos = request.form.getlist("hiddenPhoto", None)
     images_base64 = {}
     images_mimetype = {}
     counter = 0
     for photo in photos:
-        print(photo)
+        print(photo[:30])
         print(f"Processing photo")
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
@@ -1170,8 +1172,10 @@ def getBase64():
         image = 'static/events_images/' + image['photo_path']
         if image == image_path:
             with open(image, 'rb') as f:
+                image_type = imghdr.what(f)
                 image_data = f.read()
                 base64_image = base64.b64encode(image_data).decode('utf-8')
+                base64_image = f"data:image/{image_type};base64,{base64_image}"
         
     return jsonify({"base64": base64_image})
     
