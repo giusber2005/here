@@ -262,7 +262,12 @@ function addElement(el = "", preValue = "", keyword = "") {
                 file = value;
                 if (file) {
                     newPhoto.src = file;
-                    base64Image = getBase64Image(file);
+                    console.log(file);
+                    if (file.startsWith('data:image')) {
+                        base64Image = file;
+                    } else {
+                        base64Image = getBase64Image(file);
+                    }
                 } else {
                     newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
                 }
@@ -356,7 +361,7 @@ async function getBase64Image(src) {
 }
 
 // Function to format data into a FormData object to be sent to the server
-function createEventFormData(event) {
+async function createEventFormData(event) {
     // Create a new FormData object
     const formData = new FormData();
 
@@ -421,8 +426,12 @@ function createEventFormData(event) {
 
     // Append files (photos) to FormData
     for (let i = 0; i < eventHiddenPhoto.length; i++) {
-        photo_data = eventHiddenPhoto[i] //getBase64Image(eventHiddenPhoto[i]);
-        console.log(photo_data);
+        if (!eventHiddenPhoto[i].startsWith('data:image')) {
+            photo_data = await getBase64Image(eventHiddenPhoto[i]);
+            console.log("ciao" + photo_data);
+        } else {
+            photo_data = eventHiddenPhoto[i];
+        }
         formData.append('hiddenPhoto', photo_data);
     }
 
@@ -430,13 +439,11 @@ function createEventFormData(event) {
     hiddenLinks.forEach(link => {
         formData.append('hiddenLink', link);
     });
-    console.log(hiddenLinks);
 
     // Append hidden friends to FormData
     hiddenFriends.forEach(friend => {
         formData.append('hiddenFriend', friend);
     });
-    console.log(hiddenFriends);
 
     return formData;
 }

@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         eventDrop: function(info) {
 
+            console.log(info.event.extendedProps)
             var eventInfo = createEventFormData(info.event);
             sendData('/addEvent2', eventInfo);
         },
@@ -588,8 +589,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Gather additional data (photos, friends, links)
         var photos = [];
         document.querySelectorAll("#photoBox img").forEach(function(img) {
-            if (img.src.startsWith("h")) {
-                console.log("ciao")
+            if (!img.src.startsWith("data:image")) {
+                console.log("Converting image to base64");
                 img.src = getBase64Image(img.src);
             }                 
                 

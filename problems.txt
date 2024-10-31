@@ -15,10 +15,13 @@ THINGS LEFT TO DO:
         see the logic of the connections between users in the application
 
     homepage features
+        create a personalized button to confirm event elimination
         create a photo gallery preview when you click on an event and select the specific gallery button
         add periodicity to the event's features
         weight down logic in the DOMContentLoaded event
         problems with events photos
+            when i call the async function getBase64 to transform the path to give to the backend i receive a objectPromise that i can't use in my backend
+            there some ways to wait until i receive the actual value returned by the fetch
         flash messages are not working properly
         
     FINAL STEPS

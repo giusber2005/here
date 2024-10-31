@@ -1164,6 +1164,7 @@ def sendProfile():
 @login_required
 def getBase64():
     image_path = request.get_json()
+    print(image_path)
     images = db.execute("SELECT * FROM eventsPhotos")
     for image in images:
         image = 'static/events_images/' + image['photo_path']
