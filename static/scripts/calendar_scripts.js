@@ -116,18 +116,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var labels = document.querySelectorAll('.label');
             var details = document.querySelectorAll('.detail');
-            var counter = 0;
-            labels.forEach(function(label) {
-                var counter2 = 0;
-                details.forEach(function(detail) {
-                    if (counter === counter2) {
-                        if (detail.innerHTML === '') {
-                            label.style.display = 'none';
-                        }
-                    }
-                    counter2++;
-                });
-                counter++;
+        
+            labels.forEach(function(label, index) {
+                var detail = details[index];
+                if (detail && !detail.textContent.trim()) {
+                    label.style.display = 'none';
+                }
             });
 
             eventDetails.style.display = 'block'; 
@@ -426,13 +420,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Check if the response is ok (status in the range 200-299)
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                // Check for the 400 status
+                if (response.status === 400) {
+                    return response.json().then(errorData => {
+                        console.error("Error message:", errorData.message);
+                        showAlert(errorData.message, 'danger')
+                    });
+                }
+                throw new Error("An error occurred");
             }
 
             // Parse and log the JSON response from the server
             const data = await response.json();
-        } catch (e) {
-            console.error(e); // Log any errors that occur
+            console.log(data)
+        } catch (error) {
+            console.error(error);
         }
     }   
 

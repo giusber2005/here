@@ -19,8 +19,6 @@ THINGS LEFT TO DO:
         create a photo gallery preview when you click on an event and select the specific gallery button
         weight down logic in the DOMContentLoaded event
         problems with events photos
-        flash messages are not working properly
-        resolve elimination of labels if there is no comment in the detail
         
     FINAL STEPS
     complete the presentation page:

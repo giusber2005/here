@@ -954,45 +954,64 @@ def load_data():
     #title validation
     if not title:
         message = "The event must have a title"
-        flash(message)
-        redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
 
     event_id = data.get('eventId', "") 
     #id validation
     if not title:
         message = ""
-        flash(message)
-        redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
 
     color = data.get('eventColor', "")
     #color validation
     hex_color_regex = re.compile(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')
     if not bool(hex_color_regex.match(color)):
         message = "Invalid color format"
-        flash(message)
-        return redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
+        
 
     notes = data.get('eventText', "")
     #notes validation
     if not title:
         print("a flash message is arriving")
         message = "THIS IS A FLASH MESSAGE"
-        flash(message)
-        return redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
         
     time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
     #time_slot validation
     if not title:
         message = ""
-        flash(message)
-        return redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
 
     tag = data.get('eventTags', "")
     #tag validation
     if not title:
         message = ""
-        flash(message)
-        return redirect("/")
+        return jsonify({
+            "success": False,
+            "redirect": "/",
+            "message": message
+        }), 400
            
     # Handle photos if any
     photos = request.form.getlist("hiddenPhoto", None)
@@ -1018,8 +1037,11 @@ def load_data():
                 
             if mimetype not in ['jpeg', 'png', 'heic']:
                 message = "Invalid file type detected"
-                flash(message)
-                return redirect("/")
+                return jsonify({
+                    "success": False,
+                    "redirect": "/",
+                    "message": message
+                }), 400
             
         try:
             # Decode the image
@@ -1029,9 +1051,12 @@ def load_data():
             counter += 1
             print(f"Image {counter} processed successfully")
         except Exception as e:
-            flash(f"Error decoding image: {str(e)}")
-            print(f"Error decoding image: {str(e)}")
-            return redirect("/") 
+            message = f"Error decoding image: {str(e)}"
+            return jsonify({
+                "success": False,
+                "redirect": "/",
+                "message": message
+            }), 400
             
     # Handle links if any
     links = request.form.getlist('hiddenLink')  # Get all links
@@ -1039,8 +1064,11 @@ def load_data():
     for link_path in links:  
         if not title:
             message = ""
-            flash(message)
-            return redirect("/")
+            return jsonify({
+                "success": False,
+                "redirect": "/",
+                "message": message
+            }), 400
     
     # Handle friends if any
     friends = request.form.getlist('hiddenFriend')  # Get all friends
@@ -1050,9 +1078,12 @@ def load_data():
             rows1 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", session['user_id'], friend_id)
             rows2 = db.execute("SELECT * FROM connections WHERE id1 = ? AND id2 = ?", friend_id, session['user_id'])
             if not rows1 and not rows2:
-                print(message)
-                flash(message)
-                return redirect("/")
+                message = f"This user ({friend}) is not your friend"
+                return jsonify({
+                    "success": False,
+                    "redirect": "/",
+                    "message": message
+                }), 400
     
     print(event_id, title, color, notes, time_slot, tag)  
     # Insert event details into eventsPrincipal

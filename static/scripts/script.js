@@ -466,3 +466,35 @@ function datesFormatter(date) {
     return "";
 }
 
+function showAlert(message, type) {
+    // Find the nav element
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+
+    // Find or create the header element
+    let header = document.querySelector('header');
+    if (!header) {
+        header = document.createElement('header');
+        // Insert header after nav
+        nav.insertAdjacentElement('afterend', header);
+    }
+
+    // Create the alert div with the same structure as your template
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-primary mb-0 text-center`;
+    alertDiv.role = 'alert';
+    alertDiv.textContent = message;
+
+    // Replace any existing alert or add the new one
+    const existingAlert = header.querySelector('.alert');
+    if (existingAlert) {
+        header.replaceChild(alertDiv, existingAlert);
+    } else {
+        header.appendChild(alertDiv);
+    }
+
+    // Remove the alert after some time
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
