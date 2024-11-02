@@ -337,7 +337,8 @@ async function getBase64Image(src) {
     let header = {}
     let data;
     try {
-        file_path= JSON.stringify(src);
+        file_path = JSON.stringify(src);
+
         header['Content-Type'] = 'application/json'; // Set the correct content type for JSON
 
         const response = await fetch("/getBase64", {
@@ -357,6 +358,7 @@ async function getBase64Image(src) {
         console.error(e); // Log any errors that occur
     }
 
+    console.log("data: ", data);
     return data;
 }
 

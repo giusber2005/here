@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var eventForm = document.getElementById('eventForm');
@@ -143,21 +142,47 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         eventDrop: function(info) {
             createEventFormData(info.event)
-            .then(eventInfo => {
-                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
-            })
-            .catch(error => {
-                console.error("Error creating FormData:", error);
-            });
+                .then(eventInfo => {
+                    return sendData('/addEvent2', eventInfo);
+                })
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        // Create a new array with updated photo paths
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        // Update the event's photos
+                        info.event.setExtendedProp('photos', updatedPhotos);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event drop:", error);
+                });
         },
         eventResize: function(info) {
             createEventFormData(info.event)
-            .then(eventInfo => {
-                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
-            })
-            .catch(error => {
-                console.error("Error creating FormData:", error);
-            });
+                .then(eventInfo => {
+                    return sendData('/addEvent2', eventInfo);
+                })
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        // Create a new array with updated photo paths
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        // Update the event's photos
+                        info.event.setExtendedProp('photos', updatedPhotos);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event resize:", error);
+                });
         }
     });
     calendar.render();
@@ -431,8 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Parse and log the JSON response from the server
-            const data = await response.json();
-            console.log(data)
+            return await response.json();
         } catch (error) {
             console.error(error);
         }
@@ -597,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } 
 
     //function to submit the event data to the server
-    function submitEventForm(e, info, thisEvent) {
+    async function submitEventForm(e, info, thisEvent) {
         e.preventDefault();
 
         //add informations about the start and the end of the event
@@ -625,16 +649,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var tag = select.options[select.selectedIndex].textContent;
 
         // Gather additional data (photos, friends, links)
-        var photos = [];
-        document.querySelectorAll("#photoBox img").forEach(function(img) {
-            if (!img.src.startsWith("data:image")) {
-                console.log("Converting image to base64");
-                img.src = getBase64Image(img.src);
-            }                 
-                
-            photos.push(img.src);
-        });
-
         var friends = [];
         document.querySelectorAll("#friendsBox p").forEach(function(friend) {
             friends.push(friend.textContent);
@@ -645,7 +659,23 @@ document.addEventListener('DOMContentLoaded', function() {
             links.push(a.href);
         });
 
-        if (title) {
+        // Gather photos asynchronously
+        const photoElements = document.querySelectorAll("#photoBox img");
+        const photoPromises = Array.from(photoElements).map(async (img) => {
+            if (!img.src.startsWith("data:image")) {
+                // Wait for the base64 conversion
+                const base64Data = await getBase64Image(img.src);
+                return base64Data;
+            }
+            return img.src; // Already in base64
+        });
+        console.log("photoPromises: ", photoPromises);
+
+        // Wait for all photos to be processed
+        try {
+            const photos = await Promise.all(photoPromises);
+            
+            // Create event data with processed photos
             var eventData = {
                 id: id.value,
                 title: title,
@@ -655,14 +685,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 extendedProps: {
                     text: text,
                     tags: tag,
-                    photos: photos,    // Store the photo URLs
-                    friends: friends,  // Store the list of friends
-                    links: links       // Store additional links
+                    photos: photos,    
+                    friends: friends,  
+                    links: links      
                 }
             };
+
             calendar.addEvent(eventData);
 
-            sendData('/addEvent', thisEvent);        
+            // Send data to server
+            sendData('/addEvent', thisEvent)
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        const event = calendar.getEventById(id.value);
+                        if (event) {
+                            event.setExtendedProp('photos', updatedPhotos);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event modification:", error);
+                });
+        } catch (error) {
+            console.error("Error processing images:", error);
         }
 
         addButton.innerHTML = "Add Event";
