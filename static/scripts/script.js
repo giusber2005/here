@@ -1,4 +1,3 @@
-// Define the password checker function
 function passwordChecker(password, commonPasswords, error_field) {
     // Check if the password is in the list of common passwords
     if (commonPasswords.includes(password)) {
@@ -183,7 +182,7 @@ function clearDynamicContent(containerId) {
 }
 
 // Function to add an element to the box and store its hidden value in a hidden box
-function addElement(el = "", preValue = "", keyword = "") {
+async function addElement(el = "", preValue = "", keyword = "") {
     let value;
     let input;
 
@@ -266,7 +265,8 @@ function addElement(el = "", preValue = "", keyword = "") {
                     if (file.startsWith('data:image')) {
                         base64Image = file;
                     } else {
-                        base64Image = getBase64Image(file);
+                        base64Image = await getBase64Image(file);
+                        base64Image = base64Image.base64;
                     }
                 } else {
                     newPhoto.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";

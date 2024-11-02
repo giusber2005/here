@@ -267,18 +267,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('eventTags').value = selectedEvent.extendedProps.tags || '';  // Populate the select with the single tag
 
             var photosInsert = Array.isArray(selectedEvent.extendedProps.photos) ? selectedEvent.extendedProps.photos : [];
-            photosInsert.forEach(function(_photo_) {
-                addElement("", _photo_, "photo");
+            photosInsert.forEach(async function(_photo_) {
+                await addElement("", _photo_, "photo");
             }); 
             
             var friendsInsert = Array.isArray(selectedEvent.extendedProps.friends) ? selectedEvent.extendedProps.friends : [];
-            friendsInsert.forEach(function(_friend_) {
-                addElement("", _friend_, "friend");
+            friendsInsert.forEach(async function(_friend_) {
+                await addElement("", _friend_, "friend");
             });
             
             var linksInsert = Array.isArray(selectedEvent.extendedProps.links) ? selectedEvent.extendedProps.links : [];
-            linksInsert.forEach(function(_link_) {
-                addElement("", _link_, "link");
+            linksInsert.forEach(async function(_link_) {
+                await addElement("", _link_, "link");
             });
 
             select(eventInfo);
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var addButtons = document.querySelectorAll(".add");
 
     addButtons.forEach(function(item) {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', async function() {
             addElement(this, "", "");
         });
     });
@@ -430,6 +430,10 @@ document.addEventListener('DOMContentLoaded', function() {
             headers['Content-Type'] = 'application/json'; // Set the correct content type for JSON
         } else if (route === '/addEvent') {
             formData = new FormData(form); // Make sure `form` is defined
+            console.log("formData: ", formData);
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]); 
+            }
             // No need to set Content-Type for FormData; the browser will set it automatically
         } else if (route === '/addEvent2') {
             formData = form;
@@ -673,8 +677,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Wait for all photos to be processed
         try {
-            const photos = await Promise.all(photoPromises);
-            
+            var photos = await Promise.all(photoPromises);
+
+            //taking the base64 of the photos (with the key "base64")
+            photos = photos.map(photo => {
+                return photo.base64;
+            });
+
+            console.log("photos: ", photos);
+
             // Create event data with processed photos
             var eventData = {
                 id: id.value,
@@ -690,9 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     links: links      
                 }
             };
-
             calendar.addEvent(eventData);
 
+            console.log("eventData: ", thisEvent);
             // Send data to server
             sendData('/addEvent', thisEvent)
                 .then(response => {
@@ -760,7 +771,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });         
 
-//function to change the periodicity of an event
-function eventPeriodicity() {
 
-};

@@ -936,7 +936,8 @@ def delete_user():
 def load_data():
     print("Loading data")
     data = request.form # Getting form data
-     
+    print("data: ", data)
+    
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))

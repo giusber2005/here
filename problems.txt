@@ -17,7 +17,7 @@ THINGS LEFT TO DO:
     homepage features
         create a photo gallery preview when you click on an event and select the specific gallery button
         weight down logic in the DOMContentLoaded event
-        problems with events photos
+        clean and search for bug
         
     FINAL STEPS
     complete the presentation page:
