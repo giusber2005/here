@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var eventForm = document.getElementById('eventForm');
@@ -143,21 +142,47 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         eventDrop: function(info) {
             createEventFormData(info.event)
-            .then(eventInfo => {
-                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
-            })
-            .catch(error => {
-                console.error("Error creating FormData:", error);
-            });
+                .then(eventInfo => {
+                    return sendData('/addEvent2', eventInfo);
+                })
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        // Create a new array with updated photo paths
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        // Update the event's photos
+                        info.event.setExtendedProp('photos', updatedPhotos);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event drop:", error);
+                });
         },
         eventResize: function(info) {
             createEventFormData(info.event)
-            .then(eventInfo => {
-                sendData('/addEvent2', eventInfo); // Call sendData after eventInfo is resolved
-            })
-            .catch(error => {
-                console.error("Error creating FormData:", error);
-            });
+                .then(eventInfo => {
+                    return sendData('/addEvent2', eventInfo);
+                })
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        // Create a new array with updated photo paths
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        // Update the event's photos
+                        info.event.setExtendedProp('photos', updatedPhotos);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event resize:", error);
+                });
         }
     });
     calendar.render();
@@ -242,18 +267,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('eventTags').value = selectedEvent.extendedProps.tags || '';  // Populate the select with the single tag
 
             var photosInsert = Array.isArray(selectedEvent.extendedProps.photos) ? selectedEvent.extendedProps.photos : [];
-            photosInsert.forEach(function(_photo_) {
-                addElement("", _photo_, "photo");
+            photosInsert.forEach(async function(_photo_) {
+                await addElement("", _photo_, "photo");
             }); 
             
             var friendsInsert = Array.isArray(selectedEvent.extendedProps.friends) ? selectedEvent.extendedProps.friends : [];
-            friendsInsert.forEach(function(_friend_) {
-                addElement("", _friend_, "friend");
+            friendsInsert.forEach(async function(_friend_) {
+                await addElement("", _friend_, "friend");
             });
             
             var linksInsert = Array.isArray(selectedEvent.extendedProps.links) ? selectedEvent.extendedProps.links : [];
-            linksInsert.forEach(function(_link_) {
-                addElement("", _link_, "link");
+            linksInsert.forEach(async function(_link_) {
+                await addElement("", _link_, "link");
             });
 
             select(eventInfo);
@@ -289,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var addButtons = document.querySelectorAll(".add");
 
     addButtons.forEach(function(item) {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', async function() {
             addElement(this, "", "");
         });
     });
@@ -405,6 +430,10 @@ document.addEventListener('DOMContentLoaded', function() {
             headers['Content-Type'] = 'application/json'; // Set the correct content type for JSON
         } else if (route === '/addEvent') {
             formData = new FormData(form); // Make sure `form` is defined
+            console.log("formData: ", formData);
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]); 
+            }
             // No need to set Content-Type for FormData; the browser will set it automatically
         } else if (route === '/addEvent2') {
             formData = form;
@@ -431,8 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Parse and log the JSON response from the server
-            const data = await response.json();
-            console.log(data)
+            return await response.json();
         } catch (error) {
             console.error(error);
         }
@@ -597,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } 
 
     //function to submit the event data to the server
-    function submitEventForm(e, info, thisEvent) {
+    async function submitEventForm(e, info, thisEvent) {
         e.preventDefault();
 
         //add informations about the start and the end of the event
@@ -625,16 +653,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var tag = select.options[select.selectedIndex].textContent;
 
         // Gather additional data (photos, friends, links)
-        var photos = [];
-        document.querySelectorAll("#photoBox img").forEach(function(img) {
-            if (!img.src.startsWith("data:image")) {
-                console.log("Converting image to base64");
-                img.src = getBase64Image(img.src);
-            }                 
-                
-            photos.push(img.src);
-        });
-
         var friends = [];
         document.querySelectorAll("#friendsBox p").forEach(function(friend) {
             friends.push(friend.textContent);
@@ -645,7 +663,30 @@ document.addEventListener('DOMContentLoaded', function() {
             links.push(a.href);
         });
 
-        if (title) {
+        // Gather photos asynchronously
+        const photoElements = document.querySelectorAll("#photoBox img");
+        const photoPromises = Array.from(photoElements).map(async (img) => {
+            if (!img.src.startsWith("data:image")) {
+                // Wait for the base64 conversion
+                const base64Data = await getBase64Image(img.src);
+                return base64Data;
+            }
+            return img.src; // Already in base64
+        });
+        console.log("photoPromises: ", photoPromises);
+
+        // Wait for all photos to be processed
+        try {
+            var photos = await Promise.all(photoPromises);
+
+            //taking the base64 of the photos (with the key "base64")
+            photos = photos.map(photo => {
+                return photo.base64;
+            });
+
+            console.log("photos: ", photos);
+
+            // Create event data with processed photos
             var eventData = {
                 id: id.value,
                 title: title,
@@ -655,14 +696,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 extendedProps: {
                     text: text,
                     tags: tag,
-                    photos: photos,    // Store the photo URLs
-                    friends: friends,  // Store the list of friends
-                    links: links       // Store additional links
+                    photos: photos,    
+                    friends: friends,  
+                    links: links      
                 }
             };
             calendar.addEvent(eventData);
 
-            sendData('/addEvent', thisEvent);        
+            console.log("eventData: ", thisEvent);
+            // Send data to server
+            sendData('/addEvent', thisEvent)
+                .then(response => {
+                    if (response && response.photos) {
+                        console.log('Server response:', response);
+                        
+                        const updatedPhotos = response.photos.map(photo => 
+                            'static/events_images/' + photo
+                        );
+                        
+                        const event = calendar.getEventById(id.value);
+                        if (event) {
+                            event.setExtendedProp('photos', updatedPhotos);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error handling event modification:", error);
+                });
+        } catch (error) {
+            console.error("Error processing images:", error);
         }
 
         addButton.innerHTML = "Add Event";
@@ -709,7 +771,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });         
 
-//function to change the periodicity of an event
-function eventPeriodicity() {
 
-};

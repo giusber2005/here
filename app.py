@@ -936,7 +936,8 @@ def delete_user():
 def load_data():
     print("Loading data")
     data = request.form # Getting form data
-     
+    print("data: ", data)
+    
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))
@@ -950,7 +951,6 @@ def load_data():
         db.execute("DELETE FROM eventsConnections WHERE event_id = ?", data.get('eventId', ""))
     
     title = data.get('eventTitle', "")
-    print("Title:", title)
     #title validation
     if not title:
         message = "The event must have a title"
@@ -1089,9 +1089,11 @@ def load_data():
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
                event_id, title, color, notes, time_slot, tag)
-          
+    
+    photo_paths = []
     for index, photo in images_base64.items():
         filename = generate_unique_filename(images_mimetype[index])
+        photo_paths.append(filename)
         with open(os.path.join("static", "events_images", filename), "wb") as f:
             f.write(photo)
             
@@ -1109,7 +1111,7 @@ def load_data():
     print(f"Adding creator {session['user_id']} to event {event_id}")
     db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
     
-    return jsonify({"message": "Data received and stored", "data": data})
+    return jsonify({"message": "Data received and stored", "data": data, "photos": photo_paths})
 
 # Define an endpoint to handle the deleteEvent of the calendar POST request
 @app.route('/deleteEvent', methods=['POST'])
@@ -1197,10 +1199,19 @@ def sendProfile():
 @login_required
 def getBase64():
     image_path = request.get_json()
-    print(image_path)
+    print("image_path: ", image_path)
+    
+    # Extract path from /static/ onwards from URL
+    if image_path.startswith('http'):
+        static_index = image_path.find('static/')
+        if static_index != -1:
+            image_path = image_path[static_index:]
+     
+      
     images = db.execute("SELECT * FROM eventsPhotos")
     for image in images:
         image = 'static/events_images/' + image['photo_path']
+        print("image: ", image)
         if image == image_path:
             with open(image, 'rb') as f:
                 image_type = imghdr.what(f)
