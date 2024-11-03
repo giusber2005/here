@@ -262,7 +262,6 @@ function addElement(el = "", preValue = "", keyword = "") {
                 file = value;
                 if (file) {
                     newPhoto.src = file;
-                    console.log(file);
                     if (file.startsWith('data:image')) {
                         base64Image = file;
                     } else {
@@ -386,8 +385,7 @@ async function createEventFormData(event) {
     }else if (end.diff(start, 'days') === 1) {
         // If they are one day apart, return in the format YYYY-MM-DD
         start = start.format('YYYY-MM-DD'); // Format start date
-        end = end.format('YYYY-MM-DD'); // Format end date
-        console.log(start, end);
+        end = end.format('YYYY-MM-DD'); // Format end dateo
     } else {
         // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
         start = start.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone

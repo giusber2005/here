@@ -903,9 +903,8 @@ def friends():
 @login_required
 def destroy():
     username = request.form.get("username")
-    id = db.execute("SELECT * FROM user WHERE username = ?", username)[0]['id']
-    print(f"{id} ciao")
-    db.execute("DELETE FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)", id, session['user_id'], session['user_id'], id)
+    id_user = db.execute("SELECT * FROM user WHERE username = ?", username)[0]['id']
+    db.execute("DELETE FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)", id_user, session['user_id'], session['user_id'], id_user)
     return redirect("/friends")
 
 @app.route("/delete", methods=["POST"])
@@ -934,7 +933,6 @@ def delete_user():
 @app.route('/addEvent', methods=['POST'])
 @login_required
 def load_data():
-    print("Loading data")
     data = request.form # Getting form data
      
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
@@ -950,8 +948,6 @@ def load_data():
         db.execute("DELETE FROM eventsConnections WHERE event_id = ?", data.get('eventId', ""))
     
     title = data.get('eventTitle', "")
-    print("Title:", title)
-    #title validation
     if not title:
         message = "The event must have a title"
         return jsonify({
@@ -985,7 +981,6 @@ def load_data():
     notes = data.get('eventText', "")
     #notes validation
     if not title:
-        print("a flash message is arriving")
         message = "THIS IS A FLASH MESSAGE"
         return jsonify({
             "success": False,
@@ -1019,7 +1014,6 @@ def load_data():
     images_mimetype = {}
     counter = 0
     for photo in photos:
-        print(photo[:30])
         print(f"Processing photo")
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
@@ -1033,7 +1027,6 @@ def load_data():
             # Remove the 'image/' prefix
             if mimetype.startswith('image/'):
                 mimetype = mimetype.split('/')[1]
-                print(f"Modified MIME type: {mimetype}")
                 
             if mimetype not in ['jpeg', 'png', 'heic']:
                 message = "Invalid file type detected"
@@ -1084,8 +1077,7 @@ def load_data():
                     "redirect": "/",
                     "message": message
                 }), 400
-    
-    print(event_id, title, color, notes, time_slot, tag)  
+     
     # Insert event details into eventsPrincipal
     db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
                event_id, title, color, notes, time_slot, tag)
@@ -1197,7 +1189,7 @@ def sendProfile():
 @login_required
 def getBase64():
     image_path = request.get_json()
-    print(image_path)
+    
     images = db.execute("SELECT * FROM eventsPhotos")
     for image in images:
         image = 'static/events_images/' + image['photo_path']

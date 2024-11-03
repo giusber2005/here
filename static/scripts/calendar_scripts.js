@@ -432,7 +432,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Parse and log the JSON response from the server
             const data = await response.json();
-            console.log(data)
         } catch (error) {
             console.error(error);
         }
@@ -575,7 +574,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //function for the logic after clicking in the calendar to create an event or to modify an already present event
     function select(info) {
-        console.log("the event form is selected");
 
         eventForm.style.display = 'block';
         document.getElementById("blurry").style.filter = 'blur(8px)';
@@ -591,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedEvent = null;
             }
 
-            console.log("the event form is submitted");
             submitEventForm(e, info, this);
         };
     } 
@@ -614,8 +611,6 @@ document.addEventListener('DOMContentLoaded', function() {
         start.value = info.startStr; 
         end.value = info.endStr;
 
-        console.log(":) the event started at: ", start.value);
-        console.log(":) the event ended at: ", end.value);
 
         // Your event creation logic
         var title = document.getElementById('eventTitle').value;
@@ -628,7 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var photos = [];
         document.querySelectorAll("#photoBox img").forEach(function(img) {
             if (!img.src.startsWith("data:image")) {
-                console.log("Converting image to base64");
                 img.src = getBase64Image(img.src);
             }                 
                 
