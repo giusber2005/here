@@ -15,9 +15,10 @@ THINGS LEFT TO DO:
         see the logic of the connections between users in the application
 
     homepage features
-        create a photo gallery preview when you click on an event and select the specific gallery button
+        continue the photo gallery improvements
         weight down logic in the DOMContentLoaded event
-        clean and search for bug
+        clean and debug
+
         
     FINAL STEPS
     complete the presentation page:
@@ -30,3 +31,15 @@ THINGS LEFT TO DO:
     submit50 cs50/problems/2024/x/project
     delete this folder on the mac
     
+
+
+
+
+    IMAGE CAROUSEL:
+        Inner images structure to create:
+          <div class="carousel-item active">
+            <img src="..." class="d-block w-100" alt="...">
+          </div>
+          <div class="carousel-item">
+            <img src="..." class="d-block w-100" alt="...">
+          </div>

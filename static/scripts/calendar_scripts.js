@@ -67,12 +67,63 @@ document.addEventListener('DOMContentLoaded', function() {
             // Display photos
             var photos = info.event.extendedProps.photos || [];
             if (Array.isArray(photos)) {
+                var counter = 0;
                 photos.forEach(function(photo) {
-                    var img = document.createElement("img");
-                    img.src = photo;
-                    img.className = "photo-preview";
-                    document.getElementById("detailsPhotoBox").appendChild(img);
-    
+                    var detailsPhotoBox = document.getElementById("detailsPhotoBox");
+                    if (detailsPhotoBox.querySelector("#photosStack") == null) {
+                        var photosStack = document.createElement("div");
+                        photosStack.id = "photosStack";
+                        detailsPhotoBox.appendChild(photosStack);
+                    } else {
+                        photosStack = detailsPhotoBox.querySelector("#photosStack");
+                    }
+                    var andMoreElement = document.getElementById("andMore");
+
+                    if (counter < 4) {
+                        var img = document.createElement("img");
+                        img.src = photo;
+                        img.className = "photo-preview";
+                        img.style.left = `${counter * 40}px`; // Adjust 40px based on desired overlap
+                        img.style.zIndex = img.length - counter; // Ensure correct stacking order
+
+                        photosStack.appendChild(img);
+                        if (andMoreElement) {
+                            andMoreElement.style.display = "none";
+                        }
+
+                        counter++;
+                    } else {
+                        //inserting the image but with style display: none and width and height 0
+                        var img = document.createElement("img");
+                        img.src = photo;
+                        img.className = "photo-preview";
+                        img.style.display = "none";
+                        img.style.width = "0";
+                        img.style.height = "0";
+                        photosStack.appendChild(img);
+
+                        // If the carousel is not open, open it
+                        if (detailsPhotoBox.querySelector("#openCarousel") == null) {
+                                var blank_img = document.createElement("img");
+                                blank_img.src = "static/events_images/orange.png";
+                                blank_img.className = "photo-preview";
+                                blank_img.id = "openCarousel";
+                                blank_img.style.left = `${counter * 40}px`; // Adjust 40px based on desired overlap
+                                blank_img.style.zIndex = blank_img.length - counter; // Ensure correct stacking order
+                                photosStack.appendChild(blank_img);
+                        }
+
+                        if (andMoreElement) {
+                            andMoreElement.style.display = "block";
+                            andMoreElement.textContent = `and ${counter - 3} more`;
+                        } else {
+                            andMoreElement = document.createElement("div");
+                            andMoreElement.id = "andMore";
+                            andMoreElement.style.display = "block";
+                            andMoreElement.textContent = `and ${counter - 3} more`;
+                            detailsPhotoBox.append(andMoreElement);
+                        }
+                    }            
                 });
             };
         
@@ -147,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(response => {
                     if (response && response.photos) {
-                        console.log('Server response:', response);
                         
                         // Create a new array with updated photo paths
                         const updatedPhotos = response.photos.map(photo => 
@@ -169,7 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(response => {
                     if (response && response.photos) {
-                        console.log('Server response:', response);
                         
                         // Create a new array with updated photo paths
                         const updatedPhotos = response.photos.map(photo => 
@@ -430,11 +479,6 @@ document.addEventListener('DOMContentLoaded', function() {
             headers['Content-Type'] = 'application/json'; // Set the correct content type for JSON
         } else if (route === '/addEvent') {
             formData = new FormData(form); // Make sure `form` is defined
-            console.log("formData: ", formData);
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]); 
-            }
-            // No need to set Content-Type for FormData; the browser will set it automatically
         } else if (route === '/addEvent2') {
             formData = form;
             route = '/addEvent';
@@ -669,7 +713,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return img.src; // Already in base64
         });
-        console.log("photoPromises: ", photoPromises);
 
         // Wait for all photos to be processed
         try {
@@ -680,7 +723,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return photo.base64;
             });
 
-            console.log("photos: ", photos);
 
             // Create event data with processed photos
             var eventData = {
@@ -699,18 +741,16 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             calendar.addEvent(eventData);
 
-            console.log("eventData: ", thisEvent);
             // Send data to server
             sendData('/addEvent', thisEvent)
                 .then(response => {
                     if (response && response.photos) {
-                        console.log('Server response:', response);
                         
                         const updatedPhotos = response.photos.map(photo => 
                             'static/events_images/' + photo
                         );
-                        
-                        const event = calendar.getEventById(id.value);
+
+                        const event = calendar.getEventById(response.data.eventId);
                         if (event) {
                             event.setExtendedProp('photos', updatedPhotos);
                         }

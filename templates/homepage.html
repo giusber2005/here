@@ -166,6 +166,42 @@
             justify-content: space-between;
             margin-top: 20px;
         }
+
+        /* Styling the photos stack */
+        #detailsPhotoBox {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #photosStack {
+            position: relative; /* Create a stacking context for overlapping */
+            width: 200px; /* Set an appropriate width for the container */
+            height: 100px; /* Fixed height to contain images */
+            margin-bottom: 10px; /* Space below the photo box */
+        }
+        
+        .photo-preview {
+            position: absolute; /* Allows overlapping */
+            width: 80px; /* Set desired image size */
+            height: 80px; /* Maintain uniform height */
+            border-radius: 8px; /* Optional: adds rounded corners */
+            border: 2px solid white; /* Optional: adds a white border */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+            transition: transform 0.2s ease, z-index 0s ease; /* Smooth transform and instant z-index change */
+            top: 10px; /* Same top position for all images */
+        }
+        
+        /* Bring hovered image to front and add slight scale */
+        .photo-preview:hover {
+            z-index: 11; /* Higher than other images */
+            transform: scale(1.05); /* Slightly enlarge the hovered image */
+        }
+        
+        /* Hide any images with display: none */
+        .photo-preview[style*="display: none;"] {
+            display: none !important;
+        }
+        
     </style>
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet' />
@@ -201,6 +237,7 @@
                 <h4 class="label" id="PhotoLabel">Photos:</h4>
                 <div class="detail" id="detailsPhotoBox">
                     <!-- Photos will be appended here -->
+                    <div id="andMore" style="display: none"></div>
                 </div>
             
                 <h4 class="label" id="FriendsLabel">Friends:</h4>
@@ -343,4 +380,18 @@
         </div>
         <div id="gender" class="profile"></div>
     </div>
+
+    <div id="carouselBox" class="Box" class="carousel slide" style="display: None">
+        <div class="carousel-inner">
+
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselBox" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselBox" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
 {% endblock %}

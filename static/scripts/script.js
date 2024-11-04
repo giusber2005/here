@@ -357,7 +357,6 @@ async function getBase64Image(src) {
         console.error(e); // Log any errors that occur
     }
 
-    console.log("data: ", data);
     return data;
 }
 
@@ -390,8 +389,8 @@ async function createEventFormData(event) {
         end = end.format('YYYY-MM-DD'); // Format end dateo
     } else {
         // Otherwise, return in the format YYYY-MM-DDTHH:mm:ss+02:00
-        start = start.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
-        end = end.format('YYYY-MM-DDTHH:mm:ss+02:00'); // ISO format with timezone
+        start = start.format('YYYY-MM-DDTHH:mm:ss'); // ISO format with timezone
+        end = end.format('YYYY-MM-DDTHH:mm:ss'); // ISO format with timezone
     }
 
     var detailsBox = document.getElementById('eventDetails');

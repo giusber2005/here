@@ -934,8 +934,7 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
-    print("data: ", data)
-    
+
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))
@@ -1105,6 +1104,7 @@ def load_data():
     print(f"Adding creator {session['user_id']} to event {event_id}")
     db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
     
+    print("photo_paths: ", photo_paths)
     return jsonify({"message": "Data received and stored", "data": data, "photos": photo_paths})
 
 # Define an endpoint to handle the deleteEvent of the calendar POST request
@@ -1193,7 +1193,6 @@ def sendProfile():
 @login_required
 def getBase64():
     image_path = request.get_json()
-    print("image_path: ", image_path)
     
     # Extract path from /static/ onwards from URL
     if image_path.startswith('http'):
@@ -1205,7 +1204,6 @@ def getBase64():
     images = db.execute("SELECT * FROM eventsPhotos")
     for image in images:
         image = 'static/events_images/' + image['photo_path']
-        print("image: ", image)
         if image == image_path:
             with open(image, 'rb') as f:
                 image_type = imghdr.what(f)
