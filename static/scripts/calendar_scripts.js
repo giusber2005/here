@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         var img = document.createElement("img");
                         img.src = photo;
                         img.className = "photo-preview";
-                        img.style.left = `${counter * 40}px`; // Adjust 40px based on desired overlap
+                        img.style.left = `${counter * 70}px`; // Adjust 40px based on desired overlap
                         img.style.zIndex = img.length - counter; // Ensure correct stacking order
 
                         photosStack.appendChild(img);
@@ -104,11 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // If the carousel is not open, open it
                         if (detailsPhotoBox.querySelector("#openCarousel") == null) {
-                                var blank_img = document.createElement("img");
-                                blank_img.src = "static/events_images/orange.png";
+                                var blank_img = document.createElement("div");
+                                blank_img.textContent = "SEE ALL";
+                                //blank_img.src = "static/events_images/orange.png";
                                 blank_img.className = "photo-preview";
                                 blank_img.id = "openCarousel";
-                                blank_img.style.left = `${counter * 40}px`; // Adjust 40px based on desired overlap
+                                blank_img.style.left = `${counter * 70}px`; // Adjust 40px based on desired overlap
                                 blank_img.style.zIndex = blank_img.length - counter; // Ensure correct stacking order
                                 photosStack.appendChild(blank_img);
                         }
