@@ -4,21 +4,9 @@ ANNOTATIONS:
     while working with the flask application set "export FLASK_DEBUG=1"
     when you finish the project set "export FLASK_DEBUG=0"
 
-    to activate ON DELETE CASCADE in the tables connected to the events: "PRAGMA foreign_keys = ON;"
-
 THINGS LEFT TO DO:
-    see if you can improve the design in the account page 
     resolve the problems with the implementation of the reset of the password
     finish design of the pages
-
-    whole application features
-        see the logic of the connections between users in the application
-
-    homepage features
-        continue the photo gallery improvements
-        weight down logic in the DOMContentLoaded event
-        clean and debug
-
         
     FINAL STEPS
     complete the presentation page:
@@ -30,16 +18,3 @@ THINGS LEFT TO DO:
     submit the form 
     submit50 cs50/problems/2024/x/project
     delete this folder on the mac
-    
-
-
-
-
-    IMAGE CAROUSEL:
-        Inner images structure to create:
-          <div class="carousel-item active">
-            <img src="..." class="d-block w-100" alt="...">
-          </div>
-          <div class="carousel-item">
-            <img src="..." class="d-block w-100" alt="...">
-          </div>

@@ -72,7 +72,7 @@ db = SQL("sqlite:///database.db")
 
 @app.before_request
 def enable_foreign_keys():
-    db.execute("PRAGMA foreign_keys = ON")
+    db.execute("PRAGMA foreign_keys = ON") 
     
 # set session to expire after 30 minutes of inactivity
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)

@@ -81,6 +81,22 @@
             border: none;
         }
 
+        .photoPreview {
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .photoPreview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
         /* Custom styles for FullCalendar */
         .fc .fc-toolbar-title, /* Month name */
         .fc .fc-col-header-cell-cushion, /* Day names (like Sun, Mon, etc.) */
@@ -201,7 +217,17 @@
         .photo-preview[style*="display: none;"] {
             display: none !important;
         }
-        
+    
+        #closeCarousel {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            background-color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet' />
@@ -217,9 +243,6 @@
 {% block body %}
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.4/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.4/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.4/index.global.min.js"></script>
 
     <div id="blurry">
         <section class="calendar-container">
@@ -324,7 +347,7 @@
                         <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
                         <div id="error_NP" class="error"></div>
                         <div class="photo-preview-container">
-                            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
+                            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photoPreview" />
                         </div>
 
                         <div id="photoButtonContainer">
@@ -380,18 +403,21 @@
         </div>
         <div id="gender" class="profile"></div>
     </div>
-
-    <div id="carouselBox" class="Box" class="carousel slide" style="display: None">
+    
+    <div id="carouselBox" class="Box carousel slide" style="display: None">
+        <button id="closeCarousel" class="close">❌</button>
+        
         <div class="carousel-inner">
-
+            <!-- Images will be inserted here -->
         </div>
+        
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselBox" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carouselBox" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
         </button>
-      </div>
+    </div>
 {% endblock %}

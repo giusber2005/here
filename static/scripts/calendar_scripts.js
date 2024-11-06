@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectable: true,
         editable: true,
         eventDurationEditable: true,
+        eventResizableFromStart: true,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -104,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // If the carousel is not open, open it
                         if (detailsPhotoBox.querySelector("#openCarousel") == null) {
-                                var blank_img = document.createElement("div");
+                                var blank_img = document.createElement("button");
                                 blank_img.textContent = "SEE ALL";
-                                //blank_img.src = "static/events_images/orange.png";
+                                blank_img.style.backgroundImage = "url('static/events_images/orange.png')";
                                 blank_img.className = "photo-preview";
                                 blank_img.id = "openCarousel";
                                 blank_img.style.left = `${counter * 70}px`; // Adjust 40px based on desired overlap
@@ -116,12 +117,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         if (andMoreElement) {
                             andMoreElement.style.display = "block";
-                            andMoreElement.textContent = `and ${counter - 3} more`;
+                            andMoreElement.textContent = `...and ${counter - 3} more`;
                         } else {
                             andMoreElement = document.createElement("div");
                             andMoreElement.id = "andMore";
                             andMoreElement.style.display = "block";
-                            andMoreElement.textContent = `and ${counter - 3} more`;
+                            andMoreElement.textContent = `...and ${counter - 3} more`;
                             detailsPhotoBox.append(andMoreElement);
                         }
                     }            
@@ -256,6 +257,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     start: event.start,
                     end: event.end,
                     color: event.color,
+                    allDay: true,
+                    editable: true,               
+                    durationEditable: true,          
+                    eventResizableFromStart: true,
                     extendedProps: event.extendedProps // Include any additional properties you defined
                 });
             });
@@ -536,7 +541,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Listen for click on "Add Photo" button
     photoButton.addEventListener('click', function() {
+        console.log("photo button clicked");
         input.value = "";
+        var preview = document.getElementById('PhotoPreview');
         preview.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
         document.getElementById('error_NP').innerText = "";
     });
@@ -806,6 +813,78 @@ document.addEventListener('DOMContentLoaded', function() {
         clearDynamicContent('hiddenFriends');
         clearDynamicContent('hiddenBox');
     }
+
+    // Use event delegation for the carousel controls
+    document.addEventListener('click', function(event) {
+        if (event.target && event.target.id === 'openCarousel') {
+            const carouselBox = document.getElementById("carouselBox");
+            const innerCarousel = document.querySelector(".carousel-inner");
+            const blurry = document.getElementById("blurry");
+            
+            // Clear existing carousel content
+            innerCarousel.innerHTML = '';
+            
+            // Show carousel and apply blur
+            carouselBox.style.display = "block";
+            blurry.style.filter = 'blur(8px)';
+            blurry.style.pointerEvents = "none";
+            document.body.style.overflow = 'hidden';
+
+            // Add photos to carousel
+            const photos = document.querySelectorAll("#photosStack img");
+            photos.forEach(function(img, index) {
+                const carouselItem = document.createElement("div");
+                carouselItem.className = "carousel-item";
+                if (index === 0) {
+                    carouselItem.classList.add('active');
+                }
+
+                const newImg = img.cloneNode(true);
+                newImg.className = "bd-placeholder-img bd-placeholder-img-lg d-block w-100";
+                newImg.style.width = "800px";
+                newImg.style.height = "400px";
+                newImg.style.objectFit = "contain"; // This will maintain aspect ratio
+                newImg.style.backgroundColor = "#777"; // Adding a background color like in the example
+                
+                carouselItem.appendChild(newImg);
+                innerCarousel.appendChild(carouselItem);
+            });
+
+            // Initialize Bootstrap carousel
+            const carousel = new bootstrap.Carousel(carouselBox, {
+                interval: false, // Disable auto-sliding
+                keyboard: true  // Enable keyboard controls
+            });
+        }
+    });
+
+    // Separate event listener for close button
+    document.querySelector('#closeCarousel').addEventListener('click', function(e) {
+        e.stopPropagation(); // Stop event from bubbling up
+        e.preventDefault(); // Prevent any default behavior
+        
+        const carouselBox = document.getElementById("carouselBox");
+        const blurry = document.getElementById("blurry");
+        
+        carouselBox.style.display = "none";
+        blurry.style.filter = 'none';
+        blurry.style.pointerEvents = "all";
+        document.body.style.overflow = 'auto';
+    });
+
+    // Add event listeners for prev/next buttons
+    document.querySelector('.carousel-control-prev').addEventListener('click', function(e) {
+        e.stopPropagation(); // Stop event from bubbling up
+        const carousel = bootstrap.Carousel.getInstance(document.getElementById('carouselBox'));
+        carousel.prev();
+    });
+
+    document.querySelector('.carousel-control-next').addEventListener('click', function(e) {
+        e.stopPropagation(); // Stop event from bubbling up
+        const carousel = bootstrap.Carousel.getInstance(document.getElementById('carouselBox'));
+        carousel.next();
+    });
+
 });         
 
 
