@@ -257,7 +257,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     start: event.start,
                     end: event.end,
                     color: event.color,
-                    allDay: true,
                     editable: true,               
                     durationEditable: true,          
                     eventResizableFromStart: true,

@@ -17,4 +17,3 @@ THINGS LEFT TO DO:
     record the video presentation of the web application
     submit the form 
     submit50 cs50/problems/2024/x/project
-    delete this folder on the mac
