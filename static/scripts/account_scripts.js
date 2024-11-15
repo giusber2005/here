@@ -2,8 +2,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     let prefix = document.getElementById("prefixDiv");
-    if (prefix.innerHTML === "None") {
-        prefix.style.display = "None";
+    
+    // Check if the element exists before accessing its properties
+    if (prefix) {
+        if (prefix.innerHTML === "None" || prefix.innerHTML === "null") {
+            prefix.style.display = "none"; // Use "none" in lowercase
+        }
+    } else {
+        console.error('Element with ID "prefixDiv" not found.');
     }
 
     var photoFileName = document.getElementById('PhotoFile').textContent.trim();

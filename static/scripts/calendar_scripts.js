@@ -171,8 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
             labels.forEach(function(label, index) {
                 var detail = details[index];
-                if (detail && !detail.textContent.trim()) {
+                if (detail && !detail.innerHTML.trim()) {
                     label.style.display = 'none';
+                } else {
+                    label.style.display = "block";
                 }
             });
 
@@ -635,10 +637,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to create and display the friend's info page
     function createInfoPage(friend_info) {
+        var imageCont = document.getElementById('PhotoFriendCont');
+        imageCont.style.display = "none";
 
+        // Create a new object with capitalized keys
+        const capitalizedFriendInfo = {};
         for (const [key, value] of Object.entries(friend_info)) {
-            if (key === 'photo') {
+            capitalizedFriendInfo[key.charAt(0).toUpperCase() + key.slice(1)] = value;
+        }
+
+        // Process the capitalized keys
+        for (const [key, value] of Object.entries(capitalizedFriendInfo)) {
+            if (key === 'Photo' && value) {
                 var imageElement = document.getElementById('Photo');
+                imageCont.style.display = "block";
                 if (imageElement) {
                     var imagePath = 'static/profile_images/' + value;
                     imageElement.src = imagePath;

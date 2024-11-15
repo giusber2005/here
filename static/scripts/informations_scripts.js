@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             cityInput.disabled = false;
             error_NN.style.color = "green"
-            error_NN.innerHTML = 'correct nation selected!!';
+            error_NN.innerHTML = '✅';
         }
         nationList.innerHTML = html;
         return 0;
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             error_NC.innerHTML = 'you need to select on of the city in the list';
         } else {
             error_NC.style.color = "green"
-            error_NC.innerHTML = "correct city selected!!";
+            error_NC.innerHTML = "✅";
         }
         cityList.innerHTML = html;
         return 0
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
             error_field_NG.innerHTML = 'Choose a correct gender';
         } else {
             error_field_NG.style.color = 'green';
-            error_field_NG.innerHTML = 'Correct gender chosen';
+            error_field_NG.innerHTML = 'ciao123';
         }
     });
 
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
             error_field_PR.innerHTML = 'Choose a valid prefix';
         } else {
             error_field_PR.style.color = 'green';
-            error_field_PR.innerHTML = 'Correct prefix chosen';
+            error_field_PR.innerHTML = '✅';
         }
     }
 

@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             cityInput.disabled = false;
             error_NN.style.color = "green"
-            error_NN.innerHTML = 'correct nation selected!!';
+            error_NN.innerHTML = '✅';
         }
         return 0
     });
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 error_field_NP.innerText = "File type not in the permitted list"
             } else {
                 error_field_NP.style.color = "green"
-                error_field_NP.innerText = "File valid!!"
+                error_field_NP.innerText = "✅"
             }
         } else {
             error_field_NP.style.color = "black"
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
             error_field_NG.innerHTML = 'Choose a correct gender';
         } else {
             error_field_NG.style.color = 'green';
-            error_field_NG.innerHTML = 'Correct gender chosen';
+            error_field_NG.innerHTML = '✅';
         }
     });
 
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
             error_field_PR.innerHTML = 'Choose a valid prefix';
         } else {
             error_field_PR.style.color = 'green';
-            error_field_PR.innerHTML = 'Correct prefix chosen';
+            error_field_PR.innerHTML = '✅';
         }
     }
 

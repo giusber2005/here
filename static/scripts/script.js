@@ -77,7 +77,7 @@ function isAlpha(Name, error_field) {
     Bool = /^[A-Za-z]+$/.test(Name.trim())
     if (Bool) {
         error_field.style.color = "green"
-        return 'correct!!';
+        return '✅';
     }
     error_field.style.color = "red"
     return 'You need to insert only alphabetical keys';
@@ -121,7 +121,7 @@ function birthdayCheck(birthdayCheck, error_field) {
         }
 
         if (age < 0) {
-            return "please insert a correct birthday";
+            return "please insert a birthday";
         }
 
         if (age < 15) {
@@ -133,7 +133,7 @@ function birthdayCheck(birthdayCheck, error_field) {
     }
 
     error_field.style.color = "green"
-    return 'correct birthday!!';
+    return '✅';
 }
 
 function emailCheck(emailCheck, error_field) {
@@ -146,7 +146,7 @@ function emailCheck(emailCheck, error_field) {
     }
 
     error_field.style.color = "green";
-    return 'The email is in the correct format!!';
+    return '✅';
 }
 
 function checkLength(description, error_field) {
@@ -155,7 +155,7 @@ function checkLength(description, error_field) {
         return 'Your description needs to be less than 500 characters long';
     }
     error_field.style.color = "green"
-    return 'description is ok!!';
+    return '✅';
 }
 
 function remove_errors() {
@@ -217,7 +217,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
 
         if (!Box) return; // If no box found, exit
 
-        const Wrapper = document.createElement('div');
+        var Wrapper = document.createElement('div');
         Wrapper.className = 'wrapper';
 
         let hiddenInput = document.createElement('input');
@@ -280,7 +280,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
 
             hiddenContainer.appendChild(hiddenInput); // Append hidden input after setting its value
 
-            newPhoto.className = "photo-preview";
+            newPhoto.className = "photoPreview";
             Wrapper.appendChild(newPhoto);
 
         } else if (Box.id === "friendsBox") {
