@@ -934,7 +934,7 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
-
+    
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))

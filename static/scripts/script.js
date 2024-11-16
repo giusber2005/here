@@ -219,13 +219,19 @@ async function addElement(el = "", preValue = "", keyword = "") {
 
         var Wrapper = document.createElement('div');
         Wrapper.className = 'wrapper';
+        Wrapper.style.display = "flex";
+        Wrapper.style.whiteSpace = "nowrap";
+        Wrapper.style.overflow = "auto";
 
         let hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
 
         if (Box.id === 'linkBox') {
+            if (!value.startsWith("https://")) {
+                var value2 = "https://" + value;
+            }
             const newLink = document.createElement('a');
-            newLink.href = value;
+            newLink.href = value2;
             newLink.textContent = value;
             newLink.target = '_blank'; // Open link in a new tab
             Wrapper.appendChild(newLink);
@@ -287,6 +293,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
             // When a friend is being added to the box, their option is eliminated from the list 
             const newFriend = document.createElement('p');
             newFriend.style.display = "inline-block";
+            newFriend.style.marginTop = "15px";
             newFriend.innerHTML = value;
             Wrapper.appendChild(newFriend);
 
@@ -307,6 +314,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
             const profileButton = document.createElement('button');
             profileButton.textContent = 'View profile';
             profileButton.className = 'profileButton';
+            profileButton.style.marginLeft = "5px";
 
             Wrapper.appendChild(profileButton);
         }
@@ -315,6 +323,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.className = 'delete';
+        deleteButton.style.marginLeft = "5px";
 
         Wrapper.appendChild(deleteButton);
 

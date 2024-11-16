@@ -142,13 +142,13 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Optional shadow for better visibility */
             z-index: 9999; /* Ensures the div is in front of all other elements */
         }
-
         /* Improved link button container style */
         #linkButtonContainer, #friendsButtonContainer, #photoButtonContainer {
             display: flex;
             justify-content: space-between;
             width: 100%; /* Ensures buttons take full width */
             gap: 10px;
+            margin-top: 10px;
         }
 
         .button-like-div {
@@ -204,7 +204,6 @@
             border: 2px solid white; /* Optional: adds a white border */
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
             transition: transform 0.2s ease, z-index 0s ease; /* Smooth transform and instant z-index change */
-            top: 10px; /* Same top position for all images */
         }
         
         /* Bring hovered image to front and add slight scale */
@@ -227,6 +226,15 @@
             padding: 10px;
             border: none;
             cursor: pointer;
+        }
+        
+        .close {
+            background: none; /* No background for the close button */
+            border: none; /* No border */
+            font-size: 1.5rem; /* Larger font size for the close button */
+            cursor: pointer; /* Pointer cursor on hover */
+            color: #f44336; /* Red color for the close button */
+            float: right; /* Align to the right */
         }
     </style>
 
@@ -259,23 +267,22 @@
             
                 <h4 class="label" id="PhotoLabel">Photos:</h4>
                 <div class="detail" id="detailsPhotoBox">
-                    <!-- Photos will be appended here -->
                     <div id="andMore" style="display: none"></div>
                 </div>
             
                 <h4 class="label" id="FriendsLabel">Friends:</h4>
                 <div class="detail" id="detailsFriendsBox">
-                    <!-- Friends will be appended here -->
                 </div>
             
                 <h4 class="label" id="LinkLabel">Links:</h4>
                 <div class="detail" id="detailsLinkBox">
-                    <!-- Additional links will be appended here -->
                 </div>
-            
-                <button id="closeButton">Close</button>
-                <button id="modifyButton">Modify Event</button>
-                <button id="deleteButton">Delete Event</button>
+                
+                <div id="detailsButtons" style="margin-top: 10px">
+                    <button id="closeButton">Close</button>
+                    <button id="modifyButton">Modify Event</button>
+                    <button id="deleteButton">Delete Event</button>
+                </div>
             </aside>
         </section>
     </div>
@@ -299,7 +306,7 @@
                     
                     <div id="notes" class="column-container">
                         <label for="eventText">Notes:</label>
-                        <textarea id="eventText" name="eventText" rows="4"></textarea>
+                        <textarea id="eventText" name="eventText" rows="2"></textarea>
                     </div>
                     
                     <div id="link" class="column-container">
@@ -342,7 +349,7 @@
                     </div>
 
                     <div id="photo" class="column-container">
-                        <label for="eventPhoto" class="form-label">Avatar photo</label>
+                        <label for="eventPhoto" class="form-label">Event photos:</label>
                         <div id="hiddenPhoto" class="hidden" style="display: none"></div>
                         <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
                         <div id="error_NP" class="error"></div>
@@ -364,17 +371,17 @@
             </form>
         </article>
 
-    <div id="linkBox" class="Box" style="display: None">
+    <div id="linkBox" class="Box" style="display: None;">
         <div style="display: None" class="alert">No links are selected for this event</div>
         <button id="closeLink" class="close">❌</button>
     </div>
     
-    <div id="friendsBox" class="Box" style="display: None">
+    <div id="friendsBox" class="Box" style="display: None;">
         <div style="display: None" class="alert">No friends are selected for this event</div>
         <button id="closeFriends" class="close">❌</button>
     </div>
 
-    <div id="photoBox" class="Box" style="display: None">
+    <div id="photoBox" class="Box" style="display: None;">
         <div style="display: None" class="alert">No photos are selected for this event</div>
         <button id="closePhoto" class="close">❌</button>
     </div>
@@ -385,8 +392,9 @@
         <button id="no" class="button-like-div">No</button>
     </div>
 
-    <div id="friendProfile" class="profileBox" style="display: None">
+    <div id="friendProfile" class="Box profileBox" style="display: None">
         <button id="closeprofile" class="close">❌</button>
+        <br>
         <br>
         <div id="username" class="profile"></div>
         <div id="FirstName" class="profile"></div>
@@ -397,9 +405,9 @@
         <div id="nation" class="profile"></div>
         <div id="city" class="profile"></div>
         <div id="description" class="profile"></div>
-        <div class="photo-preview-container">
+        <div id="PhotoFriendCont" class="photo-preview-container" style="display: None">
             <div class='profile'>Profile Photo: </div>
-            <img id="Photo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview profile" />
+            <img id="Photo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photoPreview profile" />
         </div>
         <div id="gender" class="profile"></div>
     </div>

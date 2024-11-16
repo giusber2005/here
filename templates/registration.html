@@ -11,8 +11,8 @@
 
 {% block main %}
   <form action="/register" method="post" enctype="multipart/form-data">
+    <h1 id="title">REGISTRATION TIME!!!</h1>
     <div id="container" class="form-container">
-      <h1 id="title">REGISTRATION TIME!!!</h1>
       <div id="required-fields" class="form-section">
         <div class="form-group">
           <div class="input-container">
@@ -61,6 +61,16 @@
       <div id="optional-fields" class="form-section">
         <div class="form-group">
           <div class="input-container">
+            <label for="NewPhoto" class="form-label">Avatar photo</label>
+            <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="only jpeg, png, heic type file are accepted" />
+          </div>
+          <div id="error_NP" class="error error-message"></div>
+          <div class="photo-preview-container">
+            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-container">
             <label for="NewNation" class="form-label">Nation</label>
             <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control" />
           </div>
@@ -99,16 +109,7 @@
           </div>
           <div id="error_Nd" class="error error-message"></div>
         </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewPhoto" class="form-label">Avatar photo</label>
-            <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="only jpeg, png, heic type file are accepted" />
-          </div>
-          <div id="error_NP" class="error error-message"></div>
-          <div class="photo-preview-container">
-            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
-          </div>
-        </div>
+
         <div class="form-group">
           <div class="input-container">
             <label for="NewGender" class="form-label">Gender</label>
@@ -122,13 +123,13 @@
           <div id="error_NG" class="error error-message"></div>
         </div>
       </div>
-      <div class="form-group" style="margin-top: 10px">
-        <button type="reset" id="resetButton" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
-        <button type="submit" class="btn btn-primary" id="submit" disabled>Register</button>
-      </div>
-      <div class="required-note" style="text-align: left">
-        Required fields<sup>*</sup>
-      </div>
+    </div>
+    <div class="form-group" style="margin-top: 10px">
+      <button type="reset" id="resetButton" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
+      <button type="submit" class="btn btn-primary" id="submit" disabled>Register</button>
+    </div>
+    <div class="required-note" style="text-align: left">
+      Required fields<sup>*</sup>
     </div>
   </form>
 {% endblock %}

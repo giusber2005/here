@@ -15,14 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
     var photoFileName = document.getElementById('PhotoFile').textContent.trim();
     var imagePath = 'static/profile_images/' + photoFileName;
     document.getElementById('PhotoPreview').src = imagePath;
+    var deleteForm= document.getElementById("deleteForm");
+    deleteForm.style.display = "block";
 
 
     photo = document.getElementById("PhotoPreview");
     if (photo.src.includes("None")) {
         photo.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+        photo.style.display = "none";
 
         button = document.getElementById("photoButton");
-        button.style.display = "None";
+        deleteForm.style.display = "none";
+        button.style.display = "none";
     };
 
     // Select the container by its ID

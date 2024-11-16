@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var profileButton = document.createElement('button');
                     profileButton.textContent = 'View profile';
                     profileButton.className = 'profileButton';
+                    profileButton.style.marginLeft = '5px';
                             
                     Wrapper.appendChild(profileButton);
     
@@ -801,6 +802,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("blurry").style.pointerEvents = "all";
         document.body.style.overflow = 'auto';
 
+        //close all the Box open
+        var Boxes = document.querySelectorAll(".Box");
+        Boxes.forEach(function(Box) {
+            if (Box.style.display != "none") {
+                Box.style.display = "none";
+            }
+        });
         resetFormAndContent();
         eventForm.style.display = 'none';
         addButton.innerHTML = "Add Event";
