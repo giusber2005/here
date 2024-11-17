@@ -399,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Box.style.display = "block";
                     Box.querySelector('.alert').style.display = "block";    
                 } else {
+                    Box.style.height = "320px";
                     Box.style.display = "block";
                     Box.querySelector('.alert').style.display = "none";
                 }
@@ -419,7 +420,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
+
     let Boxes = document.querySelectorAll(".Box");
     Boxes.forEach(function(box) {
         box.addEventListener('click', function(event) {
@@ -427,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 let counter = box.querySelectorAll('.delete').length;
 
                 var parentDiv = event.target.closest('.wrapper'); 
-    
+
                 if (parentDiv) {
                     var value;
                     if (box.id === 'linkBox') {
@@ -464,15 +466,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
 
-
                     if (counter === 1) {
                         box.style.display = "block";
+                        if (box.id ==="photoBox") {
+                            box.style.height = "180px";
+                        }
                         document.getElementById("blurry").style.filter = 'blur(8px)'; 
                         document.getElementById("blurry").style.pointerEvents = "none";
                         document.body.style.overflow = 'hidden';
                         box.querySelector('.alert').style.display = "block";   
                     }
-        
                 }
             }    
         });

@@ -236,6 +236,32 @@
             color: #f44336; /* Red color for the close button */
             float: right; /* Align to the right */
         }
+
+        /* style for the photo flexbox*/
+        .gridBox {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; /* Allows items to wrap to the next column */
+            gap: 10px; /* Adjusts space between items */
+            height: calc(3 * 100px + 20px); /* Height for 3 items + gap space */
+            overflow: auto; /* Scroll if content overflows */
+            align-content: flex-start; /* Align items to start of the columns */
+        }
+
+        .gridElement {
+            flex: 0 0 100px; /* Each item has a fixed height */
+            width: 200px;
+            box-sizing: border-box; /* Includes padding/border in dimensions */
+            background-color: #ddd; /* Example background */
+            border: 1px solid #ccc; /* Example border */
+            text-align: center; /* Center text */
+            padding: 10px; /* Example padding */
+        }
+
+        /* styling all the labels */
+        .labelColor {
+            color: white;
+        }
     </style>
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet' />
@@ -257,24 +283,24 @@
             <div id='calendar'></div>
 
             <aside id="eventDetails" style="display:none;">
-                <h3 id="detailTitle"></h3>
-                <div>From:</div>
+                <h3 id="detailTitle" class="labelColor"></h3>
+                <div class="labelColor">From:</div>
                 <p id="detailStart"></p>
-                <div>To:</div>
+                <div class="labelColor">To:</div>
                 <p id="detailEnd"></p>
-                <p><strong id="TextLabel">Text:</strong> <span id="detailText"></span></p>
-                <p><strong id="TagsLabel">Tags:</strong> <span id="detailTags"></span></p>
+                <p><strong class="labelColor" id="TextLabel">Text:</strong> <span id="detailText"></span></p>
+                <p><strong class="labelColor" id="TagsLabel">Tags:</strong> <span id="detailTags"></span></p>
             
-                <h4 class="label" id="PhotoLabel">Photos:</h4>
+                <h4 class="label labelColor" id="PhotoLabel">Photos:</h4>
                 <div class="detail" id="detailsPhotoBox">
                     <div id="andMore" style="display: none"></div>
                 </div>
             
-                <h4 class="label" id="FriendsLabel">Friends:</h4>
+                <h4 class="label labelColor" id="FriendsLabel">Friends:</h4>
                 <div class="detail" id="detailsFriendsBox">
                 </div>
             
-                <h4 class="label" id="LinkLabel">Links:</h4>
+                <h4 class="label labelColor" id="LinkLabel">Links:</h4>
                 <div class="detail" id="detailsLinkBox">
                 </div>
                 
@@ -381,7 +407,7 @@
         <button id="closeFriends" class="close">❌</button>
     </div>
 
-    <div id="photoBox" class="Box" style="display: None;">
+    <div id="photoBox" class="Box gridBox" style="display: None;">
         <div style="display: None" class="alert">No photos are selected for this event</div>
         <button id="closePhoto" class="close">❌</button>
     </div>

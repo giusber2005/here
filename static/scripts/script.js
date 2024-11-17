@@ -242,7 +242,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
 
         } else if (Box.id === "photoBox") {
             const newPhoto = document.createElement('img');
-            
+
             let file;
             let base64Image;
 
@@ -288,6 +288,7 @@ async function addElement(el = "", preValue = "", keyword = "") {
 
             newPhoto.className = "photoPreview";
             Wrapper.appendChild(newPhoto);
+            Wrapper.classList.add("gridElement");
 
         } else if (Box.id === "friendsBox") {
             // When a friend is being added to the box, their option is eliminated from the list 
