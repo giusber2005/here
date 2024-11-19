@@ -9,7 +9,7 @@ import os
 import time
 
 #function to calculate a period of time (useful in the session expiration time)
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 #library to work with databases
 from cs50 import SQL
@@ -48,14 +48,14 @@ Configuring the environment for the system of sending email to the user
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 
-email_password = "J5F6RYcAkCQj29PZ"
+email_password = "umfs eviq vtux eqjv"
 
 # Configuration for Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'  # Your email server
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Your email server
 app.config['MAIL_PORT'] = 587  # Port number (usually 587 for TLS)
 app.config['MAIL_USE_TLS'] = True  # Use TLS
 app.config['MAIL_USE_SSL'] = False  # Do not use SSL
-app.config['MAIL_USERNAME'] = '7c2d17001@smtp-brevo.com'  # Your email address
+app.config['MAIL_USERNAME'] = 'hereforhelp888@gmail.com'  # Your email address
 app.config['MAIL_PASSWORD'] = email_password # Your email password
 app.config['MAIL_DEFAULT_SENDER'] = 'hereforhelp888@gmail.com'  # Default sender email address
 
@@ -748,7 +748,7 @@ import uuid #library to generate unique tokens
 BASE_URL = "http://127.0.0.1:5000/reset_password"
 def generateLink():
     token = str(uuid.uuid4())
-    unique_link = f"{BASE_URL}?token={token}"
+    unique_link = f"{BASE_URL}/{token}"
     
     return unique_link
 
@@ -764,7 +764,9 @@ def password():
         return redirect("/login")
             
     user_id = check["id"]
-    db.execute("INSERT INTO passwordLinks (token, user_id) VALUES (?,?)", link, user_id)
+    
+    token = link.split("password/")
+    db.execute("INSERT INTO passwordLinks (token, user_id) VALUES (?,?)", token[1], user_id)
     
     username = check["username"]
     try:
@@ -772,7 +774,7 @@ def password():
         msg = Message(
             subject="Reset password",
             recipients=[email],
-            body="This is the plain text fallback for email clients that don't support HTML.",
+            body=f"This is the plain text fallback for email clients that don't support HTML, hi {username}, paste this URL in the search bar to reset the password {link}",
             html=f"""
                     <h1>PASSWORD RESET</h1>
                     <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
@@ -791,22 +793,10 @@ def password():
 #app route for the link that is send when the user try to retrieve is password
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
-    
-    timestamp = datetime.strptime(link["expiration"], '%Y-%m-%d %H:%M:%S')
-    current_time = datetime.now()
-    interval = current_time - timestamp    
-    if interval > timedelta(minutes=5):
-        flash("The selected link is expired")
-        return redirect("/login")
-        
-    if link["is_used"] == True:
-        flash("The selected link has been already used")
-        return redirect("/login")
-    
-    db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
-    email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
     if request.method == 'POST':
+        link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
+        email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
+        
         password1 = request.form.get("password1").strip()
         password2 = request.form.get("password2").strip()
 
@@ -819,15 +809,37 @@ def reset_password(token):
             flash("you need to repeat the exact same password twice")
             db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
             return redirect(f"/reset_password/{token}")
-
+        
+        result = password_check(password1)
+        if result != 1:
+            flash(result)
+            return render_template(f"/reset_password/{token}")
         password1 = generate_password_hash(password1)
 
         # Update user's password in the database
         db.execute("UPDATE user SET hash = ? WHERE email = ?", password1, email)
         flash('Your password has been updated!', 'success')
         return redirect("/login")
+    
+    link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
+    
+    timestamp = datetime.strptime(link["expiration"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)  # Make timestamp aware
+    print(timestamp)
+    current_time = datetime.now(timezone.utc) 
+    print(current_time)
+    interval = current_time - timestamp    
+    if interval > timedelta(minutes=5):
+        flash("The selected link is expired")
+        return redirect("/login")
+        
+    if link["is_used"] == 1:
+        flash("The selected link has been already used")
+        return redirect("/login")
+    
+    db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
+    email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
 
-    return render_template('password.html')
+    return render_template('password.html', token=token)
 
 """
 

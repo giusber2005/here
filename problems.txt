@@ -7,8 +7,10 @@ ANNOTATIONS:
 THINGS LEFT TO DO:
     resolve the problems with the implementation of the reset of the password
     finish design of the pages
-        
+    
     FINAL STEPS
+    load all in the python everywhere folder
+    set environments passwords
     complete the presentation page:
         change the actual domain name in the actual one
         load the youtube video and write the production date 
