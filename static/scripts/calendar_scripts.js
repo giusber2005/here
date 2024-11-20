@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
             // Display links
             var links = info.event.extendedProps.links || [];
+            console.log(links);
             if (links.length != 0) {
                 links.forEach(function(link) {
                     var a = document.createElement("a");
@@ -725,6 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll("#linkBox a").forEach(function(a) {
             links.push(a.href);
         });
+        console.log(links);
 
         // Gather photos asynchronously
         const photoElements = document.querySelectorAll("#photoBox img");

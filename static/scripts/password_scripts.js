@@ -21,17 +21,17 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordStrenght.innerHTML = level;
         } else {
             passwordStrenght.style.color = 'red';
-            passwordStrenght.innerHTML = 'password is required';
+            passwordStrenght.innerHTML = 'Password is required';
         }
     });
 
     passwordInput2.addEventListener("input", () => {
         if (passwordInput1.value != passwordInput2.value) {
             error2Div.style.color = "red";
-            error2Div.innerHTML = "the passwords need to be equal";
+            error2Div.innerHTML = "The passwords need to be equal";
         } else {
             error2Div.style.color = "green";
-            error2Div.innerHTML = "passwords are equal!";  
+            error2Div.innerHTML = "Passwords are equal!";  
         }
     });
 });
