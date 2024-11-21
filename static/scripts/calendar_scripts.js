@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById("detailsLinkBox").appendChild(a);
                 });
             };
-
+ 
             var labels = document.querySelectorAll('.label');
             var details = document.querySelectorAll('.detail');
         
@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('dimmed');
 
         addEventForm.onsubmit = function(e) {
-            // function to remove the modified evento from the calendar in the page
+            // function to remove the modified event from the calendar in the page
             if (selectedEvent && Object.keys(info).length === 2) {
                 selectedEvent.remove();
                 selectedEvent = null;
@@ -769,15 +769,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // Send data to server
             sendData('/addEvent', thisEvent)
                 .then(response => {
-                    if (response && response.photos) {
-                        
-                        const updatedPhotos = response.photos.map(photo => 
-                            'static/events_images/' + photo
-                        );
-
+                    if (response) {
                         const event = calendar.getEventById(response.data.eventId);
                         if (event) {
-                            event.setExtendedProp('photos', updatedPhotos);
+                            if (response.photos) {
+                                const updatedPhotos = response.photos.map(photo => 
+                                    'static/events_images/' + photo
+                                );
+                                
+                                event.setExtendedProp('photos', updatedPhotos);
+                            }    
+                            
+                            console.log(response.data.hiddenLink);
+                            if (response.data.hiddenLink) {
+                                event.setExtendedProp('links', links);
+                            }
                         }
                     }
                 })

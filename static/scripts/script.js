@@ -239,7 +239,6 @@ async function addElement(el = "", preValue = "", keyword = "") {
             hiddenInput.className = 'hiddenLink';
             hiddenInput.name = 'hiddenLink';
             hiddenInput.value = value;
-
         } else if (Box.id === "photoBox") {
             const newPhoto = document.createElement('img');
 
