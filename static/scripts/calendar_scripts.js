@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let Boxes = document.querySelectorAll(".Box");
     Boxes.forEach(function(box) {
-        box.addEventListener('click', function(event) {
+        box.addEventListener('click', async function(event) {
             if (event.target && event.target.classList.contains('delete')) {
                 let counter = box.querySelectorAll('.delete').length;
 
@@ -439,6 +439,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else if (box.id === "photoBox") {
                         let photo = parentDiv.querySelector('img');
                         value = photo.src;
+                        if (!value.startsWith("data:image")) {
+                            console.log("value not in his base64 format")
+
+                            const base64Data = await getBase64Image(value);
+                            value = base64Data.base64;
+                        }
                     } else if (box.id === "friendsBox") {
                         let friend = parentDiv.querySelector('p');
                         value = friend.innerHTML;
@@ -680,6 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('dimmed');
 
         addEventForm.onsubmit = function(e) {
+
             // function to remove the modified event from the calendar in the page
             if (selectedEvent && Object.keys(info).length === 2) {
                 selectedEvent.remove();
@@ -714,7 +721,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var color = document.getElementById('eventColor').value;
         var text = document.getElementById('eventText').value;
         var select = document.getElementById('eventTags');
-        var tag = select.options[select.selectedIndex].textContent;
+        try {
+            var tag = select.options[select.selectedIndex].textContent;
+        } catch (TypeError) {
+            var tag = "";
+        }
 
         // Gather additional data (photos, friends, links)
         var friends = [];
@@ -723,10 +734,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         var links = [];
+        var linkBox = document.getElementById("linkBox");
         document.querySelectorAll("#linkBox a").forEach(function(a) {
             links.push(a.href);
         });
-        console.log(links);
 
         // Gather photos asynchronously
         const photoElements = document.querySelectorAll("#photoBox img");

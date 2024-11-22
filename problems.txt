@@ -5,7 +5,6 @@ ANNOTATIONS:
     when you finish the project set "export FLASK_DEBUG=0"
 
 THINGS LEFT TO DO:
-    final work about modification of an event
     
     FINAL STEPS
     load all in the python everywhere folder

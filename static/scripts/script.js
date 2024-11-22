@@ -227,11 +227,14 @@ async function addElement(el = "", preValue = "", keyword = "") {
         hiddenInput.type = 'hidden';
 
         if (Box.id === 'linkBox') {
-            if (!value.startsWith("https://")) {
-                var value2 = "https://" + value;
-            }
             const newLink = document.createElement('a');
-            newLink.href = value2;
+            if (!value.startsWith("https://") && !value.startsWith("http://")) {
+                var value2 = "https://" + value;
+                newLink.href = value2;
+            } else {
+                newLink.href = value;
+            }
+            
             newLink.textContent = value;
             newLink.target = '_blank'; // Open link in a new tab
             Wrapper.appendChild(newLink);
