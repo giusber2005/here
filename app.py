@@ -38,9 +38,13 @@ import imghdr
 #some functions to weight down the code in app.py
 from helpers import *
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Configure application
 app = Flask(__name__)
-app.secret_key = "5&_~H$=O4<{^O6y"
+app.secret_key = os.getenv('APPLICATION_SECRET_KEY')
+
 
 """
 Configuring the environment for the system of sending email to the user
@@ -48,7 +52,7 @@ Configuring the environment for the system of sending email to the user
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 
-email_password = "umfs eviq vtux eqjv"
+email_password = os.getenv('GMAIL_PASSWORD')
 
 # Configuration for Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Your email server
