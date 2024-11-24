@@ -1,19 +1,13 @@
-ANNOTATIONS:
-    password for developing accounts: Uo[5yxmsBSQ#492~%{
-    Running on http://127.0.0.1:5000
-    while working with the flask application set "export FLASK_DEBUG=1"
-    when you finish the project set "export FLASK_DEBUG=0"
 
 THINGS LEFT TO DO:
     
     FINAL STEPS
-    load all in the python everywhere folder
-    set environments passwords
-    complete the presentation page:
-        change the actual domain name in the actual one
-        load the youtube video and write the production date 
+    final update of the README.md file 
+    load the youtube video and write the production date 
     make the web application findable on the browser
+        finish the debug of the python anywhere application
     delete this file  
     record the video presentation of the web application
     submit the form 
     submit50 cs50/problems/2024/x/project 
+    finish submission of the cs50 birthdays project
