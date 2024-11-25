@@ -774,19 +774,7 @@ def password():
     
     username = check["username"]
     try:
-        # Create email message
-        msg = Message(
-            subject="Reset password",
-            recipients=[email],
-            body=f"This is the plain text fallback for email clients that don't support HTML, hi {username}, paste this URL in the search bar to reset the password {link}",
-            html=f"""
-                    <h1>PASSWORD RESET</h1>
-                    <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
-                 """
-        )
-        
-        # Send the email
-        mail.send(msg)
+        send_simple_message(email, username, link)
         flash("Email sent successfully!")
         return redirect("/login")
     

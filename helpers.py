@@ -6,9 +6,10 @@ import csv
 from datetime import datetime
 #library to work with strings
 import re
+import requests
 
-#library to generate unique filenames
 import uuid
+#library to generate unique filenames
 
 from flask import redirect, render_template, session
 from functools import wraps
@@ -199,6 +200,25 @@ def split_phonenumber(phonenumber):
 def generate_unique_filename(extension):
     return f"{uuid.uuid4().hex}.{extension}"
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+def send_simple_message(mail, username, link):
+    return requests.post(
+        "https://api.mailgun.net/v3/sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org/messages",
+        auth=("api", os.getenv('MAILGUN_API_KEY')),
+        data={
+            "from": "Excited User <mailgun@sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org>",
+            "to": [mail, "YOU@sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org"],
+            "subject": "HERE ACCOUNT PASSWORD RESET",
+            "text": f"Hello {username}, we are HERE to help you!",  # Plain text version
+            "html": f"""
+                <h1>PASSWORD RESET</h1>
+                <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
+            """
+        }
+    )
 
 
 
