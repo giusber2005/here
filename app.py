@@ -45,7 +45,6 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('APPLICATION_SECRET_KEY')
 
-
 """
 Configuring the environment for the system of sending email to the user
 """
@@ -71,33 +70,37 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///database.db")
+db_path = os.path.join(os.path.dirname(__file__), "database.db")
+db = SQL(f"sqlite:///{db_path}")
 
 @app.before_request
 def enable_foreign_keys():
-    db.execute("PRAGMA foreign_keys = ON") 
-    
+    db.execute("PRAGMA foreign_keys = ON")
+
 # set session to expire after 30 minutes of inactivity
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 """
 Initializing some app.routes in order for retrieving the files in the /data folder
 """
+data_dir = os.path.join(BASE_DIR, 'data')
+
 #app.route to make the common.txt file utilizable
 @app.route('/data/common.txt')
 def get_common_passwords():
-    return send_from_directory('data', 'common.txt')
+    return send_from_directory(data_dir, 'common.txt')
 
 #app.route to make the worldcities.csv file utilizable
 @app.route('/data/worldcities.csv')
 def get_cities_and_nations():
-    return send_from_directory('data', 'worldcities.csv')
+    return send_from_directory(data_dir, 'worldcities.csv')
 
 #app.route to make the nations_and_prefixes.csv file utilizable
 @app.route('/data/nations_and_prefixes.csv')
 def get_nations_and_prefixes():
-    return send_from_directory('data', 'nations_and_prefixes.csv')
+    return send_from_directory(data_dir, 'nations_and_prefixes.csv')
 
 #endpoint to check in real time if the provided username by the user is already in the database
 @app.route("/check-username/<username>", methods=["GET"])
@@ -152,7 +155,7 @@ def check_number(number):
 @login_required
 def index():
     if request.method == "GET" or request.method == "POST":
-        
+
         # Query to get all the friends of the user
         friendsId = []
         friends1 = db.execute("SELECT * FROM connections WHERE id1 = ?", session["user_id"])
@@ -161,13 +164,13 @@ def index():
         friends2 = db.execute("SELECT * FROM connections WHERE id2 = ?", session["user_id"])
         for friend in friends2:
             friendsId.append(friend["id1"])
-        
+
         friends = []
         for friend in friendsId:
             friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend)[0]["username"])
-        
+
         friends_dict = dict(zip(friendsId, friends))
-        
+
         return render_template("homepage.html", friends_dict=friends_dict)
 
 """
@@ -466,7 +469,8 @@ def register():
 
         if photo != None:
             #saving the photo file in the folder for the photos
-            photo.save(os.path.join('static/profile_images', filename))
+            path = os.path.join(BASE_DIR, os.path.join('static/profile_images', filename))
+            photo.save(path)
 
         db.execute("INSERT INTO user_optional (username) VALUES (?)", Newusername)
         for database_name, value in good_fields.items():
@@ -548,7 +552,8 @@ def del_informations():
                     db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", campo, None, session["user_id"])
                 elif campo == 'photo':
                     photo = db.execute("SELECT * FROM user_optional WHERE id = ?", session["user_id"])[0][campo]
-                    os.remove(f'static/profile_images/{photo}')
+                    path = os.path.join(BASE_DIR, f'static/profile_images/{photo}')
+                    os.remove(path)
                     db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", campo, None, session["user_id"])
                 elif campo == 'phone_number':
                     db.execute("UPDATE user_optional SET number = ? WHERE id = ?", None, session["user_id"])
@@ -732,7 +737,8 @@ def informations():
 
         if photo != None:
             if filename != None:
-                photo.save(os.path.join('static/profile_images', filename))
+                path = os.path.join(BASE_DIR, 'static/profile_images')
+                photo.save(os.path.join(path, filename))
 
         for database_name, value in good_fields.items():
             db.execute("UPDATE user_optional SET ? = ? WHERE username = ?", database_name, value, Newusername)
@@ -753,42 +759,55 @@ BASE_URL = "http://127.0.0.1:5000/reset_password"
 def generateLink():
     token = str(uuid.uuid4())
     unique_link = f"{BASE_URL}/{token}"
-    
+
     return unique_link
 
 @app.route('/password', methods=['POST'])
 def password():
     link = generateLink()
     email = request.form.get("Email")
-    
+
     try:
         check = db.execute("SELECT * FROM user WHERE email = ?", email)[0]
     except IndexError:
         flash("The email doesn't correspond to any user in the database")
         return redirect("/login")
-            
+
     user_id = check["id"]
-    
+
     token = link.split("password/")
     db.execute("INSERT INTO passwordLinks (token, user_id) VALUES (?,?)", token[1], user_id)
-    
+
     username = check["username"]
     try:
-        send_simple_message(email, username, link)
+        # Create email message
+        msg = Message(
+            subject="Reset password",
+            recipients=[email],
+            body=f"This is the plain text fallback for email clients that don't support HTML, hi {username}, paste this URL in the search bar to reset the password {link}",
+            html=f"""
+                    <h1>PASSWORD RESET</h1>
+                    <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
+                 """
+        )
+
+        # Send the email
+        mail.send(msg)
         flash("Email sent successfully!")
         return redirect("/login")
-    
+
     except Exception as e:
+        print(e)
         flash("Error into sending the email")
-        return redirect("/login")        
-    
+        return redirect("/login")
+
 #app route for the link that is send when the user try to retrieve is password
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if request.method == 'POST':
         link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
         email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
-        
+
         password1 = request.form.get("password1").strip()
         password2 = request.form.get("password2").strip()
 
@@ -797,11 +816,11 @@ def reset_password(token):
             db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
             return redirect(f"/reset_password/{token}")
 
-        if password1 != password2:            
+        if password1 != password2:
             flash("you need to repeat the exact same password twice")
             db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
             return redirect(f"/reset_password/{token}")
-        
+
         result = password_check(password1)
         if result != 1:
             flash(result)
@@ -812,22 +831,22 @@ def reset_password(token):
         db.execute("UPDATE user SET hash = ? WHERE email = ?", password1, email)
         flash('Your password has been updated!', 'success')
         return redirect("/login")
-    
+
     link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
-    
+
     timestamp = datetime.strptime(link["expiration"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)  # Make timestamp aware
     print(timestamp)
-    current_time = datetime.now(timezone.utc) 
+    current_time = datetime.now(timezone.utc)
     print(current_time)
-    interval = current_time - timestamp    
+    interval = current_time - timestamp
     if interval > timedelta(minutes=5):
         flash("The selected link is expired")
         return redirect("/login")
-        
+
     if link["is_used"] == 1:
         flash("The selected link has been already used")
         return redirect("/login")
-    
+
     db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
     email = db.execute("SELECT * FROM user WHERE id = ?", link["user_id"])[0]["email"]
 
@@ -835,7 +854,7 @@ def reset_password(token):
 
 """
 
-END PASSWORD RESET AREA 
+END PASSWORD RESET AREA
 
 """
 
@@ -921,7 +940,8 @@ def delete_user():
 
 
     # Define the path to the photo
-    file_path = f"static/profile_images/{photo_profile}"
+    path = os.path.join(BASE_DIR, f"static/profile_images/{photo_profile}")
+    file_path = path
 
     # Check if the file exists
     if os.path.exists(file_path):
@@ -938,19 +958,20 @@ def delete_user():
 @login_required
 def load_data():
     data = request.form # Getting form data
-    
+
     rows = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
     if len(rows) > 0:
         photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", data.get('eventId', ""))
         for photo in photos:
             filename = photo['photo_path']
-            os.remove(os.path.join('static', 'events_images', filename))
-            
+            path = os.path.join(BASE_DIR, os.path.join('static', 'events_images', filename))
+            os.remove(path)
+
         db.execute("DELETE FROM eventsPrincipal WHERE id = ?", data.get('eventId', ""))
         db.execute("DELETE FROM eventsPhotos WHERE event_id = ?", data.get('eventId', ""))
         db.execute("DELETE FROM eventsLinks WHERE event_id = ?", data.get('eventId', ""))
         db.execute("DELETE FROM eventsConnections WHERE event_id = ?", data.get('eventId', ""))
-    
+
     title = data.get('eventTitle', "")
     #title validation
     if not title:
@@ -961,7 +982,7 @@ def load_data():
             "message": message
         }), 400
 
-    event_id = data.get('eventId', "") 
+    event_id = data.get('eventId', "")
     #id validation
     if not title:
         message = ""
@@ -981,7 +1002,7 @@ def load_data():
             "redirect": "/",
             "message": message
         }), 400
-        
+
 
     notes = data.get('eventText', "")
     #notes validation
@@ -992,7 +1013,7 @@ def load_data():
             "redirect": "/",
             "message": message
         }), 400
-        
+
     time_slot = f"{data.get('start')}/{data.get('end')}"  # Example format, adjust as necessary
     #time_slot validation
     if not title:
@@ -1012,7 +1033,7 @@ def load_data():
             "redirect": "/",
             "message": message
         }), 400
-           
+
     # Handle photos if any
     photos = request.form.getlist("hiddenPhoto", None)
     images_base64 = {}
@@ -1023,16 +1044,16 @@ def load_data():
         if photo.startswith('data:image'):
             base64_image = photo.split(",")[1]
             print(f"Base64 image data: {base64_image[:30]}...")  # Print first 30 characters for debug
-            
+
             mime_type_match = re.match(r'data:(.*?);base64,', photo)
             if mime_type_match:
                 mimetype = mime_type_match.group(1)
                 print(f"MIME type: {mimetype}")
-            
+
             # Remove the 'image/' prefix
             if mimetype.startswith('image/'):
                 mimetype = mimetype.split('/')[1]
-                
+
             if mimetype not in ['jpeg', 'png', 'heic']:
                 message = "Invalid file type detected"
                 return jsonify({
@@ -1040,7 +1061,7 @@ def load_data():
                     "redirect": "/",
                     "message": message
                 }), 400
-            
+
         try:
             # Decode the image
             image_data = base64.b64decode(base64_image)
@@ -1055,11 +1076,11 @@ def load_data():
                 "redirect": "/",
                 "message": message
             }), 400
-            
+
     # Handle links if any
     links = request.form.getlist('hiddenLink')  # Get all links
     #links validation
-    for link_path in links:  
+    for link_path in links:
         if not title:
             message = ""
             return jsonify({
@@ -1067,7 +1088,7 @@ def load_data():
                 "redirect": "/",
                 "message": message
             }), 400
-    
+
     # Handle friends if any
     friends = request.form.getlist('hiddenFriend')  # Get all friends
     for friend in friends:
@@ -1082,32 +1103,33 @@ def load_data():
                     "redirect": "/",
                     "message": message
                 }), 400
-     
+
     # Insert event details into eventsPrincipal
-    db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)", 
+    db.execute("INSERT INTO eventsPrincipal (id, title, color, notes, time_slot, tag) VALUES (?, ?, ?, ?, ?, ?)",
                event_id, title, color, notes, time_slot, tag)
-    
+
     photo_paths = []
     for index, photo in images_base64.items():
         filename = generate_unique_filename(images_mimetype[index])
         photo_paths.append(filename)
-        with open(os.path.join("static", "events_images", filename), "wb") as f:
+        path = os.path.join(BASE_DIR, os.path.join("static", "events_images", filename))
+        with open(path, "wb") as f:
             f.write(photo)
-            
+
         db.execute("INSERT INTO eventsPhotos (event_id, photo_path) VALUES (?, ?)", event_id, filename)
-        
+
     for link_path in links:
         db.execute("INSERT INTO eventsLinks (event_id, links_path) VALUES (?, ?)", event_id, link_path)
-            
+
     for friend in friends:
         user_id = db.execute("SELECT id FROM user WHERE username = ?", friend)[0]['id']
         print(f"Adding friend {friend} with ID {user_id} to event {event_id}")
         db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, user_id)
-    
+
     #insert also in the connections the creator of the event
     print(f"Adding creator {session['user_id']} to event {event_id}")
     db.execute("INSERT INTO eventsConnections (event_id, user) VALUES (?, ?)", event_id, session["user_id"])
-    
+
     print("photo_paths: ", photo_paths)
     return jsonify({"message": "Data received and stored", "data": data, "photos": photo_paths})
 
@@ -1117,11 +1139,12 @@ def load_data():
 def remove_data():
     data = request.get_json()  # Getting form data
     event_id = data
-    
+
     photos = db.execute("SELECT * FROM eventsPhotos where event_id = ?", event_id)
     for photo in photos:
         filename = photo['photo_path']
-        os.remove(os.path.join('static', 'events_images', filename))
+        path = os.path.join(BASE_DIR, os.path.join('static', 'events_images', filename))
+        os.remove(path)
 
     # Delete event details from eventsPrincipal
     db.execute("DELETE FROM eventsPrincipal WHERE id = ?", event_id)
@@ -1134,32 +1157,33 @@ def get_events():
     events = db.execute("SELECT * FROM eventsPrincipal WHERE id IN (SELECT event_id FROM eventsConnections WHERE user = ?)", session["user_id"])
     formatted_events = []
 
-    if events:         
+    if events:
         for event in events:
             photos =  db.execute("SELECT * FROM eventsPhotos WHERE event_id = ?", event['id'])
             photo_paths = [photo['photo_path'] for photo in photos]
             data_urls = []
-            for filename in os.listdir(os.path.join('static', 'events_images')):
+            path = os.path.join(BASE_DIR, os.path.join('static', 'events_images'))
+            for filename in os.listdir(path):
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')) and filename in photo_paths:  # Add other formats as needed
                     file_path = os.path.join('static', 'events_images', filename)
                     data_urls.append(file_path)
-    
+
             friends = []
             friends_ids = db.execute("SELECT * FROM eventsConnections WHERE event_id = ?", event['id'])
             for friend_id in friends_ids:
                 if friend_id['user'] == session["user_id"]:
-                    continue    
-                friend = db.execute("SELECT * FROM user WHERE id = ?", friend_id['user'])[0]['username'] 
+                    continue
+                friend = db.execute("SELECT * FROM user WHERE id = ?", friend_id['user'])[0]['username']
                 friends.append(friend)
-                
+
             links = []
             links_path = db.execute("SELECT * FROM eventsLinks WHERE event_id = ?", event['id'])
             for link_path in links_path:
                 links.append(link_path['links_path'])
             time_slot = db.execute("SELECT * FROM eventsPrincipal WHERE id = ?", event['id'])[0]['time_slot']
-            
+
             start, end = time_slot.split('/')
-            
+
             formatted_events.append({
                 'id': event['id'],
                 'title': event['title'],
@@ -1169,12 +1193,12 @@ def get_events():
                 'extendedProps': {
                     'text': event['notes'],
                     'tags': event['tag'],
-                    'photos': data_urls,  
+                    'photos': data_urls,
                     'friends': friends,
-                    'links': links 
+                    'links': links
                 }
             })
-            
+
     return jsonify(formatted_events)
 
 
@@ -1186,38 +1210,39 @@ def sendProfile():
     friend = db.execute("SELECT * FROM user WHERE username = ?", name['friendName'])[0]
     del friend['hash']
     del friend['conn_token']
-    
+
     friend_optionals = db.execute("SELECT * FROM user_optional WHERE username = ?", name['friendName'])[0]
-    
-    friend_info = {**friend, **friend_optionals} 
-    
+
+    friend_info = {**friend, **friend_optionals}
+
     return jsonify(friend_info)
-    
+
 @app.route('/getBase64', methods=['POST', 'GET'])
 @login_required
 def getBase64():
     image_path = request.get_json()
-    
+
     # Extract path from /static/ onwards from URL
     if image_path.startswith('http'):
         static_index = image_path.find('static/')
         if static_index != -1:
             image_path = image_path[static_index:]
-     
-      
+
+
     images = db.execute("SELECT * FROM eventsPhotos")
     for image in images:
         image = 'static/events_images/' + image['photo_path']
         if image == image_path:
-            with open(image, 'rb') as f:
+            path = os.path.join(BASE_DIR, image)
+            with open(path, 'rb') as f:
                 image_type = imghdr.what(f)
                 image_data = f.read()
                 base64_image = base64.b64encode(image_data).decode('utf-8')
                 base64_image = f"data:image/{image_type};base64,{base64_image}"
-        
+
     return jsonify({"base64": base64_image})
-    
-""" 
+
+"""
 TEMPLATE FOR AN APP.ROUTE
 
 @app.route('/MEMO', methods=['POST', 'GET'])

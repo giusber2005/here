@@ -6,15 +6,17 @@ import csv
 from datetime import datetime
 #library to work with strings
 import re
-import requests
 
-import uuid
 #library to generate unique filenames
+import uuid
 
 from flask import redirect, render_template, session
 from functools import wraps
 from cs50 import SQL
 
+import os
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def login_required(f):
     """
@@ -31,9 +33,8 @@ def login_required(f):
 
     return decorated_function
 
-
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///database.db")
+db_path = os.path.join(os.path.dirname(__file__), "database.db")
+db = SQL(f"sqlite:///{db_path}")
 
 #some functions for app.py
 def password_check(password):
@@ -43,7 +44,8 @@ def password_check(password):
     """
     # Load common passwords from the file
     try:
-        with open('data/common.txt', 'r') as file:
+        path = os.path.join(base_dir, 'data/common.txt')
+        with open(path, 'r') as file:
             common_passwords = [line.strip() for line in file.readlines()]
     except FileNotFoundError:
         return "Error: The file with common passwords was not found."
@@ -115,18 +117,20 @@ def email_check(emailcheck):
         return message
     return 1
 
+file_path = os.path.join(base_dir, 'data/worldcities.csv')
+
 # Load cities and their corresponding nations into a dictionary
-with open('data/worldcities.csv', 'r') as f:
+with open(file_path, 'r') as f:
     reader = csv.reader(f, delimiter=';')
     next(reader)  # Skip header if there's one
     city_to_nation = {rows[0].strip().lower(): rows[1].strip().lower() for rows in reader}
 
-def nation_check(nation):     
+def nation_check(nation):
     # Check if nation exists in the values of the dictionary
     if nation.lower() not in set(city_to_nation.values()):
         return "This nation doesn't exist"
     return True
-        
+
 def city_check(city, nation):
     # Check if city exists in the dictionary
     if city.lower() not in city_to_nation:
@@ -135,12 +139,13 @@ def city_check(city, nation):
     # Check if the city corresponds to the nation
     if city_to_nation[city.lower()] != nation.lower():
         return "City and nation don't correspond"
-    
+
     return True
 
 
 # Define the path to your local CSV file
-file_path = 'data/nations_and_prefixes.csv'
+path = os.path.join(base_dir, 'data/nations_and_prefixes.csv')
+file_path = path
 
 # Open and read the local CSV file
 try:
@@ -196,29 +201,9 @@ def split_phonenumber(phonenumber):
         phone_number = ' '.join(sectors[split_index:])
 
         return prefix, phone_number
-    
+
 def generate_unique_filename(extension):
     return f"{uuid.uuid4().hex}.{extension}"
-
-from dotenv import load_dotenv
-import os
-load_dotenv()
-
-def send_simple_message(mail, username, link):
-    return requests.post(
-        "https://api.mailgun.net/v3/sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org/messages",
-        auth=("api", os.getenv('MAILGUN_API_KEY')),
-        data={
-            "from": "Excited User <mailgun@sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org>",
-            "to": [mail, "YOU@sandbox8478a0d77856438396032e4a1dbef4ff.mailgun.org"],
-            "subject": "HERE ACCOUNT PASSWORD RESET",
-            "text": f"Hello {username}, we are HERE to help you!",  # Plain text version
-            "html": f"""
-                <h1>PASSWORD RESET</h1>
-                <p>Hi {username}, follow this link to reset the password: <a href={link}>Reset page </a> </p>
-            """
-        }
-    )
 
 
 
