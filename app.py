@@ -755,7 +755,7 @@ PASSWORD RESET AREA
 """
 import uuid #library to generate unique tokens
 
-BASE_URL = "http://127.0.0.1:5000/reset_password"
+BASE_URL = "https://here-or31.onrender.com/reset_password"
 def generateLink():
     token = str(uuid.uuid4())
     unique_link = f"{BASE_URL}/{token}"
