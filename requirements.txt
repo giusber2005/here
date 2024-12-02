@@ -28,3 +28,4 @@ tzlocal==5.2
 urllib3==2.2.2
 Werkzeug==3.0.2
 wheel==0.44.0
+gunicorn
