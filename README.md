@@ -18,6 +18,7 @@ giuseppe_83
 **VIDEO URL**  
 [YouTube Video](https://youtu.be/6l3PyzP2zaY)  
 Date of record: 03/12/2024
+Link: https://youtu.be/6l3PyzP2zaY
 
 **PROJECT TITLE**  
 “HERE, your calendar for social and management”
