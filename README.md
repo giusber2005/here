@@ -53,4 +53,4 @@ One final thing that i want to mention that i learned through this process is th
 The principal assistant I used to improve my productivity has been ChatGPT (of the OpenAI group). I used it principally for code snippets of the architecture of some functions in my code (that I’ve improved to work in my web application) or simply to understand better some parts of the communication between the front-end and the back-end, which is not always simple to understand.
 
 **HOW TO USE THE APPLICATION**
-If you simply want to use the web application HERE, you can simply type his domain name "HEREcalendar.pythonanywhere.com" to use it!
+If you simply want to use the web application HERE, you can simply type his domain name "hereforyou.live" to use it!
