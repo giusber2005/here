@@ -42,6 +42,7 @@ For the development part, I used a virtual environment to manage all the package
 More in specific about the back-end i decided to structure my application like a normal flask application, with an app.py file (the brain of the application, helped by a helper.py file), an sqlite database and all the code for the front-end.  
 Talking instead about the communication between back-end and front-end i mixed up HTML type of connections (direct connections between endpoints of the back-end and HTML forms of the pages) especially where was needed to reload a page or change it, and AJAX type of connections (indirect connections between endpoints of the back-end and HTML forms of the page with the use of fetch() in js scripts) for more dynamic part of interaction where i didn't want to reload the page.
 All more in-depth specifications are included in comments inside the code.
+To deploy the project i decided to use Render because of his easy and fast configuration and with his instantaneous connection with my github account
 
 **THINGS I LEARNED/PROBLEMS I TACKLED**
 While working on this final project i used to be, especially at the beginning, very messy with my code, and because of that i used to be very slow in the production, but with hours of pratice i finally reached a medium velocity of production, being able to send to production my application in time.
