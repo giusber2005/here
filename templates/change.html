@@ -1,66 +1,64 @@
 {% extends "root.html" %}
 
-{% block title %}
-    Change Password
-{% endblock %}
+{% block title %}Change Password{% endblock %}
 
 {% block script %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to display the strength of the password typed
-            let password = document.getElementById('Newpassword');
-            let passwordStrength = document.getElementById('password_strength');
-            let commonPasswords = [];
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const password = document.getElementById('Newpassword');
+        const passwordStrength = document.getElementById('password_strength');
+        let commonPasswords = [];
 
-            // Fetch the common passwords list
-            fetch('/data/common.txt')
-                .then(response => response.text())
-                .then(data => {
-                    commonPasswords = data.split('\n');
-                })
-                .catch(error => console.error('Error fetching common passwords:', error));
+        fetch('/data/common.txt')
+            .then(r => r.text())
+            .then(data => { commonPasswords = data.split('\n'); })
+            .catch(err => console.error('Error fetching common passwords:', err));
 
-            password.addEventListener('keyup', function(event) {
-                if (password.value) {
-                    let level = passwordChecker(password.value, commonPasswords, passwordStrength);
-                    passwordStrength.innerHTML = level;
-                } else {
-                    passwordStrength.innerHTML = '';
-                }
-            });
+        password.addEventListener('keyup', function () {
+            if (password.value) {
+                passwordStrength.innerHTML = passwordChecker(password.value, commonPasswords, passwordStrength);
+            } else {
+                passwordStrength.innerHTML = '';
+            }
         });
-    </script>
+    });
+</script>
 {% endblock %}
 
 {% block main %}
-    <h1 id="title">Change Your Password</h1>
-    <form action="/change" method="post">
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" id="Oldpassword" name="Oldpassword" placeholder="Old Password" type="password">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="Newpassword" id="Newpassword" placeholder="New Password" type="password">
-            <div id="password_strength"></div>
-        </div>
+<div class="auth-card">
+    <div class="card shadow-box">
+        <div class="card-body">
+            <h1 class="auth-title">Change Password</h1>
 
-        <!-- Centering the buttons -->
-        <div class="d-flex justify-content-center gap-2">
-            <button class="btn btn-primary" type="submit">Change</button>
-            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse">
-                You don't remember the password?
-            </button>
-        </div>
-    </form>
-
-    <div class="collapse mt-3" id="collapse">
-        <div class="card card-body">
-            <form action="/password" method="post">
-                <input type="email" class="form-control mb-2" placeholder="Insert your email" name="Email">
-                <input type="submit" class="btn btn-primary" value="Send Email">
+            <form action="/change" method="post">
+                <div class="mb-3">
+                    <label for="Oldpassword" class="form-label">Current Password</label>
+                    <input class="form-control" id="Oldpassword" name="Oldpassword" placeholder="Current password" type="password" autofocus>
+                </div>
+                <div class="mb-3">
+                    <label for="Newpassword" class="form-label">New Password</label>
+                    <input class="form-control" name="Newpassword" id="Newpassword" placeholder="New password" type="password">
+                    <div id="password_strength" class="mt-1" style="font-size:.8rem;"></div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary" type="submit">Update Password</button>
+                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#forgotCollapse">
+                        Forgot current password?
+                    </button>
+                </div>
             </form>
+
+            <div class="collapse mt-3" id="forgotCollapse">
+                <div class="card card-body">
+                    <p class="mb-2 text-muted" style="font-size:.875rem">We'll send a reset link to your email.</p>
+                    <form action="/password" method="post" class="d-flex gap-2">
+                        <input type="email" class="form-control" placeholder="Your email address" name="Email">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}
-
-
-

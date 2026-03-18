@@ -1,220 +1,706 @@
+/* ============================================
+   HERE – Social Calendar  |  Design System
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary:        #FF6B35;
+    --primary-dark:   #E55A26;
+    --primary-light:  #FFF3EF;
+    --danger:         #EF4444;
+    --danger-dark:    #DC2626;
+    --success:        #10B981;
+    --success-dark:   #059669;
+    --warning:        #F59E0B;
+    --text:           #1F2937;
+    --text-muted:     #6B7280;
+    --border:         #E5E7EB;
+    --bg:             #F8FAFC;
+    --surface:        #FFFFFF;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.08);
+    --shadow-md:      0 4px 16px rgba(0,0,0,.10);
+    --shadow-lg:      0 8px 32px rgba(0,0,0,.14);
+    --radius:         8px;
+    --radius-lg:      12px;
+    --transition:     .18s ease;
+}
+
+/* ─── Base ──────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-    font-family: "Archivo Black";
-    background: linear-gradient(to right, #FF4500, #FF7F50);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
 }
 
-
-/* Size for brand */
-nav .navbar-brand {
-    font-size: xx-large;
+/* ─── Navbar ────────────────────────────── */
+.navbar {
+    background: var(--surface) !important;
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--border) !important;
+    padding: .65rem 1.25rem;
 }
 
-/* Colors for brand */
-nav .navbar-brand .blue {
-    color: #537fbe;
+.navbar-brand {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.55rem !important;
+    color: var(--primary) !important;
+    letter-spacing: -.5px;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
 }
 
-nav .navbar-brand .red {
-    color: #ea433b;
+.navbar-brand .brand-sub {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: .85rem;
+    font-weight: 400;
+    color: var(--text-muted);
 }
 
-nav .navbar-brand .yellow {
-    color: #f5b82e;
+.nav-link {
+    color: var(--text) !important;
+    font-weight: 500;
+    padding: .4rem .85rem !important;
+    border-radius: var(--radius);
+    transition: background var(--transition), color var(--transition);
+    font-size: .9rem;
 }
 
-nav .navbar-brand .green {
-    color: #2e944b;
+.nav-link:hover {
+    background: var(--primary-light);
+    color: var(--primary) !important;
 }
 
-
-table, tr, th, td {
-    border: 1px solid black;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 10px;
+/* ─── Flash / Alert ─────────────────────── */
+.flash-banner {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border-bottom: 1px solid #fcd0bc;
+    padding: .7rem 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: .9rem;
+    transition: opacity .4s ease;
 }
 
-td {
-    color: palevioletred;
+/* ─── Page layout ───────────────────────── */
+main.container {
+    max-width: 900px;
 }
 
-th {
-    background-color: red;
-}
-
-.btn {
-    color: black;
-    margin: 5px;
-    background-color: white;
-}
-
-/* Container for the entire form */
+/* ─── Forms ─────────────────────────────── */
 .form-container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 5px;
     width: 100%;
 }
 
-/* General styling for sections */
-.form-section {
-    width: 100%;
-}
+.form-section { width: 100%; }
 
-/* Flexbox for form groups */
 .form-group {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    margin-bottom: 1.0rem;
-    width: 50%; /* Adjust the width of the form group container */
+    align-items: flex-start;
+    margin-bottom: 1.1rem;
+    width: 50%;
     position: relative;
 }
 
-/* Container for labels and inputs */
 .input-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    position: relative;
 }
 
-/* Styling for labels */
 .form-label {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .3rem;
     align-self: flex-start;
 }
 
-/* Input field styling */
-.form-control {
-    padding: 0.5rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    transition: border-color 0.3s ease;
-    width: 100%; /* Ensure the input takes up the full width of its container */
+.form-control, .form-select {
+    padding: .55rem .75rem;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    font-size: .9rem;
+    width: 100%;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-.form-control:focus {
-    border-color: #007bff;
+.form-control:hover:not(:focus) { border-color: #d1d5db; }
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255,107,53,.15);
     outline: none;
 }
 
-/* Error message styling aligned with the input box */
-.error-message {
-    position: absolute;
-    right: 0; /* Align the error message to the right edge of the input box */
-    top: 100%; /* Position it directly below the input box */
-    transform: translateY(5px); /* Slight offset for better spacing */
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.3rem 0.6rem;
-    border-radius: 5px;
-    font-size: 0.875rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: auto; /* Adjusts the width based on content */
+.form-control-file {
+    font-size: .875rem;
+    padding: 4px;
 }
 
-/* Profile photo preview styling */
+/* ─── Validation ────────────────────────── */
+.error-message {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    transform: translateY(4px);
+    background: #fef2f2;
+    color: var(--danger);
+    padding: .22rem .55rem;
+    border-radius: var(--radius);
+    font-size: .78rem;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.error {
+    color: var(--danger);
+    font-size: .8rem;
+    margin-top: 2px;
+}
+
+/* ─── Buttons ───────────────────────────── */
+.btn {
+    padding: .48rem 1.15rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: .875rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1.5px solid transparent;
+    margin: 3px;
+    display: inline-block;
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255,107,53,.3);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: var(--text);
+    border-color: var(--border);
+}
+.btn-secondary:hover {
+    background: #e5e7eb;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+.btn-danger:hover {
+    background: var(--danger-dark);
+    border-color: var(--danger-dark);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(239,68,68,.3);
+}
+
+.btn-sm {
+    padding: .28rem .65rem;
+    font-size: .8rem;
+}
+
+/* ─── Cards ─────────────────────────────── */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    padding: .85rem 1.2rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+}
+
+.card-body { padding: 1.2rem; }
+
+.shadow-box {
+    box-shadow: var(--shadow-md);
+    transition: box-shadow var(--transition), transform var(--transition);
+}
+.shadow-box:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* ─── Tables ────────────────────────────── */
+table { border-collapse: collapse; }
+
+table, tr, th, td {
+    border: 1px solid var(--border);
+}
+
+th {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 16px;
+    text-align: left;
+}
+
+td {
+    color: var(--text);
+    padding: 10px 16px;
+}
+
+/* ─── Profile Photo ─────────────────────── */
 .photo-preview-container {
-    flex: 1;
-    margin-left: 10px;
+    flex: 0 0 auto;
+    margin-left: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .photo-preview {
-    width: 100px;
-    height: 100px;
-    margin-top: 20px;
+    width: 88px;
+    height: 88px;
     object-fit: cover;
     border-radius: 50%;
-    border: 2px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 3px solid var(--surface);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition);
 }
 
-.photo-preview:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+.photo-preview:hover { transform: scale(1.06); }
 
-/* General button styling */
-.btn {
-    display: block;
-}
-
-/* Required fields note */
+/* ─── Required note ─────────────────────── */
 .required-note {
-    margin: 5px;
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin: 6px;
 }
 
-/* Styling for the prefix input and container */
-.prefix-container {
+/* ─── Prefix box ────────────────────────── */
+#prefixContainer {
     display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-/* Prefix input styling */
-.form-control {
-    padding: 0.5rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    transition: border-color 0.3s ease;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
 }
 
 #prefixBox {
-    display: inline-block; /* Ensure it aligns properly with the input */
-    padding: 8px 12px; /* Add some padding for a comfortable appearance */
-    background-color: #e6f7ff; /* Light blue background for a subtle, modern look */
-    color: #007bff; /* Darker blue text color for contrast */
-    border: 1px solid #007bff; /* Matching border color for a cohesive design */
-    border-radius: 4px; /* Rounded corners for a soft, modern feel */
-    font-weight: bold; /* Make the text stand out */
-    font-size: 14px; /* Adjust font size for readability */
-    margin-left: 10px; /* Space between the input box and prefix */
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border: 1.5px solid var(--primary);
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: .85rem;
+    white-space: nowrap;
 }
 
-/* style for the login page */
-
-/* Primary button styling */
-.btn-primary {
-    background-color: #007bff; /* Blue background color */
-    color: white; /* White text color */
+/* ─── Date-of-creation ──────────────────── */
+.date-of-creation {
+    padding: .55rem .75rem;
+    font-size: .9rem;
+    border-radius: var(--radius);
+    background: #f9fafb;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+    width: 100%;
 }
 
-.btn-primary:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+/* ─── Account page ──────────────────────── */
+.profile-photo-container {
+    width: 190px;
+    margin-left: 20px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-/* Secondary button styling */
-.btn-secondary {
-    background-color: #6c757d; /* Grey background color */
-    color: white; /* White text color */
+.profile-photo {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 }
 
-.btn-secondary:hover {
-    background-color: #5a6268; /* Darker grey on hover */
+.account-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    text-align: left;
 }
 
-/* Error message styling */
-.error-message {
-    color: #dc3545; /* Red color for error messages */
-    font-size: 12px; /* Smaller font size for error messages */
-    margin-top: 2px; /* Space above the error message */
+.account-main  { flex: 1; min-width: 260px; }
+.account-side  { flex: 0 0 190px; }
+.account-optional { flex: 1 0 100%; }
+
+/* ─── Informations page ─────────────────── */
+.info-form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
 }
 
-/* Card styling for the password recovery form */
-.card {
-    background-color: #ffffff; /* White background for the card */
-    border: 1px solid #ddd; /* Light border for the card */
-    border-radius: 8px; /* Rounded corners for the card */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+.info-form-grid .form-group {
+    float: left;
+    width: calc(50% - 20px);
+    margin: 10px;
 }
 
-/* Card body styling */
-.card-body {
-    padding: 15px; /* Padding inside the card body */
+.form-actions {
+    display: flex;
+    width: 100%;
+    margin-top: 20px;
+    gap: 10px;
+    clear: both;
 }
 
+/* ─── Calendar page ─────────────────────── */
+.calendar-container {
+    display: flex;
+    width: 100%;
+    gap: 0;
+    height: calc(100vh - 60px);
+}
+
+#blurry {
+    height: calc(100vh - 60px);
+    padding: 16px;
+    background: var(--bg);
+}
+
+#calendar { flex: 2; }
+
+#eventDetails {
+    flex: 1;
+    padding: 16px 18px;
+    border-left: 2px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    display: none;
+}
+
+.labelColor {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Event form modal */
+#eventForm {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    width: 640px;
+    max-width: 95vw;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+#addEventForm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+#column1, #column2 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 240px;
+}
+
+.column-container { display: flex; flex-direction: column; }
+
+#eventForm label {
+    font-weight: 600;
+    font-size: .875rem;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: block;
+}
+
+#eventForm input,
+#eventForm textarea,
+#eventForm select {
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    width: 100%;
+    font-size: .9rem;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    background: var(--surface);
+    color: var(--text);
+}
+
+#eventForm input:focus,
+#eventForm textarea:focus,
+#eventForm select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255,107,53,.12);
+}
+
+#eventForm textarea { resize: vertical; }
+
+#cancelButton {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .875rem;
+    transition: background var(--transition);
+}
+#cancelButton:hover { background: var(--danger-dark); }
+
+#addEventForm button[type="submit"] {
+    background: var(--success);
+    color: #fff;
+    border: none;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .875rem;
+    transition: background var(--transition);
+}
+#addEventForm button[type="submit"]:hover { background: var(--success-dark); }
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    width: 100%;
+    gap: 8px;
+}
+
+.photoPreview {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition);
+    margin-top: 8px;
+}
+.photoPreview:hover { transform: scale(1.05); }
+
+/* Event sidebar boxes */
+#eventBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Overlay boxes */
+.Box, .profileBox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface);
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+/* Button rows in event form */
+#linkButtonContainer,
+#friendsButtonContainer,
+#photoButtonContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.button-like-div {
+    flex: 1;
+    padding: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition), box-shadow var(--transition);
+}
+.button-like-div:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 2px 8px rgba(255,107,53,.3);
+}
+.button-like-div:active { background: #cc4e1e; }
+
+/* Photo grid */
+.gridBox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-height: 340px;
+    overflow: auto;
+    align-content: flex-start;
+}
+
+.gridElement {
+    flex: 0 0 100px;
+    width: 200px;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+    padding: 10px;
+}
+
+/* Photos stack */
+#detailsPhotoBox {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#photosStack {
+    position: relative;
+    width: 200px;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+.photo-preview {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius);
+    border: 2px solid #fff;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition);
+    object-fit: cover;
+}
+.photo-preview:hover {
+    z-index: 11;
+    transform: scale(1.08);
+}
+
+/* Close button */
+.close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--danger);
+    float: right;
+    line-height: 1;
+    padding: 3px 7px;
+    border-radius: var(--radius);
+    transition: background var(--transition);
+}
+.close:hover { background: #fef2f2; }
+
+#closeCarousel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    background: var(--surface);
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .875rem;
+}
+
+/* FullCalendar overrides */
+.fc .fc-toolbar-title,
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number { color: var(--text) !important; }
+
+.fc a { color: var(--text) !important; text-decoration: none; }
+.fc a:hover { color: var(--primary) !important; }
+
+#calendar .fc-scrollgrid,
+#calendar .fc-scrollgrid-sync-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    width: 100%;
+}
+
+/* ─── Login / Auth cards ────────────────── */
+.auth-card {
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.auth-card .card-body { padding: 2rem; }
+
+.auth-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.6rem;
+    color: var(--text);
+    margin-bottom: 1.4rem;
+}
+
+/* ─── Friends page ──────────────────────── */
+.friends-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* ─── Misc ──────────────────────────────── */
+sup { color: var(--danger); font-size: .75em; }

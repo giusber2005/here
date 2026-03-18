@@ -1,136 +1,148 @@
 {% extends "root.html" %}
 
-{% block title %} 
-  Registration 
-{% endblock %}
+{% block title %}Create Account{% endblock %}
 
 {% block script %}
-  <script src="https://cdn.jsdelivr.net/npm/rrule@2.6.8/dist/es5/rrule.min.js"></script>
-  <script src="/static/scripts/registration_scripts.js"></script>
+    <script src="/static/scripts/registration_scripts.js"></script>
 {% endblock %}
 
 {% block main %}
-  <form action="/register" method="post" enctype="multipart/form-data">
-    <h1 id="title">REGISTRATION TIME!!!</h1>
-    <div id="container" class="form-container">
-      <div id="required-fields" class="form-section">
-        <div class="form-group">
-          <div class="input-container">
-            <label for="Newusername" class="form-label">Username<sup>*</sup></label>
-            <input class="form-control required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Username" type="text" />
-          </div>
-          <div id="error_Nu" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="Newpassword" class="form-label">Password<sup>*</sup></label>
-            <input class="form-control required" name="Newpassword" placeholder="Password" id="password" type="password" />
-          </div>
-          <div id="password_strenght" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="Newbirthday" class="form-label">Birthday<sup>*</sup></label>
-            <input class="form-control required" name="Newbirthday" id="Newbirthday" placeholder="Birthday" type="date" />
-          </div>
-          <div id="error_Nb" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="Newemail" class="form-label">Email<sup>*</sup></label>
-            <input class="form-control required" name="Newemail" id="Newemail" placeholder="Email" type="email" />
-          </div>
-          <div id="error_Ne" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="FirstName" class="form-label">First Name<sup>*</sup></label>
-            <input class="form-control required" name="FirstName" id="FirstName" placeholder="First Name" type="text" />
-          </div>
-          <div id="error_FN" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="LastName" class="form-label">Last Name<sup>*</sup></label>
-            <input class="form-control required" name="LastName" id="LastName" placeholder="Last Name" type="text" />
-          </div>
-          <div id="error_LN" class="error error-message"></div>
-        </div>
-      </div>
+<div style="text-align:left; max-width:700px; margin:0 auto;">
+    <h1 class="auth-title">Create Account</h1>
 
-      <div id="optional-fields" class="form-section">
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewPhoto" class="form-label">Avatar photo</label>
-            <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="only jpeg, png, heic type file are accepted" />
-          </div>
-          <div id="error_NP" class="error error-message"></div>
-          <div class="photo-preview-container">
-            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" />
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewNation" class="form-label">Nation</label>
-            <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control" />
-          </div>
-          <div id="error_NN" class="error error-message"></div>
-          <datalist id="myDatalist"></datalist>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewCity" class="form-label">City</label>
-            <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control" disabled />
-          </div>
-          <div id="error_NC" class="error error-message"></div>
-          <datalist id="myDatalist2"></datalist>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="Prefix" class="form-label">Prefix</label>
-            <div id="prefixContainer" style="display: flex; flex-direction: row">
-              <input id="Prefix" name="Prefix" type="text" class="form-control" placeholder="Prefix" />
-              <div id="prefixBox"></div>
+    <form action="/register" method="post" enctype="multipart/form-data">
+        <div class="form-container">
+
+            <div id="required-fields" class="form-section">
+                <p class="text-muted mb-3" style="font-size:.875rem">Required fields <sup>*</sup></p>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="Newusername" class="form-label">Username <sup>*</sup></label>
+                        <input class="form-control required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Choose a username" type="text">
+                    </div>
+                    <div id="error_Nu" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="Newpassword" class="form-label">Password <sup>*</sup></label>
+                        <input class="form-control required" name="Newpassword" placeholder="Choose a password" id="password" type="password">
+                    </div>
+                    <div id="password_strenght" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="Newbirthday" class="form-label">Birthday <sup>*</sup></label>
+                        <input class="form-control required" name="Newbirthday" id="Newbirthday" type="date">
+                    </div>
+                    <div id="error_Nb" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="Newemail" class="form-label">Email <sup>*</sup></label>
+                        <input class="form-control required" name="Newemail" id="Newemail" placeholder="you@example.com" type="email">
+                    </div>
+                    <div id="error_Ne" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="FirstName" class="form-label">First Name <sup>*</sup></label>
+                        <input class="form-control required" name="FirstName" id="FirstName" placeholder="First name" type="text">
+                    </div>
+                    <div id="error_FN" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="LastName" class="form-label">Last Name <sup>*</sup></label>
+                        <input class="form-control required" name="LastName" id="LastName" placeholder="Last name" type="text">
+                    </div>
+                    <div id="error_LN" class="error error-message"></div>
+                </div>
             </div>
-          </div>
-          <div id="error_PR" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewNumber" class="form-label">Number</label>
-            <input id="NewNumber" name="NewNumber" type="tel" class="form-control" placeholder="Number" />
-          </div>
-          <div id="error_NNum" class="error error-message"></div>
-        </div>
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewDescription" class="form-label">Description</label>
-            <input id="NewDescription" name="NewDescription" type="text" class="form-control" placeholder="Description" />
-          </div>
-          <div id="error_Nd" class="error error-message"></div>
+
+            <div id="optional-fields" class="form-section mt-4">
+                <p class="text-muted mb-3" style="font-size:.875rem">Optional — you can fill these in later</p>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewPhoto" class="form-label">Avatar photo</label>
+                        <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="Only JPEG, PNG, HEIC files accepted">
+                    </div>
+                    <div id="error_NP" class="error error-message"></div>
+                    <div class="photo-preview-container">
+                        <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" alt="Preview">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewNation" class="form-label">Nation</label>
+                        <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control" placeholder="Country">
+                    </div>
+                    <div id="error_NN" class="error error-message"></div>
+                    <datalist id="myDatalist"></datalist>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewCity" class="form-label">City</label>
+                        <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control" placeholder="City" disabled>
+                    </div>
+                    <div id="error_NC" class="error error-message"></div>
+                    <datalist id="myDatalist2"></datalist>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="Prefix" class="form-label">Phone Prefix</label>
+                        <div id="prefixContainer">
+                            <input id="Prefix" name="Prefix" type="text" class="form-control" placeholder="+1">
+                            <div id="prefixBox"></div>
+                        </div>
+                    </div>
+                    <div id="error_PR" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewNumber" class="form-label">Phone Number</label>
+                        <input id="NewNumber" name="NewNumber" type="tel" class="form-control" placeholder="Phone number">
+                    </div>
+                    <div id="error_NNum" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewDescription" class="form-label">Bio</label>
+                        <input id="NewDescription" name="NewDescription" type="text" class="form-control" placeholder="A short description about yourself">
+                    </div>
+                    <div id="error_Nd" class="error error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <label for="NewGender" class="form-label">Gender</label>
+                        <select id="NewGender" name="NewGender" class="form-control">
+                            <option value=""></option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div id="error_NG" class="error error-message"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-          <div class="input-container">
-            <label for="NewGender" class="form-label">Gender</label>
-            <select id="NewGender" name="NewGender" class="form-control">
-              <option value=""></option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div id="error_NG" class="error error-message"></div>
+        <div class="d-flex gap-2 mt-4">
+            <button type="reset" id="resetButton" class="btn btn-secondary" onclick="remove_errors()">Reset</button>
+            <button type="submit" class="btn btn-primary" id="submit" disabled>Create Account</button>
         </div>
-      </div>
-    </div>
-  
-    <div class="form-group" style="margin-top: 10px">
-      <button type="reset" id="resetButton" class="btn btn-primary" onclick="remove_errors()">Reset form</button>
-      <button type="submit" class="btn btn-primary" id="submit" disabled>Register</button>
-    </div>
-    <div class="required-note" style="text-align: left">
-      Required fields<sup>*</sup>
-    </div>
-  </form>
+    </form>
+</div>
 {% endblock %}

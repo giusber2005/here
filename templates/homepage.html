@@ -1,454 +1,184 @@
-
 {% extends "root.html" %}
 
+{% block title %}Calendar{% endblock %}
+
 {% block script %}
-    <style>
-        /* Basic styling for the layout */
-        .calendar-container {
-            display: flex;
-            width: 100%;
-            gap: 20px;
-        }
-
-        #calendar {
-            flex: 2;
-        }
-
-        #eventDetails {
-            flex: 1;
-            padding: 10px;
-            border-left: 2px solid #ccc;
-            display: none; /* Initially hidden */
-        }
-
-        /* Updated styling for eventForm */
-        #eventForm {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
-            z-index: 1000;
-            width: 600px; /* Increase width for better spacing in two columns */
-            border-radius: 10px;
-        }
-
-        /* Create a flex layout for two columns */
-        #addEventForm {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px; /* Add space between columns */
-        }
-
-        #column1, #column2 {
-            flex: 1; /* Each column takes equal space */
-            display: flex;
-            flex-direction: column;
-            gap: 15px; /* Spacing between form elements in each column */
-        }
-
-        #eventForm label {
-            font-weight: bold;
-            margin-bottom: 5px; /* Added space between label and input */
-        }
-
-        #eventForm input, #eventForm textarea, #eventForm select, #eventForm button {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        #eventForm textarea {
-            resize: vertical; /* Allow vertical resizing */
-        }
-
-        #eventForm button {
-            cursor: pointer;
-        }
-
-        #cancelButton {
-            background-color: #f44336;
-            color: white;
-            border: none;
-        }
-
-        #addEventForm button[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-        }
-
-        .photoPreview {
-            width: 100px;
-            height: 100px;
-            margin-top: 20px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid #ccc;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .photoPreview:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Custom styles for FullCalendar */
-        .fc .fc-toolbar-title, /* Month name */
-        .fc .fc-col-header-cell-cushion, /* Day names (like Sun, Mon, etc.) */
-        .fc .fc-daygrid-day-number { /* Day numbers in the calendar */
-            color: #333 !important; /* Modify default blue color */
-        }
-
-        /* Modify link styles inside the calendar */
-        .fc a {
-            color: #333 !important; /* Link color */
-            text-decoration: none; /* Remove underline */
-        }
-
-        .fc a:hover {
-            color: #4CAF50 !important; /* Hover color */
-            text-decoration: underline; /* Underline on hover */
-        }
-
-        /* Target the FullCalendar table specifically */
-        #calendar .fc-scrollgrid, /* Main table that holds the calendar grid */
-        #calendar .fc-scrollgrid-sync-table { /* Inner table for the calendar content */
-            background-color: white; /* Change the background color */
-            border: 1px solid #ccc; /* Optional: Add a border around the table */
-            width: 100%; /* Ensure it takes up full width */
-            opacity: 1; /* Ensure no transparency */
-        }
-
-        #eventBox {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between; /* This pushes the items to the sides */
-            align-items: center; /* Optional: vertically centers the items */
-            width: 100%; /* Optional: defines the width of the flex container */
-        }
-
-        .Box, .profileBox {
-            position: fixed; /* Fixes the div to the viewport */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Centers the div */
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Optional shadow for better visibility */
-            z-index: 9999; /* Ensures the div is in front of all other elements */
-        }
-        /* Improved link button container style */
-        #linkButtonContainer, #friendsButtonContainer, #photoButtonContainer {
-            display: flex;
-            justify-content: space-between;
-            width: 100%; /* Ensures buttons take full width */
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .button-like-div {
-            flex: 1; /* Each button takes equal space */
-            padding: 10px; /* Slightly larger padding */
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            background-color: #007bff;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .button-like-div:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .button-like-div:active {
-            background-color: #003d80;
-            border-color: #003d80;
-        }
-
-        /* Styling the button group for submit and cancel */
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        /* Styling the photos stack */
-        #detailsPhotoBox {
-            display: flex;
-            flex-direction: row;
-        }
-
-        #photosStack {
-            position: relative; /* Create a stacking context for overlapping */
-            width: 200px; /* Set an appropriate width for the container */
-            height: 100px; /* Fixed height to contain images */
-            margin-bottom: 10px; /* Space below the photo box */
-        }
-        
-        .photo-preview {
-            position: absolute; /* Allows overlapping */
-            width: 80px; /* Set desired image size */
-            height: 80px; /* Maintain uniform height */
-            border-radius: 8px; /* Optional: adds rounded corners */
-            border: 2px solid white; /* Optional: adds a white border */
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
-            transition: transform 0.2s ease, z-index 0s ease; /* Smooth transform and instant z-index change */
-        }
-        
-        /* Bring hovered image to front and add slight scale */
-        .photo-preview:hover {
-            z-index: 11; /* Higher than other images */
-            transform: scale(1.05); /* Slightly enlarge the hovered image */
-        }
-        
-        /* Hide any images with display: none */
-        .photo-preview[style*="display: none;"] {
-            display: none !important;
-        }
-    
-        #closeCarousel {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            background-color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .close {
-            background: none; /* No background for the close button */
-            border: none; /* No border */
-            font-size: 1.5rem; /* Larger font size for the close button */
-            cursor: pointer; /* Pointer cursor on hover */
-            color: #f44336; /* Red color for the close button */
-            float: right; /* Align to the right */
-        }
-
-        /* style for the photo flexbox*/
-        .gridBox {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap; /* Allows items to wrap to the next column */
-            gap: 10px; /* Adjusts space between items */
-            height: calc(3 * 100px + 20px); /* Height for 3 items + gap space */
-            overflow: auto; /* Scroll if content overflows */
-            align-content: flex-start; /* Align items to start of the columns */
-        }
-
-        .gridElement {
-            flex: 0 0 100px; /* Each item has a fixed height */
-            width: 200px;
-            box-sizing: border-box; /* Includes padding/border in dimensions */
-            background-color: #ddd; /* Example background */
-            border: 1px solid #ccc; /* Example border */
-            text-align: center; /* Center text */
-            padding: 10px; /* Example padding */
-        }
-
-        /* styling all the labels */
-        .labelColor {
-            color: white;
-        }
-    </style>
-
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet' />
-    
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css' rel='stylesheet'>
     <script src="/static/scripts/calendar_scripts.js"></script>
-
-{% endblock %}
-
-{% block title %}
-    Homepage
 {% endblock %}
 
 {% block body %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
+<div id="blurry">
+    <section class="calendar-container">
+        <div id='calendar'></div>
 
-    <div id="blurry">
-        <section class="calendar-container">
-            <div id='calendar'></div>
+        <aside id="eventDetails">
+            <h3 id="detailTitle" class="labelColor"></h3>
+            <div class="labelColor" style="font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; margin-top:8px;">From</div>
+            <p id="detailStart" class="mb-1"></p>
+            <div class="labelColor" style="font-size:.8rem; text-transform:uppercase; letter-spacing:.05em;">To</div>
+            <p id="detailEnd"></p>
+            <p><strong class="labelColor" id="TextLabel">Notes:</strong> <span id="detailText"></span></p>
+            <p><strong class="labelColor" id="TagsLabel">Tags:</strong> <span id="detailTags"></span></p>
 
-            <aside id="eventDetails" style="display:none;">
-                <h3 id="detailTitle" class="labelColor"></h3>
-                <div class="labelColor">From:</div>
-                <p id="detailStart"></p>
-                <div class="labelColor">To:</div>
-                <p id="detailEnd"></p>
-                <p><strong class="labelColor" id="TextLabel">Text:</strong> <span id="detailText"></span></p>
-                <p><strong class="labelColor" id="TagsLabel">Tags:</strong> <span id="detailTags"></span></p>
-            
-                <h4 class="label labelColor" id="PhotoLabel">Photos:</h4>
-                <div class="detail" id="detailsPhotoBox">
-                    <div id="andMore" style="display: none"></div>
+            <h4 class="labelColor" id="PhotoLabel">Photos</h4>
+            <div id="detailsPhotoBox">
+                <div id="andMore" style="display:none;"></div>
+            </div>
+
+            <h4 class="labelColor" id="FriendsLabel">Friends</h4>
+            <div id="detailsFriendsBox"></div>
+
+            <h4 class="labelColor" id="LinkLabel">Links</h4>
+            <div id="detailsLinkBox"></div>
+
+            <div id="detailsButtons" class="d-flex gap-2 mt-3 flex-wrap">
+                <button id="closeButton" class="btn btn-secondary btn-sm">Close</button>
+                <button id="modifyButton" class="btn btn-primary btn-sm">Edit Event</button>
+                <button id="deleteButton" class="btn btn-danger btn-sm">Delete</button>
+            </div>
+        </aside>
+    </section>
+</div>
+
+<!-- Event Form Modal -->
+<article id="eventForm" enctype="multipart/form-data">
+    <form id="addEventForm">
+        <div id="column1">
+            <input type="hidden" name="eventId" id="eventId" value="">
+            <input type="hidden" name="start" id="start" value="">
+            <input type="hidden" name="end" id="end" value="">
+
+            <div class="column-container">
+                <label for="eventTitle">Event Title</label>
+                <input type="text" id="eventTitle" name="eventTitle" required aria-required="true" placeholder="Title">
+            </div>
+
+            <div class="column-container">
+                <label for="eventColor">Color</label>
+                <input type="color" id="eventColor" name="eventColor" value="#FF6B35">
+            </div>
+
+            <div class="column-container">
+                <label for="eventText">Notes</label>
+                <textarea id="eventText" name="eventText" rows="3" placeholder="Add notes…"></textarea>
+            </div>
+
+            <div class="column-container">
+                <label for="eventLink">Link</label>
+                <div id="hiddenBox" style="display:none;"></div>
+                <input type="url" id="eventLink" name="eventLink" class="addInput" placeholder="https://…">
+                <div id="linkButtonContainer">
+                    <div class="button-like-div add" id="addLink">Add link</div>
+                    <div class="button-like-div show" id="showLink">Show links</div>
                 </div>
-            
-                <h4 class="label labelColor" id="FriendsLabel">Friends:</h4>
-                <div class="detail" id="detailsFriendsBox">
-                </div>
-            
-                <h4 class="label labelColor" id="LinkLabel">Links:</h4>
-                <div class="detail" id="detailsLinkBox">
-                </div>
-                
-                <div id="detailsButtons" style="margin-top: 10px">
-                    <button id="closeButton">Close</button>
-                    <button id="modifyButton">Modify Event</button>
-                    <button id="deleteButton">Delete Event</button>
-                </div>
-            </aside>
-        </section>
-    </div>
-    
-        <article id="eventForm" enctype="multipart/form-data" style="display: none; background-color: grey">
-            <form id="addEventForm">
-                <div id="column1">
-                    <input type="hidden" name="eventId" id="eventId" value="">
-                    <input type="hidden" name="start" id="start" value="">
-                    <input type="hidden" name="end" id="end" value="">
+            </div>
 
-                    <div id="title" class="column-container">
-                        <label for="eventTitle">Event Title:</label>
-                        <input type="text" id="eventTitle" name="eventTitle" required aria-required="true">
-                    </div>
-
-                    <div id="color" class="column-container"> 
-                        <label for="eventColor">Event Color:</label>
-                        <input type="color" id="eventColor" name="eventColor" value="#000000">
-                    </div>
-                    
-                    <div id="notes" class="column-container">
-                        <label for="eventText">Notes:</label>
-                        <textarea id="eventText" name="eventText" rows="2"></textarea>
-                    </div>
-                    
-                    <div id="link" class="column-container">
-                        <label for="eventLink">Event Link:</label>
-                        <div id="hiddenBox" class="hidden" style="display: none"></div>
-                        <input type="url" id="eventLink" name="eventLink" class="addInput">
-
-                        <!-- Container for the link buttons -->
-                        <div id="linkButtonContainer">
-                            <div class="button-like-div add" id="addLink">Add link</div>
-                            <div class="button-like-div show" id="showLink">Show all links</div>
-                        </div>
-                    </div>
-
-                    <div id="tags" class="column-container">
-                        <label for="eventTags">Tag:</label>
-                        <select id="eventTags" name="eventTags" class="form-control">
-                            <option value=""></option>
-                            <option value="🔴 Work">🔴 Work</option>
-                            <option value=" ⚪️ Entertainment">⚪️ Entertainment</option>
-                            <option value="🔵 Other">🔵 Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="column2">
-                    <div id="friends" class="column-container">
-                        <label for="eventFriends">Friends: </label>
-                        <div id="hiddenFriends" class="hidden" style="display: none"></div>
-                        <select id="eventFriends" name="eventFriends" class="form-control addInput">
-                            <option value=""> </option>
-                            {% for id, name in friends_dict.items() %}
-                                <option value={{ name }}>{{ name }}</option>
-                            {% endfor %}
-                        </select>
-
-                        <div id="friendsButtonContainer">
-                            <div class="button-like-div add" id="addFriend">Add friend</div>
-                            <div class="button-like-div show" id="showFriend">Show all friends</div>
-                        </div>
-                    </div>
-
-                    <div id="photo" class="column-container">
-                        <label for="eventPhoto" class="form-label">Event photos:</label>
-                        <div id="hiddenPhoto" class="hidden" style="display: none"></div>
-                        <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="form-control addInput" title="only jpeg, png, heic type file are accepted" />
-                        <div id="error_NP" class="error"></div>
-                        <div class="photo-preview-container">
-                            <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photoPreview" />
-                        </div>
-
-                        <div id="photoButtonContainer">
-                            <div class="button-like-div add" id="addPhoto">Add photo</div>
-                            <div class="button-like-div show" id="showPhoto">Show all photos</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button id="addButton" type="submit">Add Event</button>
-                    <button type="button" id="cancelButton">Cancel</button>
-                </div>
-            </form>
-        </article>
-
-    <div id="linkBox" class="Box" style="display: None;">
-        <div style="display: None" class="alert">No links are selected for this event</div>
-        <button id="closeLink" class="close">❌</button>
-    </div>
-    
-    <div id="friendsBox" class="Box" style="display: None;">
-        <div style="display: None" class="alert">No friends are selected for this event</div>
-        <button id="closeFriends" class="close">❌</button>
-    </div>
-
-    <div id="photoBox" class="Box gridBox" style="display: None;">
-        <div style="display: None" class="alert">No photos are selected for this event</div>
-        <button id="closePhoto" class="close">❌</button>
-    </div>
-
-    <div id="sure" class="Box" style="display: None">
-        <div>Are you sure you want to delete this event?</div>
-        <button id="yes" class="button-like-div">Yes</button>
-        <button id="no" class="button-like-div">No</button>
-    </div>
-
-    <div id="friendProfile" class="Box profileBox gridBox" style="display: None">
-        <button id="closeprofile" class="close">❌</button>
-        <div id="PhotoFriendCont" class="photo-preview-container" style="display: None">
-            <img id="Photo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photoPreview profile" />
+            <div class="column-container">
+                <label for="eventTags">Tag</label>
+                <select id="eventTags" name="eventTags">
+                    <option value=""></option>
+                    <option value="🔴 Work">🔴 Work</option>
+                    <option value="⚪️ Entertainment">⚪️ Entertainment</option>
+                    <option value="🔵 Other">🔵 Other</option>
+                </select>
+            </div>
         </div>
-        <div id="Username" class="profile"></div>
-        <div id="FirstName" class="profile"></div>
-        <div id="LastName" class="profile"></div>
-        <div id="Birthday" class="profile"></div>
-        <div id="Email" class="profile"></div>
-        <div id="Number" class="profile"></div>
-        <div id="Nation" class="profile"></div>
-        <div id="City" class="profile"></div>
-        <div id="Description" class="profile"></div>
-        <div id="Gender" class="profile"></div>
-    </div>
-    
-    <div id="carouselBox" class="Box carousel slide" style="display: None">
-        <button id="closeCarousel" class="close">❌</button>
-        
-        <div class="carousel-inner">
-            <!-- Images will be inserted here -->
+
+        <div id="column2">
+            <div class="column-container">
+                <label for="eventFriends">Friends</label>
+                <div id="hiddenFriends" style="display:none;"></div>
+                <select id="eventFriends" name="eventFriends" class="addInput">
+                    <option value=""></option>
+                    {% for id, name in friends_dict.items() %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <div id="friendsButtonContainer">
+                    <div class="button-like-div add" id="addFriend">Add friend</div>
+                    <div class="button-like-div show" id="showFriend">Show friends</div>
+                </div>
+            </div>
+
+            <div class="column-container">
+                <label for="eventPhoto">Photos</label>
+                <div id="hiddenPhoto" style="display:none;"></div>
+                <input id="eventPhoto" name="eventPhoto" type="file" accept="image/*" class="addInput"
+                       title="JPEG, PNG or HEIC accepted">
+                <div id="error_NP" class="error"></div>
+                <div class="photo-preview-container">
+                    <img id="PhotoPreview"
+                         src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                         class="photoPreview" alt="Preview">
+                </div>
+                <div id="photoButtonContainer">
+                    <div class="button-like-div add" id="addPhoto">Add photo</div>
+                    <div class="button-like-div show" id="showPhoto">Show photos</div>
+                </div>
+            </div>
         </div>
-        
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselBox" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselBox" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
+
+        <div class="button-group">
+            <button id="addButton" type="submit">Save Event</button>
+            <button type="button" id="cancelButton">Cancel</button>
+        </div>
+    </form>
+</article>
+
+<!-- Overlay panels -->
+<div id="linkBox" class="Box" style="display:none;">
+    <div style="display:none;" class="alert">No links added for this event</div>
+    <button id="closeLink" class="close">&#x2715;</button>
+</div>
+
+<div id="friendsBox" class="Box" style="display:none;">
+    <div style="display:none;" class="alert">No friends added for this event</div>
+    <button id="closeFriends" class="close">&#x2715;</button>
+</div>
+
+<div id="photoBox" class="Box gridBox" style="display:none;">
+    <div style="display:none;" class="alert">No photos added for this event</div>
+    <button id="closePhoto" class="close">&#x2715;</button>
+</div>
+
+<div id="sure" class="Box" style="display:none;">
+    <p class="mb-3">Are you sure you want to delete this event?</p>
+    <div class="d-flex gap-2">
+        <button id="yes" class="button-like-div">Yes, delete</button>
+        <button id="no" class="button-like-div" style="background:var(--text-muted);">Cancel</button>
     </div>
+</div>
+
+<div id="friendProfile" class="Box profileBox gridBox" style="display:none;">
+    <button id="closeprofile" class="close">&#x2715;</button>
+    <div id="PhotoFriendCont" class="photo-preview-container" style="display:none;">
+        <img id="Photo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photoPreview profile" alt="">
+    </div>
+    <div id="Username" class="profile"></div>
+    <div id="FirstName" class="profile"></div>
+    <div id="LastName" class="profile"></div>
+    <div id="Birthday" class="profile"></div>
+    <div id="Email" class="profile"></div>
+    <div id="Number" class="profile"></div>
+    <div id="Nation" class="profile"></div>
+    <div id="City" class="profile"></div>
+    <div id="Description" class="profile"></div>
+    <div id="Gender" class="profile"></div>
+</div>
+
+<div id="carouselBox" class="Box carousel slide" style="display:none;">
+    <button id="closeCarousel">&#x2715; Close</button>
+    <div class="carousel-inner"></div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselBox" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselBox" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
 {% endblock %}
