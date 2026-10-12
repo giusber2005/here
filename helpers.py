@@ -52,7 +52,7 @@ def password_check(password):
 
     # Check if the password is in the list of common passwords
     if password in common_passwords:
-        return "Your password can be easily cracked by a dictionary attack"
+        return "This password is too common and easy to guess — choose something less predictable"
 
     # Check for the presence of different types of characters
     upper_case = bool(re.search(r'[A-Z]', password))
@@ -77,15 +77,16 @@ def password_check(password):
     if variety > 2: score += 1
     if variety > 3: score += 1
 
-    # Return the strength message based on the score
-    if score < 4:
-        return f"Password strength: {score}/7. Your password is weak"
-    elif score == 4:
-        return f"Password strength: {score}/7. Your password is not too strong"
-    elif 5 <= score < 6:
+    # Return the strength message (with concrete hints) based on the score
+    if score >= 5:
         return 1
-    else:  # score >= 6
-        return 1
+    hints = []
+    if length <= 12: hints.append("use at least 13 characters")
+    if not upper_case: hints.append("add an uppercase letter")
+    if not lower_case: hints.append("add a lowercase letter")
+    if not digits: hints.append("add a number")
+    if not special: hints.append("add a symbol like ! ? # or *")
+    return "Password is too weak — " + ", ".join(hints or ["make it longer"])
 
 
 def birthday_check(birthdaycheck):
@@ -95,26 +96,21 @@ def birthday_check(birthdaycheck):
         current_date = datetime.now()
         age = current_date.year - birthday.year - ((current_date.month, current_date.day) < (birthday.month, birthday.day))
         if age > 130:
-            message = "insert a valid birthday"
-            return message
-        if age < 0:
-            message = "please insert a correct birthday"
-            return message
+            return "That date doesn't look right — please check the year"
+        if birthday > current_date:
+            return "Your birthday can't be in the future"
         if age < 14:
-            message = "only user above 15 years old can register to this page"
-            return message
+            return "You must be at least 14 years old to join HERE"
     except ValueError:
         # If parsing fails, the format is incorrect or date is invalid
-        message = "insert a correct format and a correct value for your birthday"
-        return message
+        return "Enter a valid date"
     return 1
 
 def email_check(emailcheck):
     #ensure that the email follow the specific format for the email
     pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     if not re.match(pattern, emailcheck):
-        message = "insert an appropriate format for the email"
-        return message
+        return "Enter a valid email address, like name@example.com"
     return 1
 
 file_path = os.path.join(base_dir, 'data/worldcities.csv')
@@ -174,36 +170,109 @@ def number_check(numbercheck, session):
         nation = PREFIXES_NATIONS_MAP[parts[0]]
         parsed_number = phonenumbers.parse(numbercheck, nation)
         if not phonenumbers.is_valid_number(parsed_number):
-            message = "phone number is not in the correct format"
-            return message
+            return "This doesn't look like a valid number for that prefix"
         rows = db.execute("SELECT * FROM user_optional WHERE number = ?", numbercheck)
         try:
             if session["user_id"]:
                 rows = db.execute("SELECT * FROM user_optional WHERE number = ? AND id != ?", numbercheck, session["user_id"])
                 if len(rows) > 0:
-                    message = "phone number is in the database"
-                    return message
+                    return "This phone number is already linked to another account"
         except KeyError:
             if len(rows) > 0:
-                message = "phone number is already in the database"
-                return message
-    except phonenumbers.NumberParseException:
-        message = "phone number is not in the correct format"
-        return message
+                return "This phone number is already linked to another account"
+    except (phonenumbers.NumberParseException, KeyError):
+        return "This doesn't look like a valid number for that prefix"
     return 1
 
 
 def split_phonenumber(phonenumber):
-        sectors = phonenumber.split()
-        split_index = len(sectors) - 3
-
-        prefix = ' '.join(sectors[:split_index])
-        phone_number = ' '.join(sectors[split_index:])
-
-        return prefix, phone_number
+    # match the longest known prefix (some contain spaces, like "+1 684")
+    for prefix in sorted(PREFIXES_NATIONS_MAP, key=len, reverse=True):
+        if phonenumber.startswith(prefix + " "):
+            return prefix, phonenumber[len(prefix):].strip()
+    prefix, _, phone_number = phonenumber.partition(" ")
+    return prefix, phone_number
 
 def generate_unique_filename(extension):
     return f"{uuid.uuid4().hex}.{extension}"
+
+
+"""
+Profile photo helpers
+"""
+PROFILE_IMAGES_DIR = os.path.join(base_dir, 'static', 'profile_images')
+ALLOWED_PHOTO_TYPES = {'image/jpeg': 'jpeg', 'image/png': 'png', 'image/heic': 'heic', 'image/webp': 'webp'}
+MAX_PHOTO_SIZE = 5 * 1024 * 1024  # 5 MB
+
+def validate_profile_photo(photo):
+    """Return an error message for an invalid uploaded photo, or None if it's fine"""
+    if photo.mimetype not in ALLOWED_PHOTO_TYPES:
+        return "This file type isn't supported — please upload a JPG, PNG, WEBP or HEIC image"
+    photo.stream.seek(0, os.SEEK_END)
+    size = photo.stream.tell()
+    photo.stream.seek(0)
+    if size > MAX_PHOTO_SIZE:
+        return "This photo is larger than 5 MB — please choose a smaller one"
+    return None
+
+def save_profile_photo(photo):
+    """Save the uploaded photo with a unique name (so users never overwrite each other's files) and return the filename"""
+    filename = generate_unique_filename(ALLOWED_PHOTO_TYPES[photo.mimetype])
+    photo.save(os.path.join(PROFILE_IMAGES_DIR, filename))
+    return filename
+
+def delete_profile_photo(filename):
+    """Delete a profile photo from disk, ignoring files that are already gone"""
+    if not filename:
+        return
+    path = os.path.join(PROFILE_IMAGES_DIR, os.path.basename(filename))
+    if os.path.exists(path):
+        os.remove(path)
+
+def avatar_url(filename):
+    """Public URL of a profile photo, or None when the user has no photo"""
+    if not filename:
+        return None
+    return f"/static/profile_images/{filename}"
+
+def initials(first_name, last_name, username=""):
+    """Two-letter initials used as avatar fallback"""
+    letters = (first_name or "")[:1] + (last_name or "")[:1]
+    return (letters or (username or "?")[:2]).upper()
+
+
+def get_friends(user_id):
+    """Return the friends of a user with their public info, most recent connection first"""
+    return db.execute(
+        """
+        SELECT user.id, user.username, user.FirstName, user.LastName, user.birthday,
+               user_optional.photo, user_optional.city, user_optional.nation,
+               connections.timestamp AS since
+        FROM connections
+        JOIN user ON user.id = CASE WHEN connections.id1 = ? THEN connections.id2 ELSE connections.id1 END
+        LEFT JOIN user_optional ON user_optional.id = user.id
+        WHERE connections.id1 = ? OR connections.id2 = ?
+        ORDER BY connections.timestamp DESC
+        """,
+        user_id, user_id, user_id
+    )
+
+
+def parse_time_slot(time_slot):
+    """Split an event time_slot ('start/end') into two naive datetimes"""
+    def parse(value):
+        value = (value or "").strip()
+        try:
+            return datetime.fromisoformat(value[:19])
+        except ValueError:
+            return datetime.strptime(value[:10], "%Y-%m-%d")
+    start, _, end = (time_slot or "").partition('/')
+    start_dt = parse(start)
+    try:
+        end_dt = parse(end)
+    except ValueError:
+        end_dt = start_dt
+    return start_dt, end_dt
 
 
 

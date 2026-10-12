@@ -1,4 +1,5 @@
 {% extends "root.html" %}
+{% from "_macros.html" import field %}
 
 {% block title %}Create Account{% endblock %}
 
@@ -7,141 +8,139 @@
 {% endblock %}
 
 {% block main %}
-<div style="text-align:left; max-width:700px; margin:0 auto;">
-    <h1 class="auth-title">Create Account</h1>
+<div class="page-narrow text-start">
+    <header class="page-header">
+        <h1 class="auth-title mb-1">Create your account</h1>
+        <p class="text-muted mb-0">Plan events, share them with friends — it takes less than a minute.
+            Already have an account? <a href="/login" class="link-primary-strong">Log in</a></p>
+    </header>
 
-    <form action="/register" method="post" enctype="multipart/form-data">
-        <div class="form-container">
+    <form action="/register" method="post" enctype="multipart/form-data" id="registerForm" novalidate>
 
-            <div id="required-fields" class="form-section">
-                <p class="text-muted mb-3" style="font-size:.875rem">Required fields <sup>*</sup></p>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="Newusername" class="form-label">Username <sup>*</sup></label>
-                        <input class="form-control required" id="Newusername" autocomplete="off" name="Newusername" placeholder="Choose a username" type="text">
-                    </div>
-                    <div id="error_Nu" class="error error-message"></div>
-                </div>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="Newpassword" class="form-label">Password <sup>*</sup></label>
-                        <input class="form-control required" name="Newpassword" placeholder="Choose a password" id="password" type="password">
-                    </div>
-                    <div id="password_strenght" class="error error-message"></div>
-                </div>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="Newbirthday" class="form-label">Birthday <sup>*</sup></label>
-                        <input class="form-control required" name="Newbirthday" id="Newbirthday" type="date">
-                    </div>
-                    <div id="error_Nb" class="error error-message"></div>
-                </div>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="Newemail" class="form-label">Email <sup>*</sup></label>
-                        <input class="form-control required" name="Newemail" id="Newemail" placeholder="you@example.com" type="email">
-                    </div>
-                    <div id="error_Ne" class="error error-message"></div>
-                </div>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="FirstName" class="form-label">First Name <sup>*</sup></label>
-                        <input class="form-control required" name="FirstName" id="FirstName" placeholder="First name" type="text">
-                    </div>
-                    <div id="error_FN" class="error error-message"></div>
-                </div>
-
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="LastName" class="form-label">Last Name <sup>*</sup></label>
-                        <input class="form-control required" name="LastName" id="LastName" placeholder="Last name" type="text">
-                    </div>
-                    <div id="error_LN" class="error error-message"></div>
+        <section class="card form-card">
+            <div class="form-card-header">
+                <span class="step-badge">1</span>
+                <div>
+                    <h2 class="form-card-title">Account details</h2>
+                    <p class="form-card-sub">Fields marked <sup>*</sup> are required</p>
                 </div>
             </div>
 
-            <div id="optional-fields" class="form-section mt-4">
-                <p class="text-muted mb-3" style="font-size:.875rem">Optional — you can fill these in later</p>
+            <div class="form-grid">
+                {{ field("FirstName", "First name", errors, form.get("FirstName"), required=true, placeholder="e.g. Giulia", attrs='autocomplete="given-name" autofocus') }}
+                {{ field("LastName", "Last name", errors, form.get("LastName"), required=true, placeholder="e.g. Rossi", attrs='autocomplete="family-name"') }}
+                {{ field("Newusername", "Username", errors, form.get("Newusername"), required=true, placeholder="e.g. giulia_r",
+                         hint="3–30 characters: letters, numbers, - and _", attrs='autocomplete="off" autocapitalize="none" spellcheck="false"') }}
+                {{ field("Newemail", "Email", errors, form.get("Newemail"), type="email", required=true, placeholder="you@example.com", attrs='autocomplete="email"') }}
 
                 <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewPhoto" class="form-label">Avatar photo</label>
-                        <input id="NewPhoto" name="NewPhoto" type="file" accept="image/*" class="form-control" title="Only JPEG, PNG, HEIC files accepted">
+                    <label for="Newpassword" class="form-label">Password <sup>*</sup></label>
+                    <div class="input-with-action">
+                        <input class="form-control{% if errors.get('Newpassword') %} is-invalid{% endif %}" id="Newpassword" name="Newpassword"
+                               type="password" placeholder="Create a strong password" required autocomplete="new-password"
+                               aria-describedby="Newpassword-feedback Newpassword-hint">
+                        <button type="button" class="input-action" data-toggle-password="Newpassword" aria-label="Show password">Show</button>
                     </div>
-                    <div id="error_NP" class="error error-message"></div>
-                    <div class="photo-preview-container">
-                        <img id="PhotoPreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="photo-preview" alt="Preview">
-                    </div>
+                    <div class="strength-meter" id="strengthMeter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                    <div class="field-hint" id="Newpassword-hint">13+ characters mixing upper &amp; lower case, numbers and symbols</div>
+                    <div class="field-feedback{% if errors.get('Newpassword') %} is-invalid{% endif %}" id="Newpassword-feedback" aria-live="polite">{{ errors.get('Newpassword', '') }}</div>
                 </div>
 
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewNation" class="form-label">Nation</label>
-                        <input id="NewNation" name="NewNation" type="text" list="myDatalist" class="form-control" placeholder="Country">
-                    </div>
-                    <div id="error_NN" class="error error-message"></div>
-                    <datalist id="myDatalist"></datalist>
-                </div>
+                {{ field("Newbirthday", "Birthday", errors, form.get("Newbirthday"), type="date", required=true, hint="You must be at least 14", attrs='autocomplete="bday"') }}
+            </div>
+        </section>
 
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewCity" class="form-label">City</label>
-                        <input id="NewCity" name="NewCity" type="text" list="myDatalist2" class="form-control" placeholder="City" disabled>
-                    </div>
-                    <div id="error_NC" class="error error-message"></div>
-                    <datalist id="myDatalist2"></datalist>
+        <section class="card form-card">
+            <div class="form-card-header">
+                <span class="step-badge">2</span>
+                <div>
+                    <h2 class="form-card-title">About you <span class="badge-optional">optional</span></h2>
+                    <p class="form-card-sub">Help friends recognise you — you can also add these later</p>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <div class="input-container">
-                        <label for="Prefix" class="form-label">Phone Prefix</label>
-                        <div id="prefixContainer">
-                            <input id="Prefix" name="Prefix" type="text" class="form-control" placeholder="+1">
-                            <div id="prefixBox"></div>
+            <div class="form-grid">
+                <div class="form-group span-2">
+                    {% set initials_preview = ((form.get("FirstName") or "")[:1] ~ (form.get("LastName") or "")[:1]) | upper %}
+                    <div class="avatar-uploader" data-avatar-uploader data-input="NewPhoto">
+                        <label class="avatar-drop" for="NewPhoto" tabindex="0" aria-label="Upload a profile photo">
+                            <img class="avatar-drop-img" alt="" hidden>
+                            <span class="avatar-drop-initials" data-initials-from="FirstName LastName">{{ initials_preview or "?" }}</span>
+                            <span class="avatar-drop-overlay" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            </span>
+                        </label>
+                        <div class="avatar-meta">
+                            <div class="form-label mb-0">Profile photo</div>
+                            <div class="field-hint">Drag &amp; drop or click to upload · JPG, PNG, WEBP or HEIC · max 5 MB</div>
+                            <div class="d-flex gap-2 mt-2 flex-wrap">
+                                <label for="NewPhoto" class="btn btn-secondary btn-sm m-0" data-avatar-pick>Upload photo</label>
+                                <button type="button" class="btn btn-ghost btn-sm m-0" data-avatar-remove hidden>Remove</button>
+                            </div>
+                            <div class="field-feedback{% if errors.get('NewPhoto') %} is-invalid{% endif %}" id="NewPhoto-feedback" aria-live="polite">{{ errors.get('NewPhoto', '') }}</div>
                         </div>
+                        <input id="NewPhoto" name="NewPhoto" type="file" accept="image/jpeg,image/png,image/webp,image/heic,.heic" class="visually-hidden">
                     </div>
-                    <div id="error_PR" class="error error-message"></div>
                 </div>
 
                 <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewNumber" class="form-label">Phone Number</label>
-                        <input id="NewNumber" name="NewNumber" type="tel" class="form-control" placeholder="Phone number">
-                    </div>
-                    <div id="error_NNum" class="error error-message"></div>
+                    <label for="NewNation" class="form-label">Country</label>
+                    <input id="NewNation" name="NewNation" type="text" list="nationList" class="form-control{% if errors.get('NewNation') %} is-invalid{% endif %}"
+                           value="{{ form.get('NewNation', '') }}" placeholder="Loading countries…" autocomplete="off" aria-describedby="NewNation-feedback">
+                    <datalist id="nationList"></datalist>
+                    <div class="field-feedback{% if errors.get('NewNation') %} is-invalid{% endif %}" id="NewNation-feedback" aria-live="polite">{{ errors.get('NewNation', '') }}</div>
                 </div>
 
                 <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewDescription" class="form-label">Bio</label>
-                        <input id="NewDescription" name="NewDescription" type="text" class="form-control" placeholder="A short description about yourself">
-                    </div>
-                    <div id="error_Nd" class="error error-message"></div>
+                    <label for="NewCity" class="form-label">City</label>
+                    <input id="NewCity" name="NewCity" type="text" list="cityList" class="form-control{% if errors.get('NewCity') %} is-invalid{% endif %}"
+                           value="{{ form.get('NewCity', '') }}" placeholder="Choose a country first" autocomplete="off" aria-describedby="NewCity-feedback">
+                    <datalist id="cityList"></datalist>
+                    <div class="field-feedback{% if errors.get('NewCity') %} is-invalid{% endif %}" id="NewCity-feedback" aria-live="polite">{{ errors.get('NewCity', '') }}</div>
                 </div>
 
                 <div class="form-group">
-                    <div class="input-container">
-                        <label for="NewGender" class="form-label">Gender</label>
-                        <select id="NewGender" name="NewGender" class="form-control">
-                            <option value=""></option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
+                    <label for="NewNumber" class="form-label">Phone number</label>
+                    <div class="phone-row">
+                        <input id="Prefix" name="Prefix" type="text" class="form-control prefix-input{% if errors.get('Prefix') %} is-invalid{% endif %}"
+                               value="{{ form.get('Prefix', '') }}" placeholder="+39" aria-label="Country prefix" autocomplete="off" aria-describedby="Prefix-feedback">
+                        <input id="NewNumber" name="NewNumber" type="tel" class="form-control{% if errors.get('NewNumber') %} is-invalid{% endif %}"
+                               value="{{ form.get('NewNumber', '') }}" placeholder="333 123 4567" autocomplete="tel-national" aria-describedby="NewNumber-feedback">
                     </div>
-                    <div id="error_NG" class="error error-message"></div>
+                    <button type="button" class="prefix-suggestion" id="prefixSuggestion" hidden></button>
+                    <div class="field-feedback{% if errors.get('Prefix') %} is-invalid{% endif %}" id="Prefix-feedback" aria-live="polite">{{ errors.get('Prefix', '') }}</div>
+                    <div class="field-feedback{% if errors.get('NewNumber') %} is-invalid{% endif %}" id="NewNumber-feedback" aria-live="polite">{{ errors.get('NewNumber', '') }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="NewGender" class="form-label">Gender</label>
+                    <select id="NewGender" name="NewGender" class="form-select{% if errors.get('NewGender') %} is-invalid{% endif %}" aria-describedby="NewGender-feedback">
+                        <option value="">Prefer not to say</option>
+                        {% for option in ["Male", "Female", "Other"] %}
+                            <option value="{{ option }}" {% if form.get('NewGender') == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="field-feedback{% if errors.get('NewGender') %} is-invalid{% endif %}" id="NewGender-feedback" aria-live="polite">{{ errors.get('NewGender', '') }}</div>
+                </div>
+
+                <div class="form-group span-2">
+                    <label for="NewDescription" class="form-label d-flex justify-content-between">
+                        <span>Bio</span>
+                        <span class="char-counter" data-counter-for="NewDescription" data-max="500"></span>
+                    </label>
+                    <textarea id="NewDescription" name="NewDescription" rows="3" maxlength="600"
+                              class="form-control{% if errors.get('NewDescription') %} is-invalid{% endif %}"
+                              placeholder="A few words about you — hobbies, what you're planning…" aria-describedby="NewDescription-feedback">{{ form.get('NewDescription', '') }}</textarea>
+                    <div class="field-feedback{% if errors.get('NewDescription') %} is-invalid{% endif %}" id="NewDescription-feedback" aria-live="polite">{{ errors.get('NewDescription', '') }}</div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="d-flex gap-2 mt-4">
-            <button type="reset" id="resetButton" class="btn btn-secondary" onclick="remove_errors()">Reset</button>
-            <button type="submit" class="btn btn-primary" id="submit" disabled>Create Account</button>
+        <div class="form-summary" id="formSummary" role="alert" hidden></div>
+
+        <div class="form-footer">
+            <button type="reset" class="btn btn-ghost" id="resetButton">Clear form</button>
+            <button type="submit" class="btn btn-primary btn-lg-wide" id="submit">Create account</button>
         </div>
     </form>
 </div>

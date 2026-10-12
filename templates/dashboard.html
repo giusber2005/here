@@ -1,0 +1,206 @@
+{% extends "root.html" %}
+{% from "_macros.html" import avatar %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% macro relative_day(days) -%}
+    {%- if days == 0 %}Today{% elif days == 1 %}Tomorrow{% elif days < 7 %}In {{ days }} days{% elif days < 14 %}Next week{% else %}In {{ days // 7 }} weeks{% endif -%}
+{%- endmacro %}
+
+{% block main %}
+<div class="dashboard text-start">
+
+    <header class="dash-hero">
+        <div>
+            <p class="dash-date">{{ today.strftime("%A, %d %B %Y") }}</p>
+            <h1 class="dash-greeting">{{ greeting }}, {{ user.FirstName or user.username }}</h1>
+            <p class="text-muted mb-0">
+                {% if stats.week %}You have <strong>{{ stats.week }}</strong> event{{ '' if stats.week == 1 else 's' }} in the next 7 days.
+                {% else %}Your week is free — time to plan something?{% endif %}
+            </p>
+        </div>
+        <div class="dash-hero-actions">
+            <a href="/" class="btn btn-primary m-0">Open calendar</a>
+            <a href="/friends" class="btn btn-secondary m-0">Add friends</a>
+        </div>
+    </header>
+
+    <section class="stat-grid" aria-label="Summary">
+        <div class="stat-tile">
+            <div class="stat-label">Upcoming events</div>
+            <div class="stat-value">{{ stats.upcoming }}</div>
+            <div class="stat-sub">{{ stats.week }} in the next 7 days</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Events in {{ today.strftime("%B") }}</div>
+            <div class="stat-value">{{ stats.month }}</div>
+            <div class="stat-sub">{{ stats.events }} in total</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Friends</div>
+            <div class="stat-value">{{ stats.friends }}</div>
+            <div class="stat-sub">{{ stats.shared }} event{{ '' if stats.shared == 1 else 's' }} shared with them</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-label">Memories</div>
+            <div class="stat-value">{{ stats.photos }}</div>
+            <div class="stat-sub">photos attached to events</div>
+        </div>
+    </section>
+
+    <div class="dash-grid">
+        <div class="dash-col">
+
+            <section class="card dash-card">
+                <div class="dash-card-head">
+                    <h2 class="card-title">Coming up</h2>
+                    <a href="/" class="small link-primary-strong">See calendar →</a>
+                </div>
+                {% if upcoming %}
+                    <ul class="agenda">
+                        {% for event in upcoming %}
+                            {% set days = (event.start.date() - today).days %}
+                            <li class="agenda-item">
+                                <div class="agenda-date" style="--event-color: {{ event.color }}">
+                                    <span class="agenda-month">{{ event.start.strftime("%b") }}</span>
+                                    <span class="agenda-day">{{ event.start.day }}</span>
+                                </div>
+                                <div class="agenda-body">
+                                    <div class="agenda-title">{{ event.title }}</div>
+                                    <div class="agenda-meta">
+                                        {% if event.ongoing %}<span class="pill pill-live">Happening now</span>
+                                        {% else %}<span class="pill">{{ relative_day(days) }}</span>{% endif %}
+                                        {{ event.start.strftime("%a") }}{% if not event.all_day %} · {{ event.start.strftime("%H:%M") }}{% else %} · All day{% endif %}
+                                        {% if event.tag %} · {{ event.tag }}{% endif %}
+                                    </div>
+                                </div>
+                                {% if event.friends %}
+                                    <div class="avatar-stack" title="With {{ event.friends | map(attribute='FirstName') | join(', ') }}">
+                                        {% for friend in event.friends[:3] %}{{ avatar(friend.avatar, friend.initials, "xs") }}{% endfor %}
+                                        {% if event.friends | length > 3 %}<span class="avatar avatar-xs avatar-more">+{{ event.friends | length - 3 }}</span>{% endif %}
+                                    </div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-inline">Nothing planned yet. <a href="/" class="link-primary-strong">Create your first event</a></div>
+                {% endif %}
+            </section>
+
+            <section class="card dash-card">
+                <div class="dash-card-head">
+                    <h2 class="card-title">Events per month</h2>
+                    <span class="small text-muted">{{ months[0].label }} {{ months[0].year }} – {{ months[-1].label }} {{ months[-1].year }}</span>
+                </div>
+                <div class="column-chart" role="img"
+                     aria-label="Events per month: {% for m in months %}{{ m.label }} {{ m.count }}{{ ', ' if not loop.last }}{% endfor %}">
+                    <div class="column-chart-grid" aria-hidden="true">
+                        <span data-tick="{{ months_max }}"></span>
+                        <span data-tick="0"></span>
+                    </div>
+                    {% for m in months %}
+                        <div class="column" tabindex="0" data-tip="{{ m.label }} {{ m.year }}: {{ m.count }} event{{ '' if m.count == 1 else 's' }}">
+                            <div class="column-track">
+                                <div class="column-bar" style="height: {{ (m.count / months_max * 100) | round(1) }}%">
+                                    {% if m.current or m.count == months_max %}<span class="column-value">{{ m.count }}</span>{% endif %}
+                                </div>
+                            </div>
+                            <span class="column-label{{ ' is-current' if m.current }}">{{ m.label }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <details class="chart-table">
+                    <summary>View as table</summary>
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th scope="col">Month</th><th scope="col">Events</th></tr></thead>
+                        <tbody>{% for m in months %}<tr><td>{{ m.label }} {{ m.year }}</td><td>{{ m.count }}</td></tr>{% endfor %}</tbody>
+                    </table>
+                </details>
+            </section>
+        </div>
+
+        <div class="dash-col">
+            <section class="card dash-card">
+                <div class="dash-card-head">
+                    <h2 class="card-title">Your profile</h2>
+                    <strong>{{ completeness }}%</strong>
+                </div>
+                <div class="meter" role="progressbar" aria-valuenow="{{ completeness }}" aria-valuemin="0" aria-valuemax="100" aria-label="Profile completeness">
+                    <span style="width: {{ completeness }}%"></span>
+                </div>
+                <p class="small text-muted mt-2 mb-0">
+                    {% if completeness < 100 %}<a href="/change_informations" class="link-primary-strong">Complete your profile</a> so friends recognise you.
+                    {% else %}Your profile is complete.{% endif %}
+                </p>
+            </section>
+
+            <section class="card dash-card">
+                <div class="dash-card-head"><h2 class="card-title">Upcoming birthdays</h2></div>
+                {% if birthdays %}
+                    <ul class="people-list">
+                        {% for b in birthdays %}
+                            <li>
+                                {{ avatar(b.avatar, b.initials, "sm") }}
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ b.FirstName }} {{ b.LastName }}</div>
+                                    <div class="small text-muted">Turns {{ b.turning }} on {{ b.date.strftime("%a %d %b") }}</div>
+                                </div>
+                                <span class="pill{{ ' pill-live' if b.days == 0 }}">{{ '🎂 Today' if b.days == 0 else relative_day(b.days) }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-inline">No friends' birthdays in the next two months.</div>
+                {% endif %}
+            </section>
+
+            <section class="card dash-card">
+                <div class="dash-card-head">
+                    <h2 class="card-title">Closest friends</h2>
+                    <a href="/friends" class="small link-primary-strong">All friends →</a>
+                </div>
+                {% if top_friends %}
+                    <ul class="people-list">
+                        {% for f in top_friends %}
+                            <li>
+                                {{ avatar(f.avatar, f.initials, "sm") }}
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ f.FirstName }} {{ f.LastName }}</div>
+                                    <div class="small text-muted">@{{ f.username }}</div>
+                                </div>
+                                <span class="small text-muted text-nowrap">{{ f.shared_events }} shared</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-inline">
+                        No friends yet. Share your token:
+                        <div class="token-row mt-2">
+                            <code class="token">{{ conn_token }}</code>
+                            <button type="button" class="btn btn-secondary btn-sm m-0" data-copy="{{ conn_token }}">Copy</button>
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="card dash-card">
+                <div class="dash-card-head"><h2 class="card-title">Events by tag</h2></div>
+                {% if tags %}
+                    <ul class="bar-list">
+                        {% for name, count in tags %}
+                            <li tabindex="0" data-tip="{{ name }}: {{ count }} event{{ '' if count == 1 else 's' }}">
+                                <span class="bar-list-label">{{ name }}</span>
+                                <span class="bar-list-track"><span class="bar-list-bar" style="width: {{ (count / tags_max * 100) | round(1) }}%"></span></span>
+                                <span class="bar-list-value">{{ count }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-inline">Tag your events to see how you spend your time.</div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}

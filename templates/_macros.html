@@ -1,0 +1,18 @@
+{# avatar circle: the profile photo when there is one, otherwise the user's initials #}
+{% macro avatar(url, letters, size="md") -%}
+    <span class="avatar avatar-{{ size }}">
+        {%- if url %}<img src="{{ url }}" alt="">{% else %}{{ letters }}{% endif -%}
+    </span>
+{%- endmacro %}
+
+{# a form field with label, optional hint and a feedback line used by validation.js and by server-side errors #}
+{% macro field(name, label, errors, value="", type="text", required=false, placeholder="", hint="", attrs="") -%}
+    <div class="form-group">
+        <label for="{{ name }}" class="form-label">{{ label }}{% if required %} <sup>*</sup>{% endif %}</label>
+        <input class="form-control{% if errors.get(name) %} is-invalid{% endif %}" id="{{ name }}" name="{{ name }}" type="{{ type }}"
+               value="{{ value or '' }}" placeholder="{{ placeholder }}"{% if required %} required{% endif %} {{ attrs | safe }}
+               aria-describedby="{{ name }}-feedback{% if hint %} {{ name }}-hint{% endif %}">
+        {% if hint %}<div class="field-hint" id="{{ name }}-hint">{{ hint }}</div>{% endif %}
+        <div class="field-feedback{% if errors.get(name) %} is-invalid{% endif %}" id="{{ name }}-feedback" aria-live="polite">{{ errors.get(name, '') }}</div>
+    </div>
+{%- endmacro %}

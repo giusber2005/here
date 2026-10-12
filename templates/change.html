@@ -5,22 +5,13 @@
 {% block script %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const V = Validation;
         const password = document.getElementById('Newpassword');
-        const passwordStrength = document.getElementById('password_strength');
-        let commonPasswords = [];
-
-        fetch('/data/common.txt')
-            .then(r => r.text())
-            .then(data => { commonPasswords = data.split('\n'); })
-            .catch(err => console.error('Error fetching common passwords:', err));
-
-        password.addEventListener('keyup', function () {
-            if (password.value) {
-                passwordStrength.innerHTML = passwordChecker(password.value, commonPasswords, passwordStrength);
-            } else {
-                passwordStrength.innerHTML = '';
-            }
-        });
+        V.bindForm(document.getElementById('changeForm'), [
+            { input: document.getElementById('Oldpassword'), validate: V.rules.required('your current password') },
+            { input: password, validate: V.passwordField(password, document.getElementById('strengthMeter')), validMessage: () => V.strengthMessage(password) },
+        ], { submitButton: document.getElementById('changeSubmit'), busyText: 'Updating…' });
+        V.bindPasswordToggles();
     });
 </script>
 {% endblock %}
@@ -29,32 +20,42 @@
 <div class="auth-card">
     <div class="card shadow-box">
         <div class="card-body">
-            <h1 class="auth-title">Change Password</h1>
+            <h1 class="auth-title mb-1">Change password</h1>
+            <p class="text-muted mb-4 small">Choose something you don't use anywhere else.</p>
 
-            <form action="/change" method="post">
-                <div class="mb-3">
-                    <label for="Oldpassword" class="form-label">Current Password</label>
-                    <input class="form-control" id="Oldpassword" name="Oldpassword" placeholder="Current password" type="password" autofocus>
+            <form action="/change" method="post" id="changeForm" novalidate>
+                <div class="form-group">
+                    <label for="Oldpassword" class="form-label">Current password</label>
+                    <div class="input-with-action">
+                        <input class="form-control" id="Oldpassword" name="Oldpassword" type="password" autocomplete="current-password" autofocus aria-describedby="Oldpassword-feedback">
+                        <button type="button" class="input-action" data-toggle-password="Oldpassword" aria-label="Show password">Show</button>
+                    </div>
+                    <div class="field-feedback" id="Oldpassword-feedback" aria-live="polite"></div>
                 </div>
-                <div class="mb-3">
-                    <label for="Newpassword" class="form-label">New Password</label>
-                    <input class="form-control" name="Newpassword" id="Newpassword" placeholder="New password" type="password">
-                    <div id="password_strength" class="mt-1" style="font-size:.8rem;"></div>
+                <div class="form-group">
+                    <label for="Newpassword" class="form-label">New password</label>
+                    <div class="input-with-action">
+                        <input class="form-control" name="Newpassword" id="Newpassword" type="password" autocomplete="new-password" aria-describedby="Newpassword-feedback Newpassword-hint">
+                        <button type="button" class="input-action" data-toggle-password="Newpassword" aria-label="Show password">Show</button>
+                    </div>
+                    <div class="strength-meter" id="strengthMeter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                    <div class="field-hint" id="Newpassword-hint">13+ characters mixing upper &amp; lower case, numbers and symbols</div>
+                    <div class="field-feedback" id="Newpassword-feedback" aria-live="polite"></div>
                 </div>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-primary" type="submit">Update Password</button>
-                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#forgotCollapse">
-                        Forgot current password?
+                <div class="d-flex gap-2 flex-wrap align-items-center mt-2">
+                    <button class="btn btn-primary" type="submit" id="changeSubmit">Update password</button>
+                    <button class="btn btn-ghost" type="button" data-bs-toggle="collapse" data-bs-target="#forgotCollapse">
+                        Forgot it?
                     </button>
                 </div>
             </form>
 
             <div class="collapse mt-3" id="forgotCollapse">
-                <div class="card card-body">
-                    <p class="mb-2 text-muted" style="font-size:.875rem">We'll send a reset link to your email.</p>
+                <div class="inset-panel">
+                    <p class="mb-2 text-muted small">We'll email you a link to reset your password.</p>
                     <form action="/password" method="post" class="d-flex gap-2">
-                        <input type="email" class="form-control" placeholder="Your email address" name="Email">
-                        <button type="submit" class="btn btn-primary">Send</button>
+                        <input type="email" class="form-control" placeholder="Your email address" name="Email" required>
+                        <button type="submit" class="btn btn-primary m-0">Send</button>
                     </form>
                 </div>
             </div>

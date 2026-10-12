@@ -33,7 +33,7 @@ import secrets
 #function to read base64 formatted images (used in the events manipulations in the calendar)
 import base64
 #function to understand the type of the image (used in the events manipulations in the calendar)
-import imghdr
+import mimetypes
 
 #some functions to weight down the code in app.py
 from helpers import *
@@ -79,6 +79,34 @@ def enable_foreign_keys():
 
 # set session to expire after 30 minutes of inactivity
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+# reject request bodies bigger than 16 MB (profile photos are limited to 5 MB in helpers.py)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+@app.errorhandler(413)
+def request_too_large(error):
+    flash("That upload is too large — profile photos can be at most 5 MB", "error")
+    return redirect(request.referrer or "/")
+
+#makes the logged user's name and avatar available in every template (used by the navbar)
+@app.context_processor
+def inject_current_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return {}
+    rows = db.execute(
+        "SELECT user.username, user.FirstName, user.LastName, user_optional.photo FROM user LEFT JOIN user_optional ON user_optional.id = user.id WHERE user.id = ?",
+        user_id
+    )
+    if not rows:
+        return {}
+    user = rows[0]
+    return {"current_user": {
+        "username": user["username"],
+        "first_name": user["FirstName"],
+        "avatar": avatar_url(user["photo"]),
+        "initials": initials(user["FirstName"], user["LastName"], user["username"]),
+    }}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -157,21 +185,132 @@ def index():
     if request.method == "GET" or request.method == "POST":
 
         # Query to get all the friends of the user
-        friendsId = []
-        friends1 = db.execute("SELECT * FROM connections WHERE id1 = ?", session["user_id"])
-        for friend in friends1:
-            friendsId.append(friend["id2"])
-        friends2 = db.execute("SELECT * FROM connections WHERE id2 = ?", session["user_id"])
-        for friend in friends2:
-            friendsId.append(friend["id1"])
-
-        friends = []
-        for friend in friendsId:
-            friends.append(db.execute("SELECT * FROM user WHERE id = ?", friend)[0]["username"])
-
-        friends_dict = dict(zip(friendsId, friends))
+        friends_dict = {friend["id"]: friend["username"] for friend in get_friends(session["user_id"])}
 
         return render_template("homepage.html", friends_dict=friends_dict)
+
+#dashboard with an overview of the user's events, friends and profile
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    user_id = session["user_id"]
+    now = datetime.now()
+    today = now.date()
+
+    user = db.execute("SELECT * FROM user WHERE id = ?", user_id)[0]
+    optional = db.execute("SELECT * FROM user_optional WHERE id = ?", user_id)[0]
+
+    friends = get_friends(user_id)
+    friends_by_id = {}
+    for friend in friends:
+        friend["avatar"] = avatar_url(friend["photo"])
+        friend["initials"] = initials(friend["FirstName"], friend["LastName"], friend["username"])
+        friend["shared_events"] = 0
+        friends_by_id[friend["id"]] = friend
+
+    events = db.execute(
+        "SELECT * FROM eventsPrincipal WHERE id IN (SELECT event_id FROM eventsConnections WHERE user = ?)", user_id
+    )
+    participants = db.execute(
+        "SELECT event_id, user FROM eventsConnections WHERE event_id IN (SELECT event_id FROM eventsConnections WHERE user = ?)", user_id
+    )
+    photos_count = db.execute(
+        "SELECT COUNT(*) AS n FROM eventsPhotos WHERE event_id IN (SELECT event_id FROM eventsConnections WHERE user = ?)", user_id
+    )[0]["n"]
+
+    members = {}
+    for row in participants:
+        if row["user"] != user_id and row["user"] in friends_by_id:
+            members.setdefault(row["event_id"], []).append(friends_by_id[row["user"]])
+            friends_by_id[row["user"]]["shared_events"] += 1
+
+    #months shown in the activity chart: 5 before the current one and 6 after
+    months = []
+    for offset in range(-5, 7):
+        year, month = divmod(today.month - 1 + offset, 12)
+        months.append({"year": today.year + year, "month": month + 1, "count": 0,
+                       "label": datetime(today.year + year, month + 1, 1).strftime("%b"),
+                       "current": offset == 0})
+    month_index = {(m["year"], m["month"]): m for m in months}
+
+    tags = {}
+    upcoming, week_count, month_count, shared_count = [], 0, 0, 0
+    for event in events:
+        try:
+            start, end = parse_time_slot(event["time_slot"])
+        except ValueError:
+            continue
+        all_day = "T" not in (event["time_slot"] or "")
+        tag = (event["tag"] or "").strip() or "No tag"
+        tags[tag] = tags.get(tag, 0) + 1
+
+        if (start.year, start.month) in month_index:
+            month_index[(start.year, start.month)]["count"] += 1
+        if start.year == today.year and start.month == today.month:
+            month_count += 1
+        if event["id"] in members:
+            shared_count += 1
+
+        if end >= now or (all_day and start.date() >= today):
+            if (start.date() - today).days < 7:
+                week_count += 1
+            upcoming.append({
+                "id": event["id"], "title": event["title"], "color": event["color"] or "#FF6B35",
+                "tag": event["tag"], "start": start, "all_day": all_day,
+                "ongoing": start < now and not all_day,
+                "friends": members.get(event["id"], []),
+            })
+    upcoming.sort(key=lambda e: e["start"])
+
+    #birthdays of friends in the next 60 days
+    birthdays = []
+    for friend in friends:
+        try:
+            born = datetime.strptime(friend["birthday"], "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            continue
+        try:
+            next_birthday = born.replace(year=today.year)
+        except ValueError:  # 29th of February
+            next_birthday = born.replace(year=today.year, day=28)
+        if next_birthday < today:
+            next_birthday = next_birthday.replace(year=today.year + 1)
+        days = (next_birthday - today).days
+        if days <= 60:
+            birthdays.append({**friend, "date": next_birthday, "days": days, "turning": next_birthday.year - born.year})
+    birthdays.sort(key=lambda b: b["days"])
+
+    optional_keys = ["photo", "number", "nation", "city", "description", "gender"]
+    completeness = round(100 * sum(1 for key in optional_keys if optional[key]) / len(optional_keys))
+
+    hour = now.hour
+    greeting = "Good morning" if 5 <= hour < 12 else "Good afternoon" if 12 <= hour < 18 else "Good evening"
+
+    return render_template(
+        "dashboard.html",
+        user=user,
+        greeting=greeting,
+        today=today,
+        stats={
+            "friends": len(friends),
+            "events": len(events),
+            "upcoming": len(upcoming),
+            "week": week_count,
+            "month": month_count,
+            "shared": shared_count,
+            "photos": photos_count,
+        },
+        upcoming=upcoming[:6],
+        months=months,
+        months_max=max([m["count"] for m in months] + [1]),
+        tags=sorted(tags.items(), key=lambda t: t[1], reverse=True),
+        tags_max=max(list(tags.values()) + [1]),
+        top_friends=sorted(friends, key=lambda f: f["shared_events"], reverse=True)[:5],
+        recent_friends=friends[:5],
+        birthdays=birthdays[:4],
+        completeness=completeness,
+        conn_token=user["conn_token"],
+    )
 
 """
 Initializing the environment for the login enforcement with the MAX tempt. block
@@ -210,12 +349,12 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         if ENABLE_LOGIN == False:
-            flash("too many access attempts denied, wait 5 minutes")
+            flash("Too many failed attempts — please wait 5 minutes and try again", "error")
             return redirect("/login")
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            flash("must provide username")
+            flash("Please enter your username", "error")
             success = "denied"
             current_time = time.time()
             if current_time - CURRENT_BLOCK >= 300:
@@ -230,7 +369,7 @@ def login():
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            flash("must provide password")
+            flash("Please enter your password", "error")
             success = "denied"
             current_time = time.time()
             if current_time - CURRENT_BLOCK >= 300:
@@ -247,12 +386,10 @@ def login():
         rows = db.execute("SELECT * FROM user WHERE username = ?", request.form.get("username"))
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            flash("invalid username and/or password")
+            flash("That username and password don't match — please try again", "error")
             success = "denied"
             current_time = time.time()
             if current_time - CURRENT_BLOCK >= 300:
-                print(current_time)
-                print(CURRENT_BLOCK)
                 db.execute("DELETE FROM login_attempt WHERE user_ip = ? AND success = ?", ip, success)
             db.execute("INSERT INTO login_attempt (user_ip, success) VALUES (?, ?)", ip, success)
             db.execute("DELETE FROM user_blocks WHERE user_ip = ?", ip)
@@ -268,15 +405,15 @@ def login():
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
 
-        # Redirect user to home page
-        flash("logged in")
+        # Redirect user to the dashboard
+        flash(f"Welcome back, {rows[0]['FirstName'] or rows[0]['username']}!", "success")
         ip = request.remote_addr
         success = "denied"
         db.execute("DELETE FROM login_attempt WHERE user_ip = ? AND success = ?", ip, success)
         db.execute("DELETE FROM user_blocks WHERE user_ip = ?", ip)
         success = "permitted"
         db.execute("INSERT INTO login_attempt (user_ip, success) VALUES (?, ?)", ip, success)
-        return redirect("/")
+        return redirect("/dashboard")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -291,194 +428,149 @@ def logout():
     session.clear()
 
     # Redirect user to login form
-    flash("logged out")
+    flash("You've been logged out. See you soon!", "info")
     return redirect("/login")
 
 #route for register an user
 @app.route("/register", methods=["GET", "POST"])
 def register():
     #if the user click the link in the homepage
-     if request.method == "GET":
-         return render_template("registration.html")
-     #validation and insertion in the database of all the informations
-     else:
-        # Form validation
-        required_fields = {
-            "Newusername": "username",
-            "Newpassword": "password",
-            "FirstName": "first name",
-            "LastName": "last name",
-            "Newbirthday": "birthday",
-            "Newemail": "email"
-        }
-        #ensure that all the required_fields are not empty
-        for field, name in required_fields.items():
-            if not request.form.get(field):
-                message = f"must provide {name}"
-                flash(message)
-                return render_template("registration.html")
+    if request.method == "GET":
+        return render_template("registration.html", form={}, errors={})
 
-        #Ensure username is not composed of special characters
-        if not re.fullmatch(r'[A-Za-z0-9_-]+', request.form.get("Newusername").strip()):
-            message = "the username cannot have special characters, only hyphens and underscores are allowed"
-            flash(message)
-            return render_template("registration.html")
+    #validation and insertion in the database of all the informations
+    form = request.form
 
-        #Ensure username is not already in the database
-        username_check = db.execute("SELECT * FROM user WHERE username = (?)", request.form.get("Newusername").strip())
-        if username_check:
-            message = "username already registered"
-            flash(message)
-            return render_template("registration.html")
+    #re-render the form keeping what the user typed and showing the message next to the wrong field
+    def fail(field, message):
+        flash("Please fix the highlighted field", "error")
+        return render_template("registration.html", form=form, errors={field: message}), 400
 
-        #Ensure password is composed of more than 8 alphanumerical characters
-        passwordcheck = request.form.get("Newpassword").strip()
-        result = password_check(passwordcheck)
-        if result != 1:
-            flash(result)
-            return render_template("registration.html")
+    # Form validation
+    required_fields = {
+        "Newusername": "a username",
+        "Newpassword": "a password",
+        "FirstName": "your first name",
+        "LastName": "your last name",
+        "Newbirthday": "your birthday",
+        "Newemail": "your email"
+    }
+    #ensure that all the required_fields are not empty
+    for field, name in required_fields.items():
+        if not form.get(field, "").strip():
+            return fail(field, f"Please enter {name}")
 
-        #check if the birthday is in a correct format
-        birthdaycheck = request.form.get("Newbirthday").strip()
-        result = birthday_check(birthdaycheck)
-        if result != 1:
-            flash(result)
-            return render_template("registration.html")
+    Newusername = form.get("Newusername").strip()
+    #Ensure username is not composed of special characters
+    if not re.fullmatch(r'[A-Za-z0-9_-]{3,30}', Newusername):
+        return fail("Newusername", "Use 3–30 letters, numbers, hyphens or underscores")
 
-        #check if the email is in the correct format
-        emailcheck = request.form.get("Newemail").strip()
-        result = email_check(emailcheck)
-        if result != 1:
-            flash(result)
-            return render_template("registration.html")
+    #Ensure username is not already in the database
+    if db.execute("SELECT 1 FROM user WHERE username = ?", Newusername):
+        return fail("Newusername", "This username is already taken — try another one")
 
-        #Ensure email is not already in the database
-        email_checking = db.execute("SELECT * FROM user WHERE email = (?)", emailcheck)
-        if email_checking:
-            message = "email already registered!"
-            flash(message)
-            return render_template("registration.html")
+    #Ensure the password is strong enough
+    result = password_check(form.get("Newpassword").strip())
+    if result != 1:
+        return fail("Newpassword", result)
 
-        #Validate First and last name to be only names
-        if not request.form.get("FirstName").strip().isalpha():
-            message = "provide an appropriate first name"
-            flash(message)
-            return render_template("registration.html")
-        if not request.form.get("LastName").strip().isalpha():
-            message = "provide an appropriate last name"
-            flash(message)
-            return render_template("registration.html")
+    #check if the birthday is in a correct format
+    Newbirthday = form.get("Newbirthday").strip()
+    result = birthday_check(Newbirthday)
+    if result != 1:
+        return fail("Newbirthday", result)
 
-        #variables of all the database requested fields
-        Newusername = request.form.get("Newusername").strip()
-        NewPassword = generate_password_hash(request.form.get("Newpassword"))
-        Newbirthday = request.form.get("Newbirthday").strip()
-        Newemail = request.form.get("Newemail").strip()
-        FirstName = request.form.get("FirstName").strip().lower().capitalize()
-        LastName = request.form.get("LastName").strip().lower().capitalize()
-        Token = secrets.token_urlsafe()
+    #check if the email is in the correct format
+    Newemail = form.get("Newemail").strip()
+    result = email_check(Newemail)
+    if result != 1:
+        return fail("Newemail", result)
 
-        #initializing some values for the optional fields management
-        good_fields = dict()
+    #Ensure email is not already in the database
+    if db.execute("SELECT 1 FROM user WHERE email = ?", Newemail):
+        return fail("Newemail", "An account with this email already exists — try logging in")
+
+    #Validate First and last name to be only names
+    if not form.get("FirstName").strip().isalpha():
+        return fail("FirstName", "Use letters only")
+    if not form.get("LastName").strip().isalpha():
+        return fail("LastName", "Use letters only")
+
+    #variables of all the database requested fields
+    NewPassword = generate_password_hash(form.get("Newpassword"))
+    FirstName = form.get("FirstName").strip().lower().capitalize()
+    LastName = form.get("LastName").strip().lower().capitalize()
+    Token = secrets.token_urlsafe()
+
+    #optional fields: an empty field is stored as None
+    good_fields = dict()
+
+    #validate the photo user input
+    photo = request.files.get('NewPhoto')
+    if photo and photo.filename:
+        result = validate_profile_photo(photo)
+        if result:
+            return fail("NewPhoto", result)
+    else:
         photo = None
-        filename = None
 
-        optional_fields = {
-            "NewNumber": "number",
-            "NewNation": "nation",
-            "NewCity": "city",
-            "NewDescription": "description",
-            "NewPhoto": "photo",
-            "NewGender": "gender"
-        }
-        for field, db_name in optional_fields.items():
-            #validate the photo user input
-            if field == "NewPhoto":
-                #take the photo file from the form
-                photo = request.files.get('NewPhoto', None)
-                #if the photo has been loaded
-                if photo:
-                    #if the photo file type is one of the requested
-                    if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
-                        message = "Invalid file type detected"
-                        flash(message)
-                        return render_template("registration.html")
-                    #sanitize the file to avoid traverse directories attack or problems with white spaces and not allowed characters
-                    filename = secure_filename(photo.filename)
-                else:
-                    photo = None
-                good_fields["photo"] = filename
+    Nation = form.get("NewNation", "").strip().lower()
+    if Nation:
+        #create validation for the nation (check against list)
+        result = nation_check(Nation)
+        if result != 1:
+            return fail("NewNation", "Pick a country from the suggestions")
+        good_fields["nation"] = Nation
 
-            elif not request.form.get(field):
-                #if the form of this specific field is empty, the value in the database will be None
-                x = None
-            else:
-                x = request.form.get(field).strip()
+    City = form.get("NewCity", "").strip().lower()
+    if City:
+        #create validation for the city (check against list)
+        if not Nation:
+            return fail("NewCity", "Choose a country first, then your city")
+        result = city_check(City, Nation)
+        if result != 1:
+            return fail("NewCity", f"Pick a city in {Nation.title()} from the suggestions")
+        good_fields["city"] = City
 
-                if field == "NewNation":
-                    #create validation for the nation (check against list)
-                    Nation = x.lower()
-                    result = nation_check(Nation)
-                    if result != 1:
-                        flash(result)
-                        return render_template("registration.html")
+    Number = form.get("NewNumber", "").strip()
+    if Number:
+        #create validation for the number
+        Prefix = form.get("Prefix", "").strip()
+        if not Prefix:
+            return fail("Prefix", "Add the country prefix for your number (e.g. +39)")
+        Number = Prefix + " " + Number.replace('-', ' ')
+        result = number_check(Number, session)
+        if result != 1:
+            return fail("NewNumber", result)
+        good_fields["number"] = Number
 
-                if field == "NewCity":
-                    #create validation for the city (check against list)
-                    City = x.lower()
-                    Nation = request.form.get("NewNation").lower()
-                    if not Nation:
-                        flash("Please select a nation to select a city")
-                        return render_template("registration.html")
-                    result = city_check(City, Nation)
-                    if result != 1:
-                        flash(result)
-                        return render_template("registration.html")
+    Description = form.get("NewDescription", "").strip()
+    if Description:
+        #create validation for the description
+        if len(Description) > 500:
+            return fail("NewDescription", f"Your bio is {len(Description)} characters — the limit is 500")
+        good_fields["description"] = Description
 
-                if field == "NewNumber":
-                    #create validation for the number
-                    x = x.replace('-', ' ')
-                    Prefix = request.form.get("Prefix").strip()
-                    if not Prefix:
-                        flash("you need to select a prefix")
-                        return render_template("registration.html")
-                    Nation = request.form.get("NewNation").strip()
-                    x = Prefix + " " + x
-                    result = number_check(x, session)
-                    if result != 1:
-                        flash(result)
-                        return render_template("registration.html")
+    Gender = form.get("NewGender", "").strip()
+    if Gender:
+        #checking if the gender is one of the allowed
+        if Gender not in ("Male", "Female", "Other"):
+            return fail("NewGender", "Choose one of the options in the list")
+        good_fields["gender"] = Gender
 
-                if field == "NewDescription":
-                    #create validation for the description
-                    if len(x) > 500:
-                        message = "The description must be no longer than 500 characters"
-                        flash(message)
-                        return render_template("registration.html")
+    if photo:
+        #saving the photo file in the folder for the photos (with a unique name)
+        good_fields["photo"] = save_profile_photo(photo)
 
-                if field == "NewGender":
-                    #checking if the gender is one of the allowed
-                    Gender = ("Male", "Female", "Other")
-                    if x not in Gender:
-                        if x != "":
-                            message = "Select on of the appropriate genders"
-                            flash(message)
-                            return render_template("registration.html")
+    db.execute("INSERT INTO user (username, FirstName, LastName, birthday, email, hash, conn_token) VALUES(?, ?, ?, ?, ?, ?, ?)", Newusername, FirstName, LastName, Newbirthday, Newemail, NewPassword, Token)
+    user_id = db.execute("SELECT id FROM user WHERE username = ?", Newusername)[0]["id"]
+    #user_optional shares the id with user
+    db.execute("INSERT INTO user_optional (id, username) VALUES (?, ?)", user_id, Newusername)
+    for database_name, value in good_fields.items():
+        db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", database_name, value, user_id)
 
-                good_fields[db_name] = x
-
-        if photo != None:
-            #saving the photo file in the folder for the photos
-            path = os.path.join(BASE_DIR, os.path.join('static/profile_images', filename))
-            photo.save(path)
-
-        db.execute("INSERT INTO user_optional (username) VALUES (?)", Newusername)
-        for database_name, value in good_fields.items():
-            db.execute("UPDATE user_optional SET ? = ? WHERE username = ?", database_name, value, Newusername)
-        db.execute("INSERT INTO user (username, FirstName, LastName, birthday, email, hash, conn_token) VALUES(?, ?, ?, ?, ?, ?, ?)", Newusername, FirstName, LastName, Newbirthday, Newemail, NewPassword, Token)
-
-        flash('Registered')
-        return redirect("/login")
+    flash(f"Welcome aboard, {FirstName}! Your account is ready — log in to get started", "success")
+    return redirect("/login")
 
 
 #route for changing the password of an user
@@ -491,262 +583,221 @@ def change():
      else:
         # Ensure Oldpassword was submitted
         if not request.form.get("Oldpassword"):
-            flash("must provide Oldpassword")
+            flash("Please enter your current password", "error")
             return redirect("/change")
         # Ensure Newpassword was submitted
         elif not request.form.get("Newpassword"):
-            flash("must provide Newpassword")
+            flash("Please enter a new password", "error")
             return redirect("/change")
 
         #Ensure password is composed of more than 8 alphanumerical characters
         passwordcheck = request.form.get("Newpassword").strip()
         result = password_check(passwordcheck)
         if result != 1:
-            flash(result)
+            flash(result, "error")
             return redirect("/change")
 
         rows = db.execute("SELECT * FROM user WHERE id = ?", session["user_id"])
         OldPassword = request.form.get("Oldpassword")
         if not check_password_hash(rows[0]["hash"], OldPassword):
-            message = "old password is not correct"
-            flash(message)
-            return render_template("change.html")
+            flash("Your current password isn't correct", "error")
+            return redirect("/change")
 
         NewPassword = generate_password_hash(request.form.get("Newpassword"))
         db.execute("UPDATE user SET hash = ? WHERE id = ?", NewPassword, session["user_id"])
 
-        flash('Password changed')
+        flash('Password updated', 'success')
         return redirect("/")
 
+#loads the logged user's required and optional informations, with the phone split into prefix and number
+def load_profile(user_id):
+    informations = dict(db.execute("SELECT * FROM user WHERE id = ?", user_id)[0])
+    optional_informations = dict(db.execute("SELECT * FROM user_optional WHERE id = ?", user_id)[0])
+
+    phone_string = optional_informations.pop("number")
+    if phone_string:
+        optional_informations["prefix"], optional_informations["phone_number"] = split_phonenumber(phone_string)
+    else:
+        optional_informations["prefix"] = None
+        optional_informations["phone_number"] = None
+    return informations, optional_informations
+
 #route for showing all the informatins of an account when a user click on the /account link
-@app.route("/account", methods=["GET", "POST"])
+@app.route("/account", methods=["GET"])
 @login_required
 def account():
-    if request.method == "GET":
-        informations = dict(db.execute("SELECT * FROM user WHERE id = ?", session["user_id"])[0])
-        optional_informations = dict(db.execute("SELECT * FROM user_optional WHERE id = ?", session["user_id"])[0])
+    informations, optional_informations = load_profile(session["user_id"])
 
-        phone_string = optional_informations["number"]
-        if phone_string != None:
-            del optional_informations["number"]
-            optional_informations["prefix"], optional_informations["phone_number"] = split_phonenumber(phone_string)
-        else:
-            del optional_informations["number"]
-            optional_informations["prefix"] = None
-            optional_informations["phone_number"] = None
+    optional_keys = ["photo", "phone_number", "nation", "city", "description", "gender"]
+    missing = [key for key in optional_keys if not optional_informations.get(key)]
+    completeness = round(100 * (len(optional_keys) - len(missing)) / len(optional_keys))
 
-        counter = 0
-        for key, value in optional_informations.items():
-            if value == None:
-                counter += 1
-
-        return render_template("account.html", informations= informations, optional_informations=optional_informations, counter=counter)
+    return render_template(
+        "account.html",
+        informations=informations,
+        optional_informations=optional_informations,
+        photo_url=avatar_url(optional_informations.get("photo")),
+        user_initials=initials(informations["FirstName"], informations["LastName"], informations["username"]),
+        friends_count=len(get_friends(session["user_id"])),
+        missing=missing,
+        completeness=completeness,
+    )
 
 #app route for deleting some optional user informations
 @app.route("/delete_information", methods=["POST"])
 @login_required
 def del_informations():
-            campo = request.form.get("field")
-            if campo != None:
-                if campo != "photo" and campo != "phone_number" and campo != "nation":
-                    db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", campo, None, session["user_id"])
-                elif campo == 'photo':
-                    photo = db.execute("SELECT * FROM user_optional WHERE id = ?", session["user_id"])[0][campo]
-                    path = os.path.join(BASE_DIR, f'static/profile_images/{photo}')
-                    os.remove(path)
-                    db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", campo, None, session["user_id"])
-                elif campo == 'phone_number':
-                    db.execute("UPDATE user_optional SET number = ? WHERE id = ?", None, session["user_id"])
-                elif campo == 'nation':
-                    db.execute("UPDATE user_optional SET nation = ?, city = ? WHERE id = ?", None, None, session["user_id"])
-            return redirect("/account")
+    campo = request.form.get("field")
+    labels = {"photo": "Profile photo", "phone_number": "Phone number", "nation": "Country and city",
+              "city": "City", "description": "Bio", "gender": "Gender"}
+    if campo not in labels:
+        flash("That field can't be removed", "error")
+        return redirect("/account")
+
+    if campo == 'photo':
+        photo = db.execute("SELECT photo FROM user_optional WHERE id = ?", session["user_id"])[0]["photo"]
+        delete_profile_photo(photo)
+        db.execute("UPDATE user_optional SET photo = NULL WHERE id = ?", session["user_id"])
+    elif campo == 'phone_number':
+        db.execute("UPDATE user_optional SET number = NULL WHERE id = ?", session["user_id"])
+    elif campo == 'nation':
+        db.execute("UPDATE user_optional SET nation = NULL, city = NULL WHERE id = ?", session["user_id"])
+    else:
+        db.execute("UPDATE user_optional SET ? = NULL WHERE id = ?", campo, session["user_id"])
+
+    flash(f"{labels[campo]} removed", "success")
+    return redirect(request.form.get("next") or "/account")
 
 
 #app route for changing the user informations, or adding new ones
 @app.route("/change_informations", methods=["GET", "POST"])
 @login_required
 def informations():
+    user_id = session["user_id"]
+    informations, optional_informations = load_profile(user_id)
+
+    def render(form=None, errors=None, status=200):
+        return render_template(
+            "informations.html",
+            informations=informations,
+            optional_informations=optional_informations,
+            photo_url=avatar_url(optional_informations.get("photo")),
+            user_initials=initials(informations["FirstName"], informations["LastName"], informations["username"]),
+            form=form or {},
+            errors=errors or {},
+        ), status
+
     if request.method == "GET":
-        informations = dict(db.execute("SELECT * FROM user WHERE id = ?", session["user_id"])[0])
-        optional_informations = dict(db.execute("SELECT * FROM user_optional WHERE id = ?", session["user_id"])[0])
+        return render()
 
-        phone_string = optional_informations["number"]
-        if phone_string != None:
-            del optional_informations["number"]
-            optional_informations["prefix"], optional_informations["phone_number"] = split_phonenumber(phone_string)
-        else:
-            del optional_informations["number"]
-            optional_informations["prefix"] = None
-            optional_informations["phone_number"] = None
+    form = request.form
 
-        return render_template("informations.html", informations=informations.items(), optional_informations=optional_informations.items(), gender=optional_informations.get('gender'))
-    else:
-        informations = db.execute("SELECT * FROM user WHERE id = ?", session["user_id"])[0].items()
-        optional_informations = db.execute("SELECT * FROM user_optional WHERE id = ?", session["user_id"])[0]
+    #re-render the form keeping what the user typed and showing the message next to the wrong field
+    def fail(field, message):
+        flash("Please fix the highlighted field", "error")
+        return render(form, {field: message}, 400)
 
+    # Form validation
+    required_fields = {
+        "username": "a username",
+        "FirstName": "your first name",
+        "LastName": "your last name",
+        "birthday": "your birthday",
+        "email": "your email"
+    }
+    for field, name in required_fields.items():
+        if not form.get(field, "").strip():
+            return fail(field, f"Please enter {name}")
 
-        # Form validation
-        required_fields = {
-            "username": "username",
-            "FirstName": "first name",
-            "LastName": "last name",
-            "birthday": "birthday",
-            "email": "email"
-        }
-        for field, name in required_fields.items():
-            if not request.form.get(field):
-                message = f"must provide {name}"
-                flash(message)
-                return redirect("/change_informations")
+    Newusername = form.get("username").strip()
+    #Ensure username is not composed of special characters
+    if not re.fullmatch(r'[A-Za-z0-9_-]{3,30}', Newusername):
+        return fail("username", "Use 3–30 letters, numbers, hyphens or underscores")
 
-        #Ensure username is not composed of special characters
-        if not re.fullmatch(r'[A-Za-z0-9_-]+', request.form.get("username").strip()):
-            message = "the username cannot have special characters, only hyphens and underscores are allowed"
-            flash(message)
-            return redirect("/change_informations")
+    # Validate specific field formats
+    if not form.get("FirstName").strip().isalpha():
+        return fail("FirstName", "Use letters only")
+    if not form.get("LastName").strip().isalpha():
+        return fail("LastName", "Use letters only")
 
-        # Validate specific field formats
-        if not request.form.get("FirstName").strip().isalpha():
-            message = "provide an appropriate first name"
-            flash(message)
-            return redirect("/change_informations")
+    #Ensure username is not already in the database
+    if db.execute("SELECT 1 FROM user WHERE username = ? AND id != ?", Newusername, user_id):
+        return fail("username", "This username is already taken — try another one")
 
-        if not request.form.get("LastName").strip().isalpha():
-            message = "provide an appropriate last name"
-            flash(message)
-            return redirect("/change_informations")
+    Newemail = form.get("email").strip()
+    result = email_check(Newemail)
+    if result != 1:
+        return fail("email", result)
 
-        #Ensure username is not already in the database
-        username_check = db.execute("SELECT * FROM user WHERE username = (?) AND NOT id = (?)", request.form.get("username").strip(), session["user_id"])
-        if username_check:
-            message = "username already registered"
-            flash(message)
-            return redirect("/change_informations")
+    #Ensure email is not already in the database
+    if db.execute("SELECT 1 FROM user WHERE email = ? AND id != ?", Newemail, user_id):
+        return fail("email", "Another account already uses this email")
 
-        #Ensure email is not already in the database
-        email_checking = db.execute("SELECT * FROM user WHERE email = (?) AND NOT id = (?)", request.form.get("email").strip(), session["user_id"])
-        if email_checking:
-            message = "email already registered"
-            flash(message)
-            return redirect("/change_informations")
+    Newbirthday = form.get("birthday").strip()
+    result = birthday_check(Newbirthday)
+    if result != 1:
+        return fail("birthday", result)
 
-        result = email_check(request.form.get("email"))
+    FirstName = form.get("FirstName").strip().lower().capitalize()
+    LastName = form.get("LastName").strip().lower().capitalize()
+
+    #optional fields: an empty field is stored as None
+    good_fields = {"username": Newusername}
+
+    Nation = form.get("nation", "").strip().lower()
+    if Nation and nation_check(Nation) != 1:
+        return fail("nation", "Pick a country from the suggestions")
+    good_fields["nation"] = Nation or None
+
+    City = form.get("city", "").strip().lower()
+    if City:
+        if not Nation:
+            return fail("city", "Choose a country first, then your city")
+        if city_check(City, Nation) != 1:
+            return fail("city", f"Pick a city in {Nation.title()} from the suggestions")
+    good_fields["city"] = City or None
+
+    Number = form.get("phone_number", "").strip()
+    if Number:
+        Prefix = form.get("prefix", "").strip()
+        if not Prefix:
+            return fail("prefix", "Add the country prefix for your number (e.g. +39)")
+        Number = Prefix + " " + Number.replace('-', ' ')
+        result = number_check(Number, session)
         if result != 1:
-            # Assuming the apology returns a tuple (error, status_code)
-            flash(result)
-            return redirect("/change_informations")
+            return fail("phone_number", result)
+    good_fields["number"] = Number or None
 
-        result = birthday_check(request.form.get("birthday"))
-        if result != 1:
-            # Assuming the apology returns a tuple (error, status_code)
-            flash(result)
-            return redirect("/change_informations")
+    Description = form.get("description", "").strip()
+    if len(Description) > 500:
+        return fail("description", f"Your bio is {len(Description)} characters — the limit is 500")
+    good_fields["description"] = Description or None
 
-        Newusername = request.form.get("username").strip()
-        Newbirthday = request.form.get("birthday").strip()
-        Newemail = request.form.get("email").strip()
-        FirstName = request.form.get("FirstName").strip().capitalize()
-        LastName = request.form.get("LastName").strip().capitalize()
+    Gender = form.get("gender", "").strip()
+    if Gender and Gender not in ("Male", "Female", "Other"):
+        return fail("gender", "Choose one of the options in the list")
+    good_fields["gender"] = Gender or None
 
-        #initializing some values for the optional fields management
-        good_fields = dict()
-        photo = None
-        filename = None
+    #the photo is replaced only when a new one is uploaded, and removed only when explicitly asked
+    old_photo = optional_informations.get("photo")
+    photo = request.files.get("photo")
+    if photo and photo.filename:
+        result = validate_profile_photo(photo)
+        if result:
+            return fail("photo", result)
+        good_fields["photo"] = save_profile_photo(photo)
+        delete_profile_photo(old_photo)
+    elif form.get("remove_photo") == "1":
+        good_fields["photo"] = None
+        delete_profile_photo(old_photo)
 
-        optional_fields = {
-            "phone_number": "number",
-            "prefix": "prefix",
-            "nation": "nation",
-            "city": "city",
-            "description": "description",
-            "photo": "photo",
-            "gender": "gender"
-        }
-        for field, db_name in optional_fields.items():
-            #validate the photo user input
-            if field == "photo":
-                photo = request.files.get("photo", None)
-                if photo:
-                    if photo.mimetype not in ['image/jpeg', 'image/png', 'image/heic']:
-                        message = "Invalid file type detected"
-                        flash(message)
-                        return redirect("/change_informations")
-                    filename = secure_filename(photo.filename)
-                else:
-                    filename = None
-                if filename != None:
-                    good_fields["photo"] = filename
+    for database_name, value in good_fields.items():
+        db.execute("UPDATE user_optional SET ? = ? WHERE id = ?", database_name, value, user_id)
 
-            elif not request.form.get(field):
-                #if the form of this specific field is empty, the value in the database will be None
-                x = None
-            else:
-                x = request.form.get(field).strip()
-                if field == "nation":
-                    #create validation for the nation (check against list)
-                    Nation = x.lower()
-                    result = nation_check(Nation)
-                    if result != 1:
-                        # Assuming the apology returns a tuple (error, status_code)
-                        flash(result)
-                        return redirect("/change_informations")
-                if field == "city":
-                    #create validation for the city (check against list)
-                    City = x.lower()
-                    Nation = request.form.get("nation").lower()
-                    result = city_check(City, Nation)
-                    if result != 1:
-                        # Assuming the apology returns a tuple (error, status_code)
-                        flash(result)
-                        return redirect("/change_informations")
+    db.execute("UPDATE user SET username = ?, FirstName = ?, LastName = ?, birthday = ?, email = ? WHERE id = ?", Newusername, FirstName, LastName, Newbirthday, Newemail, user_id)
 
-                if field == "prefix":
-                    continue
-
-                if field == "phone_number":
-                    #create validation for the number
-                    x = x.replace('-', ' ')
-                    Prefix = request.form.get("prefix").strip()
-                    if not Prefix:
-                        flash("you need to select a prefix")
-                        return render_template("registration.html")
-                    Nation = request.form.get("nation").strip()
-                    x = Prefix + " " + x
-                    result = number_check(x, session)
-                    if result != 1:
-                        # Assuming the apology returns a tuple (error, status_code)
-                        flash(result)
-                        return redirect("/change_informations")
-
-                if field == "description":
-                    #create validation for the description
-                    if len(x) > 500:
-                        message = "The description must be no longer than 500 characters"
-                        flash(message)
-                        return redirect("/change_informations")
-
-                if field == "gender":
-                    Gender = ("Male", "Female", "Other")
-                    if x not in Gender:
-                        if x != "":
-                            message = "Select on of the appropriate genders"
-                            flash(message)
-                            return redirect("/change_informations")
-
-                good_fields[db_name] = x
-
-        if photo != None:
-            if filename != None:
-                path = os.path.join(BASE_DIR, 'static/profile_images')
-                photo.save(os.path.join(path, filename))
-
-        for database_name, value in good_fields.items():
-            db.execute("UPDATE user_optional SET ? = ? WHERE username = ?", database_name, value, Newusername)
-
-        db.execute("UPDATE user SET username = ?, FirstName = ?, LastName = ?, birthday = ?, email = ? WHERE id = ?", Newusername, FirstName, LastName, Newbirthday, Newemail, session["user_id"])
-
-
-        return redirect("/account")
+    flash("Profile updated", "success")
+    return redirect("/account")
 
 """
 
@@ -770,7 +821,7 @@ def password():
     try:
         check = db.execute("SELECT * FROM user WHERE email = ?", email)[0]
     except IndexError:
-        flash("The email doesn't correspond to any user in the database")
+        flash("We couldn't find an account with that email", "error")
         return redirect("/login")
 
     user_id = check["id"]
@@ -793,12 +844,12 @@ def password():
 
         # Send the email
         mail.send(msg)
-        flash("Email sent successfully!")
+        flash("Check your inbox — we've sent you a reset link", "success")
         return redirect("/login")
 
     except Exception as e:
         print(e)
-        flash("Error into sending the email")
+        flash("We couldn't send the email right now — please try again later", "error")
         return redirect("/login")
 
 #app route for the link that is send when the user try to retrieve is password
@@ -812,19 +863,20 @@ def reset_password(token):
         password2 = request.form.get("password2").strip()
 
         if not password1 or not password2:
-            flash("you need to fill all the fields")
+            flash("Please fill in both password fields", "error")
             db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
             return redirect(f"/reset_password/{token}")
 
         if password1 != password2:
-            flash("you need to repeat the exact same password twice")
+            flash("The two passwords don't match", "error")
             db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
             return redirect(f"/reset_password/{token}")
 
         result = password_check(password1)
         if result != 1:
-            flash(result)
-            return render_template(f"/reset_password/{token}")
+            flash(result, "error")
+            db.execute("UPDATE passwordLinks SET is_used = FALSE WHERE token = ?", token)
+            return redirect(f"/reset_password/{token}")
         password1 = generate_password_hash(password1)
 
         # Update user's password in the database
@@ -835,16 +887,14 @@ def reset_password(token):
     link = db.execute("SELECT * FROM passwordLinks WHERE token = ?", token)[0]
 
     timestamp = datetime.strptime(link["expiration"], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)  # Make timestamp aware
-    print(timestamp)
     current_time = datetime.now(timezone.utc)
-    print(current_time)
     interval = current_time - timestamp
     if interval > timedelta(minutes=5):
-        flash("The selected link is expired")
+        flash("This reset link has expired — request a new one", "error")
         return redirect("/login")
 
     if link["is_used"] == 1:
-        flash("The selected link has been already used")
+        flash("This reset link was already used — request a new one", "error")
         return redirect("/login")
 
     db.execute("UPDATE passwordLinks SET is_used = TRUE WHERE token = ?", token)
@@ -864,70 +914,54 @@ END PASSWORD RESET AREA
 @login_required
 def friends():
     if request.method == "GET":
-        table = []
-        counter = 0
-        informations = db.execute("SELECT * FROM connections WHERE id1 = ?" , session['user_id'])
-        for value in informations:
-            connection =  {
-                'counter': counter,
-                'timestamp': value['timestamp'],
-                'username': db.execute("SELECT username FROM user WHERE id = ?", value['id2'])[0]['username']
-            }
-            table.append(connection)
-            counter += 1
+        friends = get_friends(session["user_id"])
+        for friend in friends:
+            friend["avatar"] = avatar_url(friend["photo"])
+            friend["initials"] = initials(friend["FirstName"], friend["LastName"], friend["username"])
+            friend["shared_events"] = db.execute(
+                "SELECT COUNT(*) AS n FROM eventsConnections a JOIN eventsConnections b ON a.event_id = b.event_id WHERE a.user = ? AND b.user = ?",
+                session["user_id"], friend["id"]
+            )[0]["n"]
+        my_token = db.execute("SELECT conn_token FROM user WHERE id = ?", session["user_id"])[0]["conn_token"]
+        return render_template("friends.html", friends=friends, my_token=my_token)
 
-        informations = db.execute("SELECT * FROM connections WHERE id2 = ?", session['user_id'])
-        for value in informations:
-            connection = {
-                'counter': counter,
-                'timestamp': value['timestamp'],
-                'username': db.execute("SELECT username FROM user WHERE id = ?", value['id1'])[0]['username']
-            }
-            table.append(connection)
-            counter += 1
-
-        return render_template("friends.html", table=table)
-    else:
-        if not request.form.get("token"):
-            message = "please provide a token"
-            flash(message)
-            return redirect("/friends")
-
-        token = request.form.get("token")
-
-        try:
-            user = db.execute("SELECT * FROM user WHERE conn_token = ?", token)[0]
-        except IndexError:
-            message = "There are no user with this token"
-            flash(message)
-            return redirect("/friends")
-
-        if user["id"] == session['user_id']:
-            message = "You can't insert your own token"
-            flash(message)
-            return redirect("/friends")
-
-        rows = db.execute(
-            "SELECT * FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)",
-            user["id"], session['user_id'], session['user_id'], user["id"]
-        )
-
-        if len(rows) > 0:
-            message = "You and this user are already friend"
-            flash(message)
-            return redirect("/friends")
-
-        db.execute("INSERT INTO connections (id1, id2) VALUES(?, ?)", session['user_id'], user["id"])
-        flash("new friend added!!")
+    token = request.form.get("token", "").strip()
+    if not token:
+        flash("Paste your friend's connection token to add them", "error")
         return redirect("/friends")
+
+    rows = db.execute("SELECT * FROM user WHERE conn_token = ?", token)
+    if not rows:
+        flash("No one has this token — double-check it and try again", "error")
+        return redirect("/friends")
+    user = rows[0]
+
+    if user["id"] == session['user_id']:
+        flash("That's your own token — share it with friends so they can add you", "info")
+        return redirect("/friends")
+
+    rows = db.execute(
+        "SELECT * FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)",
+        user["id"], session['user_id'], session['user_id'], user["id"]
+    )
+    if len(rows) > 0:
+        flash(f"You and {user['username']} are already friends", "info")
+        return redirect("/friends")
+
+    db.execute("INSERT INTO connections (id1, id2) VALUES(?, ?)", session['user_id'], user["id"])
+    flash(f"{user['FirstName'] or user['username']} is now your friend!", "success")
+    return redirect("/friends")
 
 #app.py route for eliminating a friendship
 @app.route("/destroy", methods=["POST"])
 @login_required
 def destroy():
     username = request.form.get("username")
-    id_user = db.execute("SELECT * FROM user WHERE username = ?", username)[0]['id']
-    db.execute("DELETE FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)", id_user, session['user_id'], session['user_id'], id_user)
+    rows = db.execute("SELECT * FROM user WHERE username = ?", username)
+    if rows:
+        id_user = rows[0]['id']
+        db.execute("DELETE FROM connections WHERE (id1 = ? AND id2 = ?) OR (id1 = ? AND id2 = ?)", id_user, session['user_id'], session['user_id'], id_user)
+        flash(f"{username} removed from your friends", "success")
     return redirect("/friends")
 
 @app.route("/delete", methods=["POST"])
@@ -939,19 +973,10 @@ def delete_user():
     db.execute("DELETE FROM connections WHERE (id1 = ?) OR (id2 = ?)", session['user_id'], session['user_id'])
 
 
-    # Define the path to the photo
-    path = os.path.join(BASE_DIR, f"static/profile_images/{photo_profile}")
-    file_path = path
-
-    # Check if the file exists
-    if os.path.exists(file_path):
-        # Delete the file
-        os.remove(file_path)
-        print(f"File {file_path} has been deleted.")
-    else:
-        print(f"File {file_path} does not exist.")
+    delete_profile_photo(photo_profile)
 
     session.clear()
+    flash("Your account has been deleted", "info")
     return redirect("/login")
 
 @app.route('/addEvent', methods=['POST'])
@@ -1235,10 +1260,10 @@ def getBase64():
         if image == image_path:
             path = os.path.join(BASE_DIR, image)
             with open(path, 'rb') as f:
-                image_type = imghdr.what(f)
+                image_type = mimetypes.guess_type(path)[0] or "image/jpeg"
                 image_data = f.read()
                 base64_image = base64.b64encode(image_data).decode('utf-8')
-                base64_image = f"data:image/{image_type};base64,{base64_image}"
+                base64_image = f"data:{image_type};base64,{base64_image}"
 
     return jsonify({"base64": base64_image})
 

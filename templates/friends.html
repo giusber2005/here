@@ -1,77 +1,72 @@
 {% extends "root.html" %}
+{% from "_macros.html" import avatar %}
 
 {% block title %}Friends{% endblock %}
 
 {% block main %}
-<div style="text-align:left;">
-    <h1 class="auth-title mb-4">Friends</h1>
+<div class="text-start">
+    <header class="page-header">
+        <h1 class="auth-title mb-1">Friends</h1>
+        <p class="text-muted mb-0">{{ friends | length }} connection{{ '' if friends | length == 1 else 's' }} · add friends to invite them to your events</p>
+    </header>
 
     <div class="friends-layout">
-
-        {% if table | length == 0 %}
-            <p class="text-muted">No friends yet. Add someone using their unique token below!</p>
-        {% else %}
-            <div class="table-responsive shadow-sm rounded-3" style="max-width:600px; width:100%;">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Friend</th>
-                            <th>Connected since</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for key in table %}
-                            <tr>
-                                <td>{{ key.username }}</td>
-                                <td>{{ key.timestamp }}</td>
-                                <td>
-                                    <div class="d-inline-flex align-items-center gap-2">
-                                        <button class="btn btn-danger btn-sm"
-                                                data-bs-toggle="collapse"
-                                                data-bs-target="#confirm-{{ key.username }}">
-                                            Remove
-                                        </button>
-                                        <div id="confirm-{{ key.username }}" class="collapse">
-                                            <form action="/destroy" method="post" class="d-inline-flex gap-1 align-items-center">
-                                                <input type="hidden" value="{{ key.username }}" name="username">
-                                                <span class="text-muted me-1" style="font-size:.8rem">Sure?</span>
-                                                <button class="btn btn-danger btn-sm" type="submit">Yes</button>
-                                                <button class="btn btn-secondary btn-sm" type="button"
-                                                        data-bs-toggle="collapse"
-                                                        data-bs-target="#confirm-{{ key.username }}">No</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-
-        <!-- Add Friend -->
-        <div class="card shadow-sm" style="max-width:420px; width:100%;">
-            <div class="card-header">
-                <h5 class="card-title">Add a Friend</h5>
-            </div>
-            <div class="card-body">
-                <form action="/friends" method="post">
-                    <div class="mb-3">
-                        <label for="token" class="form-label">Connection token</label>
-                        {% if message and field == "token" %}
-                            <div class="text-danger mb-1" style="font-size:.875rem">{{ message }}</div>
-                            <input autocomplete="off" autofocus class="form-control is-invalid" id="token" name="token" placeholder="Paste token here" type="text">
-                        {% else %}
-                            <input autocomplete="off" autofocus class="form-control" id="token" name="token" placeholder="Paste token here" type="text">
-                        {% endif %}
-                    </div>
-                    <button class="btn btn-primary" type="submit">Add Friend</button>
-                </form>
-            </div>
+        <div class="friends-main">
+            {% if friends %}
+                <div class="friend-grid">
+                    {% for friend in friends %}
+                        <article class="card friend-card">
+                            {{ avatar(friend.avatar, friend.initials, "lg") }}
+                            <div class="friend-card-info">
+                                <div class="fw-semibold">{{ friend.FirstName }} {{ friend.LastName }}</div>
+                                <div class="small text-muted">@{{ friend.username }}{% if friend.city %} · {{ friend.city | title }}{% endif %}</div>
+                                <div class="small text-muted">
+                                    {{ friend.shared_events }} shared event{{ '' if friend.shared_events == 1 else 's' }} · friends since {{ friend.since[:10] }}
+                                </div>
+                            </div>
+                            <div class="friend-card-actions">
+                                <button class="icon-btn" data-bs-toggle="collapse" data-bs-target="#confirm-{{ loop.index }}"
+                                        aria-label="Remove {{ friend.username }}" title="Remove friend">&times;</button>
+                            </div>
+                            <div id="confirm-{{ loop.index }}" class="collapse friend-card-confirm">
+                                <form action="/destroy" method="post" class="d-flex gap-2 align-items-center">
+                                    <input type="hidden" value="{{ friend.username }}" name="username">
+                                    <span class="small me-auto">Remove {{ friend.FirstName or friend.username }} from friends?</span>
+                                    <button class="btn btn-danger btn-sm m-0" type="submit">Remove</button>
+                                    <button class="btn btn-secondary btn-sm m-0" type="button" data-bs-toggle="collapse" data-bs-target="#confirm-{{ loop.index }}">Cancel</button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state card">
+                    <div class="empty-state-icon" aria-hidden="true">👋</div>
+                    <h2 class="h5">No friends yet</h2>
+                    <p class="text-muted mb-0">Share your token with someone, or paste theirs on the right to connect.</p>
+                </div>
+            {% endif %}
         </div>
 
+        <aside class="friends-side">
+            <section class="card card-body">
+                <h2 class="card-title mb-1">Add a friend</h2>
+                <p class="small text-muted">Ask your friend for their connection token (it's on their profile page).</p>
+                <form action="/friends" method="post" class="d-flex gap-2">
+                    <input autocomplete="off" class="form-control" id="token" name="token" placeholder="Paste token here" type="text" required aria-label="Friend's connection token">
+                    <button class="btn btn-primary m-0" type="submit">Add</button>
+                </form>
+            </section>
+
+            <section class="card card-body">
+                <h2 class="card-title mb-1">Your token</h2>
+                <p class="small text-muted">Share it so others can add you.</p>
+                <div class="token-row">
+                    <code class="token">{{ my_token }}</code>
+                    <button type="button" class="btn btn-secondary btn-sm m-0" data-copy="{{ my_token }}">Copy</button>
+                </div>
+            </section>
+        </aside>
     </div>
 </div>
 {% endblock %}
